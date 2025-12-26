@@ -4,11 +4,11 @@
 // CONFIG
 /////////////////////////
 
-const SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
 
 // Search provider (pick ONE)
-const SEARCH_BASE = "https://duckduckgo.com/?q=";
+const SEARCH_BASE = "www.pornhub.com/video/search?search=";
 // const SEARCH_BASE = "https://www.google.com/search?q=";
 // const SEARCH_BASE = "https://en.wikipedia.org/wiki/Special:Search?search=";
 
