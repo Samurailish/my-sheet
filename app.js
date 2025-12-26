@@ -21,7 +21,7 @@ const CUSTOM_KEY = "mySheet.customTemplate.v1";
 /***********************
  * SUPABASE
  ***********************/
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /***********************
  * HELPERS
@@ -301,17 +301,17 @@ async function saveSheet(id, data) {
 
   // If row exists, we keep the original created_at (not essential, but nicer)
   // So we attempt insert first, fallback to update.
-  const { error: insertErr } = await supabase.from("sheets").insert(payload);
+  const { error: insertErr } = await sb.from("sheets").insert(payload);
 
   if (insertErr) {
     // Try update (if it already exists)
-    const { error: updateErr } = await supabase.from("sheets").update({ data }).eq("id", id);
+    const { error: updateErr } = await sb.from("sheets").update({ data }).eq("id", id);
     if (updateErr) throw updateErr;
   }
 }
 
 async function loadSheet(id) {
-  const { data, error } = await supabase.from("sheets").select("data").eq("id", id).single();
+  const { data, error } = await sb.from("sheets").select("data").eq("id", id).single();
   if (error) throw error;
   return data?.data;
 }
