@@ -4,11 +4,15 @@
 const SUPABASE_URL = "https://kypkibudjjdnqlfdlkz.supabase.co";
 const SUPABASE_KEY = "sb_publishable_IxMULcAlPOyGlp-JDHxI-Q_lozJCUrG";
 
-// SINGLE client — no duplicates
-const db = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+// UMD bundle exposes global `supabase`
+if (!window.supabase) {
+  throw new Error("Supabase failed to load. Check the script tag in index.html.");
+}
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /********************************
- * DATA MODEL
+ * DATA
  ********************************/
 const DATA = [
   {
@@ -44,24 +48,21 @@ const STATES = ["fav", "like", "int", "no"];
 const LOCAL_KEY = "sheet_state_v1";
 
 /********************************
- * UTILITIES
+ * HELPERS
  ********************************/
-function qs(id) {
-  return document.getElementById(id);
+const qs = id => document.getElementById(id);
+
+function setStatus(msg) {
+  qs("status").textContent = msg || "";
 }
 
-function setStatus(text) {
-  const el = qs("status");
-  if (el) el.textContent = text || "";
-}
-
-function getShareIdFromPath() {
+function getShareId() {
   const parts = location.pathname.split("/").filter(Boolean);
   if (parts.length === 2 && parts[0] === "s") return parts[1];
   return null;
 }
 
-function loadLocalState() {
+function loadLocal() {
   try {
     return JSON.parse(localStorage.getItem(LOCAL_KEY)) || {};
   } catch {
@@ -69,7 +70,7 @@ function loadLocalState() {
   }
 }
 
-function saveLocalState(state) {
+function saveLocal(state) {
   localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
 }
 
@@ -80,7 +81,7 @@ function makeId(len = 12) {
 }
 
 /********************************
- * SUPABASE I/O
+ * SUPABASE IO
  ********************************/
 async function fetchSheet(id) {
   const { data, error } = await db
@@ -129,21 +130,20 @@ function render(state) {
       choices.className = "choices";
 
       STATES.forEach(val => {
-        const btn = document.createElement("div");
-        btn.className = "choice";
-        btn.dataset.val = val;
+        const dot = document.createElement("div");
+        dot.className = "choice";
+        dot.dataset.val = val;
 
-        if (state[key] === val) btn.classList.add("active");
+        if (state[key] === val) dot.classList.add("active");
 
-        btn.onclick = () => {
+        dot.onclick = () => {
           if (state[key] === val) delete state[key];
           else state[key] = val;
-
-          saveLocalState(state);
+          saveLocal(state);
           render(state);
         };
 
-        choices.appendChild(btn);
+        choices.appendChild(dot);
       });
 
       row.appendChild(label);
@@ -159,9 +159,9 @@ function render(state) {
  * MAIN
  ********************************/
 async function main() {
-  const shareId = getShareIdFromPath();
+  const shareId = getShareId();
 
-  // READ-ONLY shared view
+  // Shared read-only view
   if (shareId) {
     setStatus("Loading shared sheet…");
     try {
@@ -178,8 +178,8 @@ async function main() {
     return;
   }
 
-  // EDIT MODE
-  const state = loadLocalState();
+  // Normal edit mode
+  const state = loadLocal();
   render(state);
 
   qs("clearLocal").onclick = () => {
@@ -190,18 +190,15 @@ async function main() {
   };
 
   qs("getLink").onclick = async () => {
-    qs("getLink").disabled = true;
     setStatus("Saving…");
+    qs("getLink").disabled = true;
 
     try {
       const id = makeId();
-      const latest = loadLocalState();
-      await saveSheet(id, latest);
-
+      await saveSheet(id, loadLocal());
       const url = `${location.origin}/s/${id}`;
       qs("shareUrl").value = url;
       qs("shareUrl").select();
-
       setStatus("Saved. Share the link.");
     } catch (e) {
       console.error(e);
