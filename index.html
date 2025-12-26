@@ -20,7 +20,7 @@
     </div>
 
     <div class="actions">
-      <button id="customizeBtn" class="secondary">Customize</button>
+      <button id="customize" class="secondary">Customize</button>
       <button id="getLink">GET LINK</button>
       <button id="exportPng" class="secondary">Export PNG</button>
       <button id="exportPdf" class="secondary">Export PDF</button>
@@ -33,47 +33,16 @@
 
   <main class="sheet" id="sheet"></main>
 
-  <!-- Customize modal -->
-  <div id="modalBackdrop" class="modal-backdrop hidden"></div>
-  <div id="customizeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="customizeTitle">
-    <div class="modal-header">
-      <h2 id="customizeTitle">Customize</h2>
-      <button id="closeCustomize" class="icon-btn" aria-label="Close">✕</button>
-    </div>
-
-    <div class="modal-body">
-      <section class="modal-section">
-        <h3>Show / hide base categories</h3>
-        <div id="baseToggles" class="toggles"></div>
-      </section>
-
-      <section class="modal-section">
-        <h3>Add “My Stuff” category</h3>
-        <div class="row">
-          <input id="newCatName" placeholder="Category name (e.g., 'My Stuff')" />
-          <button id="addCat">Add</button>
-        </div>
-        <p class="hint">This doesn’t modify the base list. It adds your personal categories locally.</p>
-      </section>
-
-      <section class="modal-section">
-        <h3>My Stuff categories</h3>
-        <div id="customCats"></div>
-      </section>
-    </div>
-
-    <div class="modal-footer">
-      <button id="resetCustomize" class="secondary">Reset customization</button>
-      <button id="saveCustomize">Save</button>
-    </div>
-  </div>
-
-  <!-- libs -->
+  <!-- Supabase JS client (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- html2canvas for PNG export -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-  <!-- data + app -->
+  <!-- Your data FIRST -->
   <script src="sheetData.js"></script>
+
+  <!-- App LAST -->
   <script src="app.js"></script>
 </body>
 </html>
