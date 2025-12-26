@@ -4,7 +4,6 @@
 const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
 const SUPABASE_KEY = "sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
 
-
 if (!window.supabase) throw new Error("Supabase failed to load (check index.html script order).");
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -199,3 +198,57 @@ async function main() {
   if (shareId) {
     setStatus("Loading shared sheet…");
     try {
+      const shared = await fetchSheet(shareId);
+      render(shared, true);
+      el("shareUrl").value = location.href;
+
+      el("getLink").disabled = true;
+      el("clearLocal").disabled = true;
+
+      el("exportPng").onclick = exportPng;
+      el("exportPdf").onclick = exportPdf;
+
+      setStatus("Viewing shared sheet (read-only).");
+    } catch (e) {
+      console.error(e);
+      render({}, true);
+      setStatus("Invalid or missing sheet.");
+    }
+    return;
+  }
+
+  // Edit mode
+  const state = loadLocal();
+  render(state, false);
+
+  el("clearLocal").onclick = () => {
+    localStorage.removeItem(LOCAL_KEY);
+    render({}, false);
+    el("shareUrl").value = "";
+    setStatus("Local draft cleared.");
+  };
+
+  el("exportPng").onclick = exportPng;
+  el("exportPdf").onclick = exportPdf;
+
+  el("getLink").onclick = async () => {
+    setStatus("Saving…");
+    el("getLink").disabled = true;
+
+    try {
+      const id = makeId();
+      await saveSheet(id, loadLocal());
+      const url = `${location.origin}/s/${id}`;
+      el("shareUrl").value = url;
+      el("shareUrl").select();
+      setStatus("Saved. Share the link.");
+    } catch (e) {
+      console.error(e);
+      setStatus("Save failed: " + (e?.message || "Unknown error"));
+    } finally {
+      el("getLink").disabled = false;
+    }
+  };
+}
+
+main();
