@@ -6,11 +6,11 @@
   <title>My Sheet</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
 
+<body>
   <header class="top">
     <h1>My Sheet</h1>
-    <p class="sub">Pick what you like. Click <strong>GET LINK</strong> to generate a short share link.</p>
+    <p class="sub">Pick what you like. Click <b>GET LINK</b> to generate a short share link.</p>
 
     <div class="legend">
       <span class="dot fav"></span> Favorite
@@ -22,24 +22,27 @@
 
     <div class="actions">
       <button id="getLink">GET LINK</button>
-      <button id="clearLocal" class="secondary">Clear local</button>
+      <button id="exportPng" class="secondary">Export PNG</button>
+      <button id="exportPdf" class="secondary">Export PDF</button>
+      <button id="clearLocal" class="secondary" title="Clears your local draft (does not delete shared links)">Clear local</button>
     </div>
 
-    <input
-      id="shareUrl"
-      readonly
-      placeholder="Your share link will appear here"
-    />
-
+    <input id="shareUrl" readonly placeholder="Your share link will appear here" />
     <div id="status" class="status" aria-live="polite"></div>
   </header>
 
-  <main class="sheet" id="sheet"></main>
+  <main class="sheetGrid" id="sheet"></main>
 
-  <!-- IMPORTANT: Supabase UMD bundle FIRST -->
+  <!-- Supabase JS client (UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <!-- Your app code SECOND -->
-  <script src="app.js"></script>
 
+  <!-- Export PNG -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <!-- Your data definition -->
+  <script src="sheetData.js"></script>
+
+  <!-- App logic -->
+  <script src="app.js"></script>
 </body>
 </html>

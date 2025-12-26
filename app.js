@@ -4,56 +4,31 @@
 const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
 const SUPABASE_KEY = "sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
 
-// UMD bundle exposes global `supabase`
-if (!window.supabase) {
-  throw new Error("Supabase failed to load. Check the script tag in index.html.");
-}
 
+if (!window.supabase) throw new Error("Supabase failed to load (check index.html script order).");
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /********************************
- * DATA
+ * SHEET DATA
  ********************************/
-const DATA = [
-  {
-    section: "INTIMACY",
-    items: [
-      "Romance / Affection",
-      "Hugging",
-      "Kissing (body)",
-      "Kissing (mouth)",
-      "Spooning",
-      "Using real names",
-      "Sleepover",
-    ],
-  },
-  {
-    section: "CLOTHING",
-    items: [
-      "Clothed sex",
-      "Lingerie",
-      "Stockings",
-      "Heels",
-      "Leather",
-      "Latex",
-      "Uniform",
-      "Cosplay",
-      "Cross-dressing",
-      "Formal clothing",
-    ],
-  },
+const SHEET = window.SHEET_DEFINITION;
+if (!Array.isArray(SHEET) || SHEET.length === 0) {
+  throw new Error("SHEET_DEFINITION missing. Did sheetData.js load?");
+}
+
+const STATES = [
+  { id: "fav", label: "Favorite" },
+  { id: "like", label: "Like" },
+  { id: "int", label: "Interested" },
+  { id: "no", label: "No" },
 ];
 
-const STATES = ["fav", "like", "int", "no"];
-const LOCAL_KEY = "sheet_state_v1";
+const LOCAL_KEY = "sheet_state_v2";
 
-/********************************
- * HELPERS
- ********************************/
-const qs = id => document.getElementById(id);
+const el = (id) => document.getElementById(id);
 
 function setStatus(msg) {
-  qs("status").textContent = msg || "";
+  el("status").textContent = msg || "";
 }
 
 function getShareId() {
@@ -80,79 +55,138 @@ function makeId(len = 12) {
   return Array.from(bytes, b => (b % 36).toString(36)).join("");
 }
 
+function keyFor(sectionId, itemId, roleId) {
+  return `${sectionId}.${itemId}.${roleId}`;
+}
+
 /********************************
  * SUPABASE IO
  ********************************/
 async function fetchSheet(id) {
-  const { data, error } = await db
-    .from("sheets")
-    .select("data")
-    .eq("id", id)
-    .single();
-
+  const { data, error } = await db.from("sheets").select("data").eq("id", id).single();
   if (error) throw error;
   return data?.data || {};
 }
 
 async function saveSheet(id, state) {
-  const { error } = await db
-    .from("sheets")
-    .insert([{ id, data: state }]);
-
+  const { error } = await db.from("sheets").insert([{ id, data: state }]);
   if (error) throw error;
 }
 
 /********************************
  * RENDER
  ********************************/
-function render(state) {
-  const root = qs("sheet");
+function render(state, readOnly) {
+  const root = el("sheet");
   root.innerHTML = "";
 
-  DATA.forEach(sec => {
+  SHEET.forEach(sectionDef => {
     const section = document.createElement("section");
     section.className = "section";
 
-    const h2 = document.createElement("h2");
-    h2.textContent = sec.section;
-    section.appendChild(h2);
+    const header = document.createElement("div");
+    header.className = "sectionHeader";
 
-    sec.items.forEach(item => {
-      const key = `${sec.section}::${item}`;
+    const title = document.createElement("h2");
+    title.textContent = sectionDef.title;
+    header.appendChild(title);
 
+    const roleHeader = document.createElement("div");
+    roleHeader.className = "roleHeader";
+    sectionDef.roles.forEach(r => {
+      const pill = document.createElement("div");
+      pill.className = "rolePill";
+      pill.textContent = r.label;
+      roleHeader.appendChild(pill);
+    });
+    header.appendChild(roleHeader);
+
+    section.appendChild(header);
+
+    const rows = document.createElement("div");
+    rows.className = "rows";
+
+    sectionDef.items.forEach(item => {
       const row = document.createElement("div");
       row.className = "row";
 
-      const label = document.createElement("label");
-      label.textContent = item;
+      const label = document.createElement("div");
+      label.className = "rowLabel";
+      label.textContent = item.label;
 
-      const choices = document.createElement("div");
-      choices.className = "choices";
+      const roleCells = document.createElement("div");
+      roleCells.className = "roleCells";
 
-      STATES.forEach(val => {
-        const dot = document.createElement("div");
-        dot.className = "choice";
-        dot.dataset.val = val;
+      sectionDef.roles.forEach(role => {
+        const cell = document.createElement("div");
+        cell.className = "roleCell";
 
-        if (state[key] === val) dot.classList.add("active");
+        const k = keyFor(sectionDef.id, item.id, role.id);
 
-        dot.onclick = () => {
-          if (state[key] === val) delete state[key];
-          else state[key] = val;
-          saveLocal(state);
-          render(state);
-        };
+        STATES.forEach(s => {
+          const dot = document.createElement("button");
+          dot.className = `choiceDot ${s.id}`;
+          dot.type = "button";
+          dot.title = s.label;
 
-        choices.appendChild(dot);
+          if (state[k] === s.id) dot.classList.add("active");
+
+          dot.onclick = () => {
+            if (readOnly) return;
+
+            if (state[k] === s.id) delete state[k];
+            else state[k] = s.id;
+
+            saveLocal(state);
+            render(state, false);
+          };
+
+          cell.appendChild(dot);
+        });
+
+        roleCells.appendChild(cell);
       });
 
       row.appendChild(label);
-      row.appendChild(choices);
-      section.appendChild(row);
+      row.appendChild(roleCells);
+      rows.appendChild(row);
     });
 
+    section.appendChild(rows);
     root.appendChild(section);
   });
+}
+
+/********************************
+ * EXPORT PNG
+ ********************************/
+async function exportPng() {
+  const sheetEl = el("sheet");
+  setStatus("Rendering PNG…");
+  try {
+    const canvas = await html2canvas(sheetEl, { scale: 2, backgroundColor: "#ffffff" });
+    const url = canvas.toDataURL("image/png");
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "my-sheet.png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setStatus("PNG downloaded.");
+  } catch (e) {
+    console.error(e);
+    setStatus("PNG export failed. Check console.");
+  }
+}
+
+/********************************
+ * EXPORT PDF (print dialog)
+ ********************************/
+function exportPdf() {
+  setStatus("Opening print dialog… choose “Save as PDF”.");
+  window.print();
 }
 
 /********************************
@@ -161,52 +195,7 @@ function render(state) {
 async function main() {
   const shareId = getShareId();
 
-  // Shared read-only view
+  // Shared view (read-only)
   if (shareId) {
     setStatus("Loading shared sheet…");
     try {
-      const shared = await fetchSheet(shareId);
-      render(shared);
-      qs("shareUrl").value = location.href;
-      qs("getLink").disabled = true;
-      qs("clearLocal").disabled = true;
-      setStatus("Viewing shared sheet (read-only).");
-    } catch {
-      render({});
-      setStatus("Invalid or missing sheet.");
-    }
-    return;
-  }
-
-  // Normal edit mode
-  const state = loadLocal();
-  render(state);
-
-  qs("clearLocal").onclick = () => {
-    localStorage.removeItem(LOCAL_KEY);
-    render({});
-    qs("shareUrl").value = "";
-    setStatus("Local draft cleared.");
-  };
-
-  qs("getLink").onclick = async () => {
-    setStatus("Saving…");
-    qs("getLink").disabled = true;
-
-    try {
-      const id = makeId();
-      await saveSheet(id, loadLocal());
-      const url = `${location.origin}/s/${id}`;
-      qs("shareUrl").value = url;
-      qs("shareUrl").select();
-      setStatus("Saved. Share the link.");
-    } catch (e) {
-      console.error(e);
-      setStatus("Save failed. Check Supabase RLS policies.");
-    } finally {
-      qs("getLink").disabled = false;
-    }
-  };
-}
-
-main();
