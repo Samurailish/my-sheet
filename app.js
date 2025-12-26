@@ -1,7 +1,7 @@
 /********************************
  * SUPABASE CONFIG
  ********************************/
-const SUPABASE_URL = "https://kypkibudjjdnqlfdlkz.supabase.co";
+const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
 const SUPABASE_KEY = "sb_publishable_IxMULcAlPOyGlp-JDHxI-Q_lozJCUrG";
 
 // UMD bundle exposes global `supabase`
