@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -6,7 +6,6 @@
   <title>My Sheet</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
   <header class="top">
     <h1>My Sheet</h1>
@@ -21,6 +20,7 @@
     </div>
 
     <div class="actions">
+      <button id="customizeBtn" class="secondary">Customize</button>
       <button id="getLink">GET LINK</button>
       <button id="exportPng" class="secondary">Export PNG</button>
       <button id="exportPdf" class="secondary">Export PDF</button>
@@ -31,18 +31,49 @@
     <div id="status" class="status" aria-live="polite"></div>
   </header>
 
-  <main class="sheetGrid" id="sheet"></main>
+  <main class="sheet" id="sheet"></main>
 
-  <!-- Supabase JS client (UMD) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- Customize modal -->
+  <div id="modalBackdrop" class="modal-backdrop hidden"></div>
+  <div id="customizeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="customizeTitle">
+    <div class="modal-header">
+      <h2 id="customizeTitle">Customize</h2>
+      <button id="closeCustomize" class="icon-btn" aria-label="Close">✕</button>
+    </div>
 
-  <!-- Export PNG -->
+    <div class="modal-body">
+      <section class="modal-section">
+        <h3>Show / hide base categories</h3>
+        <div id="baseToggles" class="toggles"></div>
+      </section>
+
+      <section class="modal-section">
+        <h3>Add “My Stuff” category</h3>
+        <div class="row">
+          <input id="newCatName" placeholder="Category name (e.g., 'My Stuff')" />
+          <button id="addCat">Add</button>
+        </div>
+        <p class="hint">This doesn’t modify the base list. It adds your personal categories locally.</p>
+      </section>
+
+      <section class="modal-section">
+        <h3>My Stuff categories</h3>
+        <div id="customCats"></div>
+      </section>
+    </div>
+
+    <div class="modal-footer">
+      <button id="resetCustomize" class="secondary">Reset customization</button>
+      <button id="saveCustomize">Save</button>
+    </div>
+  </div>
+
+  <!-- libs -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-  <!-- Your data definition -->
+  <!-- data + app -->
   <script src="sheetData.js"></script>
-
-  <!-- App logic -->
   <script src="app.js"></script>
 </body>
 </html>
