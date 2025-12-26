@@ -2,7 +2,7 @@
  * SUPABASE CONFIG
  ********************************/
 const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
-const SUPABASE_KEY = "sb_publishable_IxMULcAlPOyGlp-JDHxI-Q_lozJCUrG";
+const SUPABASE_KEY = "sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
 
 // UMD bundle exposes global `supabase`
 if (!window.supabase) {
