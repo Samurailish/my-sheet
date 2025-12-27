@@ -220,3 +220,30 @@ button:disabled{opacity:.6; cursor:not-allowed}
   font-weight:800;
   margin-right:6px;
 }
+
+.helpBtn{
+  margin-left: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid #cfd6df;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+}
+.helpBtn:hover{
+  background: #f3f6fb;
+}
+
+.itemLabel{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.labelText{
+  display:inline-block;
+}
+

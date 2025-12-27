@@ -1,382 +1,399 @@
-/* global window, document, location, html2canvas */
-
-/////////////////////////
-// CONFIG
-/////////////////////////
-
+/********************************
+ * CONFIG
+ ********************************/
 const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
-const SUPABASE_KEY = "sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
+const SUPABASE_ANON_KEY = "sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
 
-// Search provider (pick ONE)
+/**
+ * Search provider: pick ONE.
+ * DuckDuckGo: https://duckduckgo.com/?q=
+ * Wikipedia: https://en.wikipedia.org/wiki/Special:Search?search=
+ */
 const SEARCH_BASE = "www.pornhub.com/video/search?search=";
-// const SEARCH_BASE = "https://www.google.com/search?q=";
-// const SEARCH_BASE = "https://en.wikipedia.org/wiki/Special:Search?search=";
 
-/////////////////////////
-// STORAGE KEYS
-/////////////////////////
-
+/********************************
+ * STORAGE KEYS
+ ********************************/
 const LOCAL_KEY = "mySheet.localDraft.v1";
 
-/////////////////////////
-// SUPABASE CLIENT
-/////////////////////////
+/********************************
+ * SUPABASE CLIENT
+ * IMPORTANT: do NOT redeclare `supabase`.
+ * The CDN exposes `window.supabase`.
+ ********************************/
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// IMPORTANT: using CDN => window.supabase exists
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/////////////////////////
-// HELPERS
-/////////////////////////
-
+/********************************
+ * HELPERS
+ ********************************/
 const el = (id) => document.getElementById(id);
 
 function setStatus(msg) {
   el("status").textContent = msg || "";
 }
 
-function openSearch(query) {
-  const q = encodeURIComponent(String(query || "").trim());
-  if (!q) return;
-  window.open(`${SEARCH_BASE}${q}`, "_blank", "noopener,noreferrer");
-}
-
-function getShareId() {
-  const p = new URLSearchParams(location.search);
-  return p.get("id") || "";
+function safeJsonParse(s, fallback) {
+  try { return JSON.parse(s); } catch { return fallback; }
 }
 
 function makeId() {
-  // short, url-safe
+  // short-ish random id
   return Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6);
 }
 
-function deepClone(x) {
-  return JSON.parse(JSON.stringify(x));
+function getShareIdFromUrl() {
+  // supports: /?id=XXXX or /XXXX
+  const u = new URL(window.location.href);
+  const q = u.searchParams.get("id");
+  if (q) return q;
+
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  if (parts.length === 1) return parts[0];
+  return null;
 }
 
-/////////////////////////
-// DATA MODEL
-/////////////////////////
-
-/**
- * State shape:
- * {
- *   meta: { customizedCategories?: ... },
- *   values: {
- *     [itemKey]: { [colKey]: "fav"|"like"|"int"|"no"|"" }
- *   }
- * }
- */
-
-function blankStateFromData(data) {
-  const s = { meta: {}, values: {} };
-
-  for (const cat of data) {
-    for (const sec of cat.sections) {
-      for (const itemLabel of sec.items) {
-        const itemKey = makeItemKey(cat.id, sec.title, itemLabel);
-        s.values[itemKey] = {};
-        for (const col of sec.columns) {
-          s.values[itemKey][col] = "";
-        }
-      }
-    }
-  }
-  return s;
+function openSearch(term) {
+  const q = encodeURIComponent(term);
+  window.open(SEARCH_BASE + q, "_blank", "noopener,noreferrer");
 }
 
-function makeItemKey(catId, secTitle, itemLabel) {
-  // stable-ish key
-  return `${catId}__${secTitle}__${itemLabel}`.replace(/\s+/g, " ").trim();
-}
+/********************************
+ * DATA
+ *
+ * sheetData.js must define:
+ *   window.SHEET_DATA = [
+ *     { title, description, columns, groups:[ { title, items:[{ label, key }] } ] }
+ *   ]
+ *
+ * columns:
+ *   - if omitted => single column (General)
+ *   - can be ["General"] or ["Self","Partner"] or ["Giving","Receiving"] etc
+ ********************************/
+const SHEET_DATA = window.SHEET_DATA || [];
 
+/********************************
+ * STATE
+ *
+ * We store selections as:
+ * selections[itemKey][colName] = one of: "fav" | "like" | "int" | "no" | "" (unset)
+ ********************************/
 function loadLocal() {
-  try {
-    const raw = localStorage.getItem(LOCAL_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  const raw = localStorage.getItem(LOCAL_KEY);
+  return safeJsonParse(raw, {});
 }
 
 function saveLocal(state) {
   localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
 }
 
-/////////////////////////
-// RENDER
-/////////////////////////
+let selections = loadLocal();
 
-const OPTIONS = [
-  { key: "fav", cls: "fav", label: "Favorite" },
-  { key: "like", cls: "like", label: "Like" },
-  { key: "int", cls: "int", label: "Interested" },
-  { key: "no", cls: "no", label: "No" },
-  { key: "", cls: "empty", label: "Unset" }
-];
+/********************************
+ * RENDERING
+ ********************************/
+const VALUE_ORDER = ["fav", "like", "int", "no", ""]; // "" is unset
+const VALUE_LABELS = {
+  fav: "Favorite",
+  like: "Like",
+  int: "Interested",
+  no: "No",
+  "": "Unset",
+};
 
-function makeItemLabelNode(labelText) {
-  const wrap = document.createElement("div");
-  wrap.className = "itemLabelWrap";
-
-  const label = document.createElement("span");
-  label.className = "itemLabel";
-  label.textContent = labelText;
-
-  const help = document.createElement("button");
-  help.className = "helpBtn";
-  help.type = "button";
-  help.textContent = "?";
-  help.title = `Search: ${labelText}`;
-  help.onclick = () => openSearch(labelText);
-
-  wrap.appendChild(label);
-  wrap.appendChild(help);
-  return wrap;
+function ensureItemState(itemKey, columns) {
+  if (!selections[itemKey]) selections[itemKey] = {};
+  for (const c of columns) {
+    if (typeof selections[itemKey][c] !== "string") selections[itemKey][c] = "";
+  }
 }
 
-function makePills(currentValue, onSet) {
-  const wrap = document.createElement("div");
-  wrap.className = "pills";
+function setValue(itemKey, col, value) {
+  ensureItemState(itemKey, [col]);
+  selections[itemKey][col] = value;
+  saveLocal(selections);
+}
 
-  for (const opt of OPTIONS) {
+function getValue(itemKey, col) {
+  return (selections[itemKey] && selections[itemKey][col]) || "";
+}
+
+function buildDots(itemKey, col) {
+  const wrap = document.createElement("div");
+  wrap.className = "dots";
+
+  for (const v of VALUE_ORDER) {
     const b = document.createElement("button");
     b.type = "button";
-    b.className = `pill ${opt.cls} ${currentValue === opt.key ? "selected" : ""}`;
-    b.title = opt.label;
-    b.onclick = () => onSet(opt.key);
+    b.className = "dotbtn " + (v === "" ? "empty" : v);
+    b.title = VALUE_LABELS[v];
+    b.setAttribute("aria-label", VALUE_LABELS[v]);
+
+    const cur = getValue(itemKey, col);
+    if (cur === v) b.classList.add("active");
+
+    b.onclick = () => {
+      // toggle: clicking the active option sets it back to unset
+      const current = getValue(itemKey, col);
+      const next = (current === v) ? "" : v;
+      setValue(itemKey, col, next);
+      // rerender only this row-cell group (fastest = rerender all for now)
+      renderSheet();
+    };
+
     wrap.appendChild(b);
   }
+
   return wrap;
 }
 
-function render(state, data) {
+function renderSheet() {
   const root = el("sheet");
   root.innerHTML = "";
 
-  for (const cat of data) {
+  for (const cat of SHEET_DATA) {
+    const columns = (cat.columns && cat.columns.length) ? cat.columns : ["General"];
+
+    // Card
     const card = document.createElement("section");
     card.className = "card";
 
     // Header
-    const header = document.createElement("div");
-    header.className = "cardHeader";
-
-    const left = document.createElement("div");
-    left.className = "cardHeaderLeft";
+    const head = document.createElement("div");
+    head.className = "cardHead";
 
     const h2 = document.createElement("h2");
-    h2.textContent = cat.title;
+    h2.textContent = cat.title || "Untitled";
 
     const desc = document.createElement("div");
-    desc.className = "desc";
+    desc.className = "cardDesc";
     desc.textContent = cat.description || "";
 
-    left.appendChild(h2);
-    if (cat.description) left.appendChild(desc);
+    head.appendChild(h2);
+    head.appendChild(desc);
 
-    const helpBtn = document.createElement("button");
-    helpBtn.className = "helpBtn";
-    helpBtn.type = "button";
-    helpBtn.textContent = "?";
-    helpBtn.title = `Search: ${cat.title}`;
-    helpBtn.onclick = () => openSearch(cat.title);
+    card.appendChild(head);
 
-    header.appendChild(left);
-    header.appendChild(helpBtn);
+    // Table
+    const table = document.createElement("div");
+    table.className = "table";
 
-    card.appendChild(header);
+    // Column header row (if more than 1 column)
+    const headerRow = document.createElement("div");
+    headerRow.className = "row headerRow";
 
-    // Sections
-    for (const sec of cat.sections) {
-      const secTitle = document.createElement("div");
-      secTitle.className = "sectionTitle";
-      secTitle.textContent = sec.title;
-      card.appendChild(secTitle);
+    const left = document.createElement("div");
+    left.className = "cell labelCell headerLabel";
+    left.textContent = columns.length === 1 ? "General" : "";
+    headerRow.appendChild(left);
 
-      const table = document.createElement("table");
-      table.className = "table";
+    const right = document.createElement("div");
+    right.className = "cell valueCell headerCols";
 
-      // header row
-      const thead = document.createElement("thead");
-      const trh = document.createElement("tr");
-
-      const thItem = document.createElement("th");
-      thItem.textContent = "";
-      trh.appendChild(thItem);
-
-      for (const col of sec.columns) {
-        const th = document.createElement("th");
-        th.textContent = col;
-        trh.appendChild(th);
+    if (columns.length > 1) {
+      for (const c of columns) {
+        const hc = document.createElement("div");
+        hc.className = "colHeader";
+        hc.textContent = c;
+        right.appendChild(hc);
       }
-
-      thead.appendChild(trh);
-      table.appendChild(thead);
-
-      // body rows
-      const tbody = document.createElement("tbody");
-
-      for (const itemLabel of sec.items) {
-        const tr = document.createElement("tr");
-
-        const itemKey = makeItemKey(cat.id, sec.title, itemLabel);
-
-        const tdLabel = document.createElement("td");
-        tdLabel.appendChild(makeItemLabelNode(itemLabel));
-        tr.appendChild(tdLabel);
-
-        for (const col of sec.columns) {
-          const td = document.createElement("td");
-          td.style.whiteSpace = "nowrap";
-
-          const v = (state.values[itemKey] && state.values[itemKey][col]) || "";
-
-          td.appendChild(
-            makePills(v, (newVal) => {
-              if (!state.values[itemKey]) state.values[itemKey] = {};
-              state.values[itemKey][col] = newVal;
-              saveLocal(state);
-              render(state, data);
-            })
-          );
-
-          tr.appendChild(td);
-        }
-
-        tbody.appendChild(tr);
-      }
-
-      table.appendChild(tbody);
-      card.appendChild(table);
+    } else {
+      // single column header
+      const hc = document.createElement("div");
+      hc.className = "colHeader";
+      hc.textContent = columns[0];
+      right.appendChild(hc);
     }
 
+    headerRow.appendChild(right);
+    table.appendChild(headerRow);
+
+    // Groups + items
+    for (const g of (cat.groups || [])) {
+      // group title row
+      const gr = document.createElement("div");
+      gr.className = "row groupRow";
+
+      const gl = document.createElement("div");
+      gl.className = "cell labelCell groupTitle";
+      gl.textContent = g.title || "";
+
+      const gv = document.createElement("div");
+      gv.className = "cell valueCell";
+
+      gr.appendChild(gl);
+      gr.appendChild(gv);
+      table.appendChild(gr);
+
+      for (const item of (g.items || [])) {
+        const itemKey = item.key || item.label;
+        ensureItemState(itemKey, columns);
+
+        const r = document.createElement("div");
+        r.className = "row itemRow";
+
+        const l = document.createElement("div");
+        l.className = "cell labelCell itemLabel";
+
+        // label + per-item ?
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "labelText";
+        labelSpan.textContent = item.label;
+
+        const helpBtn = document.createElement("button");
+        helpBtn.type = "button";
+        helpBtn.className = "helpBtn";
+        helpBtn.title = "Search this term";
+        helpBtn.textContent = "?";
+        helpBtn.onclick = () => openSearch(item.label);
+
+        l.appendChild(labelSpan);
+        l.appendChild(helpBtn);
+
+        const vcell = document.createElement("div");
+        vcell.className = "cell valueCell";
+
+        // columns of dots
+        for (const c of columns) {
+          const colWrap = document.createElement("div");
+          colWrap.className = "col";
+          colWrap.appendChild(buildDots(itemKey, c));
+          vcell.appendChild(colWrap);
+        }
+
+        r.appendChild(l);
+        r.appendChild(vcell);
+
+        table.appendChild(r);
+      }
+    }
+
+    card.appendChild(table);
     root.appendChild(card);
   }
 }
 
-/////////////////////////
-// SUPABASE SAVE/LOAD
-/////////////////////////
-
-async function saveSheet(id, payload) {
-  // table: public.sheets
-  // columns: id (text pk), data (jsonb), created_at (timestamp default now)
-  const { error } = await db.from("sheets").insert({ id, data: payload });
+/********************************
+ * SUPABASE SAVE/LOAD
+ *
+ * Table: public.sheets
+ * columns:
+ *   id text primary key
+ *   data jsonb not null
+ *   created_at timestamp default now()
+ ********************************/
+async function saveSheet(id, dataObj) {
+  // upsert: insert or update
+  const payload = { id, data: dataObj };
+  const { error } = await sb.from("sheets").upsert(payload, { onConflict: "id" });
   if (error) throw error;
 }
 
 async function loadSheet(id) {
-  const { data, error } = await db.from("sheets").select("data").eq("id", id).maybeSingle();
+  const { data, error } = await sb.from("sheets").select("data").eq("id", id).single();
   if (error) throw error;
-  return data ? data.data : null;
+  return data?.data || {};
 }
 
-/////////////////////////
-// EXPORTS
-/////////////////////////
-
+/********************************
+ * EXPORTS (these MUST reflect current UI state)
+ ********************************/
 async function exportPng() {
-  setStatus("Exporting PNG…");
-  const target = el("sheet");
+  setStatus("Rendering PNG...");
+  const sheetEl = el("sheet");
+
+  // Force a render so DOM matches current selections
+  renderSheet();
+
   try {
-    const canvas = await html2canvas(target, { backgroundColor: "#ffffff", scale: 2 });
+    const canvas = await window.html2canvas(sheetEl, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+    });
+
+    const url = canvas.toDataURL("image/png");
     const a = document.createElement("a");
+    a.href = url;
     a.download = "my-sheet.png";
-    a.href = canvas.toDataURL("image/png");
+    document.body.appendChild(a);
     a.click();
-    setStatus("PNG exported.");
+    a.remove();
+
+    setStatus("PNG downloaded.");
   } catch (e) {
     console.error(e);
-    setStatus("PNG export failed.");
+    setStatus("PNG export failed. Check console.");
   }
 }
 
 function exportPdf() {
-  setStatus("Opening print dialog…");
-  // Use browser print => user can "Save as PDF"
+  setStatus("Opening print dialog...");
+  // Ensure UI is current
+  renderSheet();
   window.print();
 }
 
-/////////////////////////
-// MAIN
-/////////////////////////
+/********************************
+ * CUSTOMIZE (placeholder for now)
+ ********************************/
+function openCustomize() {
+  alert("Customize UI is not implemented yet. Next step: edit sheetData.js or build an editor.");
+}
 
+/********************************
+ * MAIN
+ ********************************/
 async function main() {
-  const data = window.SHEET_DATA;
-  if (!Array.isArray(data) || data.length === 0) {
-    setStatus("No sheet data found. Check sheetData.js.");
-    return;
-  }
-
-  const shareId = getShareId();
-
-  // Shared view
-  if (shareId) {
-    setStatus("Loading shared sheet…");
-    try {
-      const payload = await loadSheet(shareId);
-      if (!payload) {
-        setStatus("Shared link not found.");
-        return;
-      }
-      // shared view read-only
-      el("getLink").disabled = true;
-      el("customize").disabled = true;
-      el("clearLocal").disabled = true;
-      el("shareUrl").value = location.href;
-      const state = payload;
-      render(state, data);
-      setStatus("Shared sheet loaded (read-only).");
-    } catch (e) {
-      console.error(e);
-      setStatus("Failed to load shared sheet.");
-    }
-    return;
-  }
-
-  // Local editable view
-  let state = loadLocal();
-  if (!state) state = blankStateFromData(data);
-
-  render(state, data);
-  setStatus("Ready.");
-
+  // Wire buttons
+  el("customizeBtn").onclick = openCustomize;
   el("exportPng").onclick = exportPng;
   el("exportPdf").onclick = exportPdf;
 
   el("clearLocal").onclick = () => {
     localStorage.removeItem(LOCAL_KEY);
-    state = blankStateFromData(data);
-    render(state, data);
+    selections = {};
+    el("shareUrl").value = "";
     setStatus("Local draft cleared.");
+    renderSheet();
   };
 
   el("getLink").onclick = async () => {
-    setStatus("Saving…");
+    setStatus("Saving...");
     el("getLink").disabled = true;
 
     try {
       const id = makeId();
-      await saveSheet(id, deepClone(state));
-      const url = `${location.origin}${location.pathname}?id=${id}`;
+      await saveSheet(id, selections);
+
+      const url = `${location.origin}/${id}`;
       el("shareUrl").value = url;
       el("shareUrl").select();
       setStatus("Saved. Share the link.");
     } catch (e) {
       console.error(e);
-      setStatus("Save failed. Check Supabase policies and URL/key.");
+      setStatus("Save failed: " + (e?.message || "Unknown error"));
     } finally {
       el("getLink").disabled = false;
     }
   };
 
-  // Customize button (v1 placeholder)
-  el("customize").onclick = () => {
-    setStatus("Customize UI is not implemented yet (v1).");
-  };
+  // Shared view?
+  const shareId = getShareIdFromUrl();
+  if (shareId) {
+    setStatus("Loading shared sheet...");
+    try {
+      selections = await loadSheet(shareId);
+      saveLocal(selections); // optional: cache it locally
+      setStatus("Loaded shared sheet.");
+    } catch (e) {
+      console.error(e);
+      setStatus("Load failed: " + (e?.message || "Unknown error"));
+    }
+  } else {
+    setStatus("");
+  }
+
+  renderSheet();
 }
 
 main();
