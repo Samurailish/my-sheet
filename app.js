@@ -1,159 +1,99 @@
-/********************************
+/* global window, html2canvas, jspdf */
+
+/***********************
  * CONFIG
- ********************************/
+ ***********************/
 const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
 
-/**
- * Search provider: pick ONE.
- * DuckDuckGo: https://duckduckgo.com/?q=
- * Wikipedia: https://en.wikipedia.org/wiki/Special:Search?search=
- */
+// Search provider base (not Google)
 const SEARCH_BASE = "www.pornhub.com/video/search?search=";
 
-/********************************
- * STORAGE KEYS
- ********************************/
+// Storage keys
 const LOCAL_KEY = "mySheet.localDraft.v1";
 
-/********************************
- * SUPABASE CLIENT
- * IMPORTANT: do NOT redeclare `supabase`.
- * The CDN exposes `window.supabase`.
- ********************************/
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Ratings in order
+const RATINGS = [
+  { key: "fav", css: "fav", label: "Favorite" },
+  { key: "like", css: "like", label: "Like" },
+  { key: "int", css: "int", label: "Interested" },
+  { key: "no", css: "no", label: "No" },
+  { key: "unset", css: "empty", label: "Unset" }
+];
 
-/********************************
+/***********************
+ * SUPABASE CLIENT
+ ***********************/
+function getSupabaseClient() {
+  if (!window.supabase) return null;
+  // Use a unique name so we never “redeclare supabase”
+  return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+/***********************
  * HELPERS
- ********************************/
+ ***********************/
 const el = (id) => document.getElementById(id);
 
 function setStatus(msg) {
   el("status").textContent = msg || "";
 }
 
-function safeJsonParse(s, fallback) {
-  try { return JSON.parse(s); } catch { return fallback; }
+function openSearch(query) {
+  const q = encodeURIComponent(query);
+  window.open(`${SEARCH_BASE}${q}`, "_blank", "noopener,noreferrer");
 }
 
-function makeId() {
-  // short-ish random id
-  return Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6);
+function safeId(str) {
+  return String(str)
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 80);
 }
 
 function getShareIdFromUrl() {
-  // supports: /?id=XXXX or /XXXX
   const u = new URL(window.location.href);
-  const q = u.searchParams.get("id");
-  if (q) return q;
-
-  const parts = window.location.pathname.split("/").filter(Boolean);
-  if (parts.length === 1) return parts[0];
-  return null;
+  return u.searchParams.get("id");
 }
 
-function openSearch(term) {
-  const q = encodeURIComponent(term);
-  window.open(SEARCH_BASE + q, "_blank", "noopener,noreferrer");
+function makeId() {
+  // short-ish id, URL safe
+  const a = crypto.getRandomValues(new Uint8Array(12));
+  return Array.from(a, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/********************************
- * DATA
- *
- * sheetData.js must define:
- *   window.SHEET_DATA = [
- *     { title, description, columns, groups:[ { title, items:[{ label, key }] } ] }
- *   ]
- *
- * columns:
- *   - if omitted => single column (General)
- *   - can be ["General"] or ["Self","Partner"] or ["Giving","Receiving"] etc
- ********************************/
-const SHEET_DATA = window.SHEET_DATA || [];
-
-/********************************
- * STATE
- *
- * We store selections as:
- * selections[itemKey][colName] = one of: "fav" | "like" | "int" | "no" | "" (unset)
- ********************************/
+/***********************
+ * DATA MODEL
+ ***********************/
 function loadLocal() {
-  const raw = localStorage.getItem(LOCAL_KEY);
-  return safeJsonParse(raw, {});
-}
-
-function saveLocal(state) {
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
-}
-
-let selections = loadLocal();
-
-/********************************
- * RENDERING
- ********************************/
-const VALUE_ORDER = ["fav", "like", "int", "no", ""]; // "" is unset
-const VALUE_LABELS = {
-  fav: "Favorite",
-  like: "Like",
-  int: "Interested",
-  no: "No",
-  "": "Unset",
-};
-
-function ensureItemState(itemKey, columns) {
-  if (!selections[itemKey]) selections[itemKey] = {};
-  for (const c of columns) {
-    if (typeof selections[itemKey][c] !== "string") selections[itemKey][c] = "";
+  try {
+    const raw = localStorage.getItem(LOCAL_KEY);
+    if (!raw) return {};
+    const obj = JSON.parse(raw);
+    return obj && typeof obj === "object" ? obj : {};
+  } catch {
+    return {};
   }
 }
 
-function setValue(itemKey, col, value) {
-  ensureItemState(itemKey, [col]);
-  selections[itemKey][col] = value;
-  saveLocal(selections);
+function saveLocal(data) {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
 }
 
-function getValue(itemKey, col) {
-  return (selections[itemKey] && selections[itemKey][col]) || "";
+function clearLocal() {
+  localStorage.removeItem(LOCAL_KEY);
 }
 
-function buildDots(itemKey, col) {
-  const wrap = document.createElement("div");
-  wrap.className = "dots";
-
-  for (const v of VALUE_ORDER) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "dotbtn " + (v === "" ? "empty" : v);
-    b.title = VALUE_LABELS[v];
-    b.setAttribute("aria-label", VALUE_LABELS[v]);
-
-    const cur = getValue(itemKey, col);
-    if (cur === v) b.classList.add("active");
-
-    b.onclick = () => {
-      // toggle: clicking the active option sets it back to unset
-      const current = getValue(itemKey, col);
-      const next = (current === v) ? "" : v;
-      setValue(itemKey, col, next);
-      // rerender only this row-cell group (fastest = rerender all for now)
-      renderSheet();
-    };
-
-    wrap.appendChild(b);
-  }
-
-  return wrap;
-}
-
-function renderSheet() {
+/***********************
+ * RENDER
+ ***********************/
+function renderSheet(sections, state) {
   const root = el("sheet");
   root.innerHTML = "";
 
-  for (const cat of SHEET_DATA) {
-    const columns = (cat.columns && cat.columns.length) ? cat.columns : ["General"];
-
-    // Card
+  for (const section of sections) {
     const card = document.createElement("section");
     card.className = "card";
 
@@ -161,211 +101,268 @@ function renderSheet() {
     const head = document.createElement("div");
     head.className = "cardHead";
 
-    const h2 = document.createElement("h2");
-    h2.textContent = cat.title || "Untitled";
+    const left = document.createElement("div");
 
-    const desc = document.createElement("div");
-    desc.className = "cardDesc";
-    desc.textContent = cat.description || "";
+    const h = document.createElement("h2");
+    h.className = "cardTitle";
+    h.textContent = section.title || section.id;
 
-    head.appendChild(h2);
-    head.appendChild(desc);
+    const d = document.createElement("p");
+    d.className = "cardDesc";
+    d.textContent = section.desc || "";
 
+    left.appendChild(h);
+    left.appendChild(d);
+
+    const help = document.createElement("button");
+    help.className = "helpBtn";
+    help.type = "button";
+    help.title = "Search this category";
+    help.textContent = "?";
+    help.onclick = () => openSearch(`${section.title} kink list`);
+
+    head.appendChild(left);
+    head.appendChild(help);
     card.appendChild(head);
 
-    // Table
-    const table = document.createElement("div");
-    table.className = "table";
+    // Groups
+    for (const group of section.groups || []) {
+      const wrap = document.createElement("div");
+      wrap.className = "group";
 
-    // Column header row (if more than 1 column)
-    const headerRow = document.createElement("div");
-    headerRow.className = "row headerRow";
+      const gt = document.createElement("div");
+      gt.className = "groupTitle";
+      gt.textContent = group.title || "";
+      wrap.appendChild(gt);
 
-    const left = document.createElement("div");
-    left.className = "cell labelCell headerLabel";
-    left.textContent = columns.length === 1 ? "General" : "";
-    headerRow.appendChild(left);
+      const table = document.createElement("table");
+      table.className = "table";
 
-    const right = document.createElement("div");
-    right.className = "cell valueCell headerCols";
+      const thead = document.createElement("thead");
+      const hr = document.createElement("tr");
 
-    if (columns.length > 1) {
-      for (const c of columns) {
-        const hc = document.createElement("div");
-        hc.className = "colHeader";
-        hc.textContent = c;
-        right.appendChild(hc);
+      const th0 = document.createElement("th");
+      th0.textContent = "";
+      hr.appendChild(th0);
+
+      const cols = group.columns && group.columns.length ? group.columns : [{ key: "general", label: "" }];
+      for (const c of cols) {
+        const th = document.createElement("th");
+        th.className = "colHead";
+        th.textContent = c.label || "";
+        hr.appendChild(th);
       }
-    } else {
-      // single column header
-      const hc = document.createElement("div");
-      hc.className = "colHeader";
-      hc.textContent = columns[0];
-      right.appendChild(hc);
-    }
 
-    headerRow.appendChild(right);
-    table.appendChild(headerRow);
+      thead.appendChild(hr);
+      table.appendChild(thead);
 
-    // Groups + items
-    for (const g of (cat.groups || [])) {
-      // group title row
-      const gr = document.createElement("div");
-      gr.className = "row groupRow";
+      const tbody = document.createElement("tbody");
 
-      const gl = document.createElement("div");
-      gl.className = "cell labelCell groupTitle";
-      gl.textContent = g.title || "";
+      for (const item of group.items || []) {
+        const label = typeof item === "string" ? item : item.label;
+        const query = typeof item === "string" ? label : (item.q || label);
 
-      const gv = document.createElement("div");
-      gv.className = "cell valueCell";
+        const itemId = `${safeId(section.id)}__${safeId(group.id || group.title || "g")}__${safeId(label)}`;
 
-      gr.appendChild(gl);
-      gr.appendChild(gv);
-      table.appendChild(gr);
+        const tr = document.createElement("tr");
 
-      for (const item of (g.items || [])) {
-        const itemKey = item.key || item.label;
-        ensureItemState(itemKey, columns);
+        const tdLabel = document.createElement("td");
+        const labWrap = document.createElement("div");
+        labWrap.className = "itemLabel";
 
-        const r = document.createElement("div");
-        r.className = "row itemRow";
-
-        const l = document.createElement("div");
-        l.className = "cell labelCell itemLabel";
-
-        // label + per-item ?
-        const labelSpan = document.createElement("span");
-        labelSpan.className = "labelText";
-        labelSpan.textContent = item.label;
+        const span = document.createElement("span");
+        span.textContent = label;
 
         const helpBtn = document.createElement("button");
+        helpBtn.className = "itemHelpInline";
         helpBtn.type = "button";
-        helpBtn.className = "helpBtn";
-        helpBtn.title = "Search this term";
+        helpBtn.title = "Search this item";
         helpBtn.textContent = "?";
-        helpBtn.onclick = () => openSearch(item.label);
+        helpBtn.onclick = () => openSearch(query);
 
-        l.appendChild(labelSpan);
-        l.appendChild(helpBtn);
+        labWrap.appendChild(span);
+        labWrap.appendChild(helpBtn);
+        tdLabel.appendChild(labWrap);
 
-        const vcell = document.createElement("div");
-        vcell.className = "cell valueCell";
+        tr.appendChild(tdLabel);
 
-        // columns of dots
-        for (const c of columns) {
-          const colWrap = document.createElement("div");
-          colWrap.className = "col";
-          colWrap.appendChild(buildDots(itemKey, c));
-          vcell.appendChild(colWrap);
+        for (const c of cols) {
+          const td = document.createElement("td");
+          const dots = document.createElement("div");
+          dots.className = "dots";
+
+          const current = state[itemId]?.[c.key] ?? "unset";
+
+          for (const r of RATINGS) {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = `dotPick ${r.css}` + (current === r.key ? " active" : "");
+            b.title = r.label;
+
+            b.onclick = () => {
+              if (!state[itemId]) state[itemId] = {};
+              state[itemId][c.key] = r.key;
+              saveLocal(state);
+              renderSheet(window.SHEET_DATA, state);
+            };
+
+            dots.appendChild(b);
+          }
+
+          td.appendChild(dots);
+          tr.appendChild(td);
         }
 
-        r.appendChild(l);
-        r.appendChild(vcell);
-
-        table.appendChild(r);
+        tbody.appendChild(tr);
       }
+
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      card.appendChild(wrap);
     }
 
-    card.appendChild(table);
     root.appendChild(card);
   }
 }
 
-/********************************
- * SUPABASE SAVE/LOAD
- *
- * Table: public.sheets
- * columns:
- *   id text primary key
- *   data jsonb not null
- *   created_at timestamp default now()
- ********************************/
-async function saveSheet(id, dataObj) {
-  // upsert: insert or update
-  const payload = { id, data: dataObj };
-  const { error } = await sb.from("sheets").upsert(payload, { onConflict: "id" });
-  if (error) throw error;
+/***********************
+ * EXPORTS
+ ***********************/
+async function exportPng() {
+  setStatus("Exporting PNG...");
+  const target = el("sheet");
+
+  const canvas = await html2canvas(target, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+    scrollX: 0,
+    scrollY: 0
+  });
+
+  const a = document.createElement("a");
+  a.download = "my-sheet.png";
+  a.href = canvas.toDataURL("image/png");
+  a.click();
+
+  setStatus("PNG exported.");
 }
 
-async function loadSheet(id) {
+async function exportPdf() {
+  setStatus("Exporting PDF...");
+  const target = el("sheet");
+
+  const canvas = await html2canvas(target, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+    scrollX: 0,
+    scrollY: 0
+  });
+
+  const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+  const { jsPDF } = jspdf;
+  const pdf = new jsPDF("p", "pt", "a4");
+
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+
+  // Fit width to page
+  const imgW = pageW;
+  const imgH = (canvas.height * imgW) / canvas.width;
+
+  // If it fits, single page
+  if (imgH <= pageH) {
+    pdf.addImage(imgData, "JPEG", 0, 0, imgW, imgH);
+    pdf.save("my-sheet.pdf");
+    setStatus("PDF exported.");
+    return;
+  }
+
+  // Multi-page: slice by page height
+  let y = 0;
+  let remaining = imgH;
+
+  while (remaining > 0) {
+    pdf.addImage(imgData, "JPEG", 0, -y, imgW, imgH);
+    remaining -= pageH;
+    y += pageH;
+
+    if (remaining > 0) pdf.addPage();
+  }
+
+  pdf.save("my-sheet.pdf");
+  setStatus("PDF exported.");
+}
+
+/***********************
+ * SUPABASE SAVE/LOAD
+ ***********************/
+async function loadShared(id) {
+  const sb = getSupabaseClient();
+  if (!sb) throw new Error("Supabase library not loaded.");
   const { data, error } = await sb.from("sheets").select("data").eq("id", id).single();
   if (error) throw error;
   return data?.data || {};
 }
 
-/********************************
- * EXPORTS (these MUST reflect current UI state)
- ********************************/
-async function exportPng() {
-  setStatus("Rendering PNG...");
-  const sheetEl = el("sheet");
-
-  // Force a render so DOM matches current selections
-  renderSheet();
-
-  try {
-    const canvas = await window.html2canvas(sheetEl, {
-      scale: 2,
-      backgroundColor: "#ffffff",
-      useCORS: true,
-    });
-
-    const url = canvas.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "my-sheet.png";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    setStatus("PNG downloaded.");
-  } catch (e) {
-    console.error(e);
-    setStatus("PNG export failed. Check console.");
-  }
+async function saveShared(id, payload) {
+  const sb = getSupabaseClient();
+  if (!sb) throw new Error("Supabase library not loaded.");
+  const { error } = await sb.from("sheets").upsert([{ id, data: payload }], { onConflict: "id" });
+  if (error) throw error;
 }
 
-function exportPdf() {
-  setStatus("Opening print dialog...");
-  // Ensure UI is current
-  renderSheet();
-  window.print();
-}
-
-/********************************
- * CUSTOMIZE (placeholder for now)
- ********************************/
-function openCustomize() {
-  alert("Customize UI is not implemented yet. Next step: edit sheetData.js or build an editor.");
-}
-
-/********************************
+/***********************
  * MAIN
- ********************************/
+ ***********************/
 async function main() {
-  // Wire buttons
-  el("customizeBtn").onclick = openCustomize;
+  const state = loadLocal();
+  renderSheet(window.SHEET_DATA, state);
+
+  // wire buttons
   el("exportPng").onclick = exportPng;
   el("exportPdf").onclick = exportPdf;
 
   el("clearLocal").onclick = () => {
-    localStorage.removeItem(LOCAL_KEY);
-    selections = {};
+    clearLocal();
     el("shareUrl").value = "";
     setStatus("Local draft cleared.");
-    renderSheet();
+    renderSheet(window.SHEET_DATA, loadLocal());
   };
 
-  el("getLink").onclick = async () => {
-    setStatus("Saving...");
-    el("getLink").disabled = true;
+  el("customize").onclick = () => {
+    setStatus("Customize UI is not in v1 yet. Edit sheetData.js to add/remove items.");
+  };
 
+  // shared view
+  const shareId = getShareIdFromUrl();
+  if (shareId) {
+    try {
+      setStatus("Loading shared sheet...");
+      const shared = await loadShared(shareId);
+
+      // overwrite local state for viewing
+      saveLocal(shared);
+      el("shareUrl").value = window.location.href;
+      setStatus("Loaded shared sheet.");
+      renderSheet(window.SHEET_DATA, loadLocal());
+    } catch (e) {
+      console.error(e);
+      setStatus("Failed to load shared sheet: " + (e?.message || "Unknown error"));
+    }
+  }
+
+  // get link => save then show url
+  el("getLink").onclick = async () => {
+    el("getLink").disabled = true;
+    setStatus("Saving...");
     try {
       const id = makeId();
-      await saveSheet(id, selections);
-
-      const url = `${location.origin}/${id}`;
+      const payload = loadLocal();
+      await saveShared(id, payload);
+      const url = `${window.location.origin}${window.location.pathname}?id=${id}`;
       el("shareUrl").value = url;
       el("shareUrl").select();
       setStatus("Saved. Share the link.");
@@ -376,24 +373,6 @@ async function main() {
       el("getLink").disabled = false;
     }
   };
-
-  // Shared view?
-  const shareId = getShareIdFromUrl();
-  if (shareId) {
-    setStatus("Loading shared sheet...");
-    try {
-      selections = await loadSheet(shareId);
-      saveLocal(selections); // optional: cache it locally
-      setStatus("Loaded shared sheet.");
-    } catch (e) {
-      console.error(e);
-      setStatus("Load failed: " + (e?.message || "Unknown error"));
-    }
-  } else {
-    setStatus("");
-  }
-
-  renderSheet();
 }
 
 main();

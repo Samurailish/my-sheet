@@ -3,43 +3,20 @@ window.SHEET_DATA = [
   {
     id: "intimacy",
     title: "INTIMACY",
-    description: "Affection, closeness, and non-explicit intimacy behaviors.",
-    sections: [
+    desc: "Affection, closeness, and non-explicit intimacy behaviors.",
+    groups: [
       {
+        id: "general",
         title: "General",
-        columns: ["General"],
+        columns: [{ key: "general", label: "" }],
         items: [
-          "Romance / Affection",
-          "Hugging",
-          "Kissing (body)",
-          "Kissing (mouth)",
-          "Spooning",
-          "Using real names",
-          "Sleepover"
-        ]
-      }
-    ]
-  },
-
-  {
-    id: "clothing",
-    title: "CLOTHING",
-    description: "Clothing, outfits, and accessories as part of the experience.",
-    sections: [
-      {
-        title: "Self / Partner",
-        columns: ["Self", "Partner"],
-        items: [
-          "Clothed sex",
-          "Lingerie",
-          "Stockings",
-          "Heels",
-          "Leather",
-          "Latex",
-          "Uniform",
-          "Cosplay",
-          "Cross-dressing",
-          "Formal clothing"
+          { label: "Romance / Affection", q: "romance affection relationship intimacy" },
+          { label: "Hugging", q: "hugging affection intimacy" },
+          { label: "Kissing (body)", q: "kissing body intimacy" },
+          { label: "Kissing (mouth)", q: "kissing mouth intimacy" },
+          { label: "Spooning", q: "spooning cuddling intimacy" },
+          { label: "Using real names", q: "using real names intimacy dynamic" },
+          { label: "Sleepover", q: "sleepover intimacy couple" }
         ]
       }
     ]
@@ -48,18 +25,19 @@ window.SHEET_DATA = [
   {
     id: "groupings",
     title: "GROUPINGS",
-    description: "Group configurations and contexts.",
-    sections: [
+    desc: "Group configurations and contexts.",
+    groups: [
       {
+        id: "general",
         title: "General",
-        columns: ["General"],
+        columns: [{ key: "general", label: "" }],
         items: [
-          "You and 1 male",
-          "You and 1 female",
-          "You and 1 male, 1 female",
-          "You and 2 males",
-          "You and 2 females",
-          "Orgy setting"
+          { label: "You and 1 male", q: "couple configuration you and 1 male" },
+          { label: "You and 1 female", q: "couple configuration you and 1 female" },
+          { label: "You and 1 male, 1 female", q: "threesome configuration male female" },
+          { label: "You and 2 males", q: "threesome configuration 2 males" },
+          { label: "You and 2 females", q: "threesome configuration 2 females" },
+          { label: "Group setting", q: "group setting intimacy boundaries communication" }
         ]
       }
     ]
@@ -68,24 +46,52 @@ window.SHEET_DATA = [
   {
     id: "general",
     title: "GENERAL",
-    description: "General sexual activities and dynamics.",
-    sections: [
+    desc: "General adult sexual activities and dynamics.",
+    groups: [
       {
+        id: "giving_receiving",
         title: "Giving / Receiving",
-        columns: ["Giving", "Receiving"],
+        columns: [
+          { key: "giving", label: "Giving" },
+          { key: "receiving", label: "Receiving" }
+        ],
         items: [
-          "Handjobs / fingering",
-          "Blowjobs",
-          "Deep throating",
-          "Swallowing",
-          "Facials",
-          "Cunnilingus",
-          "Face-sitting",
-          "Edging",
-          "Teasing",
-          "Stripping / Disrobing",
-          "Mutual / shared masturbation",
-          "Self-injury / Self-humiliation"
+          { label: "Hand play / Fingering", q: "fingering hand play safety consent" },
+          { label: "Oral sex", q: "oral sex safety consent" },
+          { label: "Deep throat (consensual)", q: "deep throat safety consent" },
+          { label: "Swallowing", q: "swallowing sexual health safety" },
+          { label: "Mutual masturbation", q: "mutual masturbation communication" },
+          { label: "Edging", q: "edging technique consent" },
+          { label: "Teasing", q: "sexual teasing consent communication" },
+          { label: "Strip tease", q: "strip tease intimacy" }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "clothing",
+    title: "CLOTHING",
+    desc: "Clothing, outfits, and accessories as part of the experience.",
+    groups: [
+      {
+        id: "self_partner",
+        title: "Self / Partner",
+        columns: [
+          { key: "self", label: "Self" },
+          { key: "partner", label: "Partner" }
+        ],
+        items: [
+          { label: "Clothed sex", q: "clothed sex preferences" },
+          { label: "Lingerie", q: "lingerie preferences" },
+          { label: "Stockings", q: "stockings lingerie" },
+          { label: "Heels", q: "heels intimacy" },
+          { label: "Leather", q: "leather clothing kink fashion" },
+          { label: "Latex", q: "latex clothing kink safety care" },
+          { label: "Uniform", q: "uniform roleplay adult consent" },
+          { label: "Cosplay", q: "cosplay adult roleplay consent" },
+          { label: "Cross-dressing", q: "cross dressing intimacy" },
+          { label: "Formal clothing", q: "formalwear intimacy" }
         ]
       }
     ]
@@ -94,59 +100,41 @@ window.SHEET_DATA = [
   {
     id: "penetration",
     title: "PENETRATION",
-    description: "Penetrative activities and variations.",
-    sections: [
+    desc: "Penetrative activities and variations (consenting adults only).",
+    groups: [
       {
+        id: "giving_receiving",
         title: "Giving / Receiving",
-        columns: ["Giving", "Receiving"],
+        columns: [
+          { key: "giving", label: "Giving" },
+          { key: "receiving", label: "Receiving" }
+        ],
         items: [
-          "Penetration",
-          "Strap-on penetration",
-          "Barebacking",
-          "Tantric/Yoni stimulation",
-          "Fingering",
-          "Object insertion",
-          "Fisting"
+          { label: "Penetration (general)", q: "penetration sex safety consent" },
+          { label: "Strap-on (consensual)", q: "strap on safety consent" },
+          { label: "Manual stimulation", q: "manual stimulation consent" },
+          { label: "Toy-assisted penetration", q: "toy assisted penetration safety" }
         ]
       }
     ]
   },
 
   {
-    id: "special_positions",
-    title: "SPECIAL POSITIONS",
-    description: "Positions, suspension, and unusual physical setups.",
-    sections: [
-      {
-        title: "Giving / Receiving",
-        columns: ["Giving", "Receiving"],
-        items: [
-          "Free-hanging / loveswings",
-          "Up against walls",
-          "69'ing",
-          "Rope/chair suspension",
-          "Unseen actor",
-          "Stealth penetration"
-        ]
-      }
-    ]
-  },
-
-  {
-    id: "butt_stuff",
+    id: "butt",
     title: "BUTT STUFF",
-    description: "Anal play and related activities.",
-    sections: [
+    desc: "Anal play and related activities (go slow, use lube, communicate).",
+    groups: [
       {
+        id: "giving_receiving",
         title: "Giving / Receiving",
-        columns: ["Giving", "Receiving"],
+        columns: [
+          { key: "giving", label: "Giving" },
+          { key: "receiving", label: "Receiving" }
+        ],
         items: [
-          "Anal teasing / threats",
-          "Anal toys / plugging",
-          "Anal sex / pegging",
-          "Rimming",
-          "Double penetration",
-          "Anal fisting"
+          { label: "Anal teasing", q: "anal teasing safety consent lube" },
+          { label: "Anal toys", q: "anal toys safety lube hygiene" },
+          { label: "Rimming (consensual)", q: "rimming safety hygiene consent" }
         ]
       }
     ]
@@ -155,44 +143,21 @@ window.SHEET_DATA = [
   {
     id: "restrictive",
     title: "RESTRICTIVE",
-    description: "Restraints, control, and limitation of movement.",
-    sections: [
+    desc: "Restraints, control, and limitation of movement (safety-first).",
+    groups: [
       {
+        id: "self_partner",
         title: "Self / Partner",
-        columns: ["Self", "Partner"],
+        columns: [
+          { key: "self", label: "Self" },
+          { key: "partner", label: "Partner" }
+        ],
         items: [
-          "Gag",
-          "Collar",
-          "Leash",
-          "Rope bondage",
-          "Mitts",
-          "Cufflings",
-          "Wall/cross mounting",
-          "Stockades",
-          "Chastity gear",
-          "Encasement",
-          "Blindfolds",
-          "Sensory deprivation"
-        ]
-      }
-    ]
-  },
-
-  {
-    id: "toys",
-    title: "TOYS",
-    description: "Sex toys and devices.",
-    sections: [
-      {
-        title: "On Self / On others",
-        columns: ["On Self", "On others"],
-        items: [
-          "Dildos",
-          "Plugs",
-          "Vibrators",
-          "Magic wands",
-          "Sybians",
-          "Sex Machines"
+          { label: "Blindfold", q: "blindfold sensory play consent safety" },
+          { label: "Handcuffs (soft / padded)", q: "padded handcuffs safety consent" },
+          { label: "Rope (basic)", q: "rope bondage safety consent beginner" },
+          { label: "Collar (symbolic)", q: "collar consensual dynamic" },
+          { label: "Leash (play)", q: "leash play consensual dynamic" }
         ]
       }
     ]
@@ -201,112 +166,21 @@ window.SHEET_DATA = [
   {
     id: "domination",
     title: "DOMINATION",
-    description: "Power dynamics, roles, and control.",
-    sections: [
+    desc: "Power dynamics (explicit consent and boundaries required).",
+    groups: [
       {
+        id: "as_roles",
         title: "As Dom / As Sub",
-        columns: ["As Dom", "As Sub"],
+        columns: [
+          { key: "dom", label: "As Dom" },
+          { key: "sub", label: "As Sub" }
+        ],
         items: [
-          "Dominant / Submissive",
-          "Domestic servitude",
-          "Slavery",
-          "DD/lg, MD/lb",
-          "Discipline",
-          "Begging",
-          "Forced orgasm",
-          "Orgasm control",
-          "Orgasm denial"
-        ]
-      }
-    ]
-  },
-
-  {
-    id: "scenarios",
-    title: "SCENARIOS",
-    description: "Roleplay and scenario-based activities.",
-    sections: [
-      {
-        title: "Being center / Participating",
-        columns: ["Being center", "Participating"],
-        items: [
-          "Glory hole",
-          "Humiliation",
-          "Exhibitionism",
-          "Voyeurism",
-          "Medical",
-          "Pet play (soft)",
-          "Pet play (hard)",
-          "Human furniture",
-          "Human auctioning / appraisal",
-          "Slave training",
-          "Interrogation",
-          "Gangbang",
-          "Kidnapping",
-          "Sleep play",
-          "Hypnotism",
-          "Unaware / Freeuse",
-          "Fake public use",
-          "Practical sex ed"
-        ]
-      }
-    ]
-  },
-
-  {
-    id: "taboo_scenarios",
-    title: "TABOO SCENARIOS",
-    description: "Taboo roleplay themes (fictional/consensual framing).",
-    sections: [
-      {
-        title: "Participating / Observing",
-        columns: ["Participating", "Observing"],
-        items: [
-          "Incest",
-          "Ageplay",
-          "Non-con / rapeplay",
-          "Necrophilia",
-          "Nazi/War symbolism",
-          "Cheating",
-          "Real public use"
-        ]
-      }
-    ]
-  },
-
-  {
-    id: "surrealism",
-    title: "SURREALISM",
-    description: "Fantasy/surreal themes and non-realistic elements.",
-    sections: [
-      {
-        title: "Self / Observing",
-        columns: ["Self", "Observing"],
-        items: [
-          "Futanari",
-          "Furry",
-          "Transformation",
-          "Tentacles",
-          "Monster/Beast",
-          "Alien"
-        ]
-      }
-    ]
-  },
-
-  {
-    id: "fluids",
-    title: "FLUIDS",
-    description: "Messy/wet play and bodily fluids.",
-    sections: [
-      {
-        title: "General",
-        columns: ["General"],
-        items: [
-          "Blood",
-          "Watersports",
-          "Scat",
-          "Cum play"
+          { label: "Dominant / Submissive dynamic", q: "dominant submissive consent boundaries" },
+          { label: "Domestic service (consensual)", q: "domestic service consensual dynamic" },
+          { label: "Discipline (consensual)", q: "discipline bdsm consent safety" },
+          { label: "Begging (consensual)", q: "begging kink consent" },
+          { label: "Orgasm control (consensual)", q: "orgasm control consent boundaries" }
         ]
       }
     ]
@@ -315,19 +189,40 @@ window.SHEET_DATA = [
   {
     id: "touch",
     title: "TOUCH & STIMULATION",
-    description: "Touch-based stimulation and sensory play.",
-    sections: [
+    desc: "Physical stimulation and sensation play.",
+    groups: [
       {
+        id: "actor_subject",
         title: "Actor / Subject",
-        columns: ["Actor", "Subject"],
+        columns: [
+          { key: "actor", label: "Actor" },
+          { key: "subject", label: "Subject" }
+        ],
         items: [
-          "Cock/Pussy worship",
-          "Ass worship",
-          "Foot play",
-          "Tickling",
-          "Sensation play",
-          "Electro stimulation",
-          "Breath play"
+          { label: "Tickling", q: "tickling consent safety" },
+          { label: "Foot play", q: "foot play consent hygiene" },
+          { label: "Massage (sensual)", q: "sensual massage consent" },
+          { label: "Temperature play (mild)", q: "temperature play safety consent" },
+          { label: "Light scratching", q: "light scratching consent safety" }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "fluids",
+    title: "FLUIDS",
+    desc: "Fluid-related preferences (health/safety awareness matters).",
+    groups: [
+      {
+        id: "general",
+        title: "General",
+        columns: [{ key: "general", label: "" }],
+        items: [
+          { label: "Blood (medical play discussion)", q: "blood play safety consent risks" },
+          { label: "Watersports", q: "watersports kink safety consent" },
+          { label: "Scat", q: "scat kink safety risks consent" },
+          { label: "Cum play", q: "cum play consent hygiene" }
         ]
       }
     ]
@@ -336,36 +231,67 @@ window.SHEET_DATA = [
   {
     id: "pain",
     title: "PAIN",
-    description: "Impact and pain play (consensual).",
-    sections: [
+    desc: "Impact and pain play (keep it safe, negotiated, and reversible).",
+    groups: [
       {
+        id: "giving_receiving",
         title: "Giving / Receiving",
-        columns: ["Giving", "Receiving"],
+        columns: [
+          { key: "giving", label: "Giving" },
+          { key: "receiving", label: "Receiving" }
+        ],
         items: [
-          "Light pain",
-          "Heavy pain",
-          "Hickies",
-          "Nipple clamps",
-          "Clothes pins / ZipStrips",
-          "Body slapping",
-          "Facial slapping",
-          "Spanking",
-          "Caning",
-          "Flogging",
-          "Beatings",
-          "Whips",
-          "Paddles",
-          "Cock/Pussy slapping",
-          "Cock/Pussy torture",
-          "Breast torture",
-          "Hot Wax",
-          "Scratching",
-          "Biting",
-          "Burning",
-          "Cutting",
-          "Sounding",
-          "Bruising (short-lasting)",
-          "Markings (long-lasting)"
+          { label: "Light pain", q: "light pain play consent safety" },
+          { label: "Heavy pain", q: "heavy pain play consent safety aftercare" },
+          { label: "Spanking", q: "spanking safety consent" },
+          { label: "Paddles", q: "paddle impact play safety" },
+          { label: "Whips (beginner-safe discussion)", q: "whip impact play safety consent" }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "toys",
+    title: "TOYS",
+    desc: "Toy usage preferences.",
+    groups: [
+      {
+        id: "on_self_on_others",
+        title: "On Self / On Others",
+        columns: [
+          { key: "self", label: "On Self" },
+          { key: "others", label: "On Others" }
+        ],
+        items: [
+          { label: "Vibrators", q: "vibrator safety cleaning" },
+          { label: "Dildos", q: "dildo safety cleaning" },
+          { label: "Plugs", q: "plug safety cleaning" },
+          { label: "Wands", q: "wand massager safety" },
+          { label: "Sex machine (discussion)", q: "sex machine safety consent" }
+        ]
+      }
+    ]
+  },
+
+  {
+    id: "scenarios",
+    title: "SCENARIOS",
+    desc: "Role and context scenarios (consensual only).",
+    groups: [
+      {
+        id: "roles",
+        title: "Being center / Participating / Observing",
+        columns: [
+          { key: "center", label: "Being center" },
+          { key: "part", label: "Participating" },
+          { key: "obs", label: "Observing" }
+        ],
+        items: [
+          { label: "Exhibitionism (safe/private)", q: "exhibitionism consent privacy safety" },
+          { label: "Voyeurism (consensual)", q: "voyeurism consent privacy safety" },
+          { label: "Humiliation (consensual)", q: "humiliation kink consent aftercare" },
+          { label: "Medical roleplay (consensual)", q: "medical roleplay consent boundaries" }
         ]
       }
     ]
