@@ -1,39 +1,36 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
+
+cd /d "%~dp0"
 
 echo === Git status ===
 git status
-
 echo.
-set /p msg=Commit message (leave empty to cancel):
-if "%msg%"=="" (
-  echo Cancelled.
-  exit /b 0
-)
 
-echo.
-echo === Staging ===
+echo === Stage all changes ===
 git add -A
 
 echo.
-echo === Committing ===
+set /p msg=Commit message (leave empty to cancel): 
+if "%msg%"=="" (
+  echo Cancelled.
+  pause
+  exit /b 1
+)
+
+echo.
+echo === Commit ===
 git commit -m "%msg%"
 if errorlevel 1 (
-  echo Commit failed (maybe no changes). Check git status.
-  git status
+  echo Commit failed (maybe nothing changed). Check status above.
+  pause
   exit /b 1
 )
 
 echo.
-echo === Pushing ===
+echo === Push ===
 git push
-if errorlevel 1 (
-  echo Push failed. Check your remote/auth.
-  exit /b 1
-)
 
 echo.
-echo === Done ===
-git log -1 --oneline
-git status
+echo Done.
 pause

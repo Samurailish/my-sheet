@@ -1,341 +1,446 @@
-/***********************
- * CONFIG
- ***********************/
-const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
-const SUPABASE_ANON_KEY = sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
+/* global window, document */
 
-/*
-  Search provider base URL. Must end with the query param part.
-  Example:
-    DuckDuckGo: "https://duckduckgo.com/?q="
-    Wikipedia: "https://en.wikipedia.org/w/index.php?search="
-    Kinkly: "https://www.kinkly.com/search?q="
-*/
-const SEARCH_BASE = "www.pornhub.com/video/search?search=";
+(() => {
+  // =========================
+  // CONFIG (your Supabase)
+  // =========================
+  // Keep your real keys here (you already have them working).
+  const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
+  const TABLE_NAME = "sheets";
 
-/***********************
- * STORAGE KEYS
- ***********************/
-const LOCAL_KEY = "mySheet.localDraft.v2";
+  const LOCAL_KEY = "mySheet.localDraft.v3";
 
-/***********************
- * SUPABASE
- * (CDN exposes global window.supabase)
- ***********************/
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const SEARCH_BASE = window.SHEET_CONFIG.searchBase;
+  const DATA_URL = window.SHEET_CONFIG.dataUrl;
 
-/***********************
- * HELPERS
- ***********************/
-const el = (id) => document.getElementById(id);
+  // Avoid “supabase already declared” by never using global name as const.
+  const sb = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
+  if (!sb) {
+    console.warn("Supabase client not available. Check the CDN script or config.");
+  }
 
-function setStatus(msg) {
-  el("status").textContent = msg || "";
-}
+  // =========================
+  // DOM HELPERS
+  // =========================
+  const el = (id) => document.getElementById(id);
 
-function safeJsonParse(s, fallback) {
-  try { return JSON.parse(s); } catch { return fallback; }
-}
+  function setStatus(msg) {
+    el("status").textContent = msg || "";
+  }
 
-function loadLocal() {
-  return safeJsonParse(localStorage.getItem(LOCAL_KEY), {});
-}
+  function qs(name) {
+    const u = new URL(window.location.href);
+    return u.searchParams.get(name);
+  }
 
-function saveLocal(state) {
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
-}
+  function makeId(len = 10) {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let out = "";
+    for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)];
+    return out;
+  }
 
-function makeId(len = 10) {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let out = "";
-  for (let i = 0; i < len; i++) out += chars[(Math.random() * chars.length) | 0];
-  return out;
-}
+  function encodeTerm(term) {
+    return encodeURIComponent(term.trim());
+  }
 
-function getShareId() {
-  // Support:
-  // 1) https://site.com/<id>
-  // 2) https://site.com/?s=<id>
-  const p = location.pathname.replace(/^\/+|\/+$/g, "");
-  if (p && p !== "index.html") return p;
-  const s = new URLSearchParams(location.search).get("s");
-  return s || "";
-}
+  function keyFor(catTitle, sectionTitle, colName, itemName) {
+    return [
+      catTitle || "",
+      sectionTitle || "",
+      colName || "",
+      itemName || ""
+    ].join("||");
+  }
 
-function clampToViewport(x, y, w = 360, h = 220) {
-  const pad = 10;
-  const maxX = window.innerWidth - w - pad;
-  const maxY = window.innerHeight - h - pad;
-  return {
-    x: Math.max(pad, Math.min(x, maxX)),
-    y: Math.max(pad, Math.min(y, maxY)),
-  };
-}
+  // =========================
+  // STATE
+  // =========================
+  let SHEET = [];
+  let selections = {}; // { key: rating } where key includes col
+  let sharedId = null;
+  let tooltipEl = null;
 
-/***********************
- * TOOLTIP
- ***********************/
-let tipState = { open: false, itemName: "", desc: "" };
+  // rating ids
+  const RATINGS = [
+    { id: "fav", className: "fav", label: "Favorite" },
+    { id: "like", className: "like", label: "Like" },
+    { id: "int", className: "int", label: "Interested" },
+    { id: "no", className: "no", label: "No" },
+    { id: "empty", className: "empty", label: "Unset" }
+  ];
 
-function openTip(anchorEl, itemName, desc) {
-  tipState = { open: true, itemName, desc };
-  const tip = el("tip");
-  el("tipTitle").textContent = itemName;
-  el("tipBody").textContent = desc;
+  // =========================
+  // TOOLTIP
+  // =========================
+  function closeTooltip() {
+    if (tooltipEl) {
+      tooltipEl.remove();
+      tooltipEl = null;
+    }
+  }
 
-  const r = anchorEl.getBoundingClientRect();
-  const target = clampToViewport(r.left, r.bottom + 8);
-  tip.style.left = `${target.x}px`;
-  tip.style.top = `${target.y}px`;
+  function openTooltip({ title, body, x, y, searchTerm }) {
+    closeTooltip();
 
-  tip.classList.remove("hidden");
-  tip.setAttribute("aria-hidden", "false");
-}
+    const t = document.createElement("div");
+    t.className = "tooltip";
+    t.style.left = `${Math.min(x, window.innerWidth - 380)}px`;
+    t.style.top = `${Math.min(y, window.innerHeight - 190)}px`;
 
-function closeTip() {
-  tipState = { open: false, itemName: "", desc: "" };
-  const tip = el("tip");
-  tip.classList.add("hidden");
-  tip.setAttribute("aria-hidden", "true");
-}
+    t.innerHTML = `
+      <p class="tooltipTitle"></p>
+      <p class="tooltipBody"></p>
+      <div class="tooltipActions">
+        <button class="tooltipActionBtn" title="Search (opens new tab)">?</button>
+        <button class="tooltipClose" title="Close">Close</button>
+      </div>
+    `;
 
-function hookTip() {
-  el("tipClose").onclick = closeTip;
-  el("tipSearch").onclick = () => {
-    if (!tipState.open) return;
-    const q = encodeURIComponent(tipState.itemName);
-    window.open(`${SEARCH_BASE}${q}`, "_blank", "noopener,noreferrer");
-  };
+    t.querySelector(".tooltipTitle").textContent = title || "";
+    t.querySelector(".tooltipBody").textContent = body || "No description provided.";
 
-  document.addEventListener("mousedown", (e) => {
-    const tip = el("tip");
-    if (tip.classList.contains("hidden")) return;
-    if (tip.contains(e.target)) return;
-    // If clicking a qBtn, that handler will reopen; we close first anyway.
-    closeTip();
+    t.querySelector(".tooltipActionBtn").addEventListener("click", () => {
+      const url = SEARCH_BASE + encodeTerm(searchTerm || title || "");
+      window.open(url, "_blank", "noopener,noreferrer");
+    });
+
+    t.querySelector(".tooltipClose").addEventListener("click", closeTooltip);
+
+    document.body.appendChild(t);
+    tooltipEl = t;
+  }
+
+  document.addEventListener("click", (e) => {
+    // click outside tooltip closes it
+    if (!tooltipEl) return;
+    if (tooltipEl.contains(e.target)) return;
+    if (e.target?.classList?.contains("infoBtn")) return;
+    if (e.target?.classList?.contains("catHelpBtn")) return;
+    closeTooltip();
   });
 
-  window.addEventListener("resize", () => {
-    if (tipState.open) closeTip();
-  });
-}
+  // =========================
+  // STORAGE
+  // =========================
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const obj = JSON.parse(raw);
+      if (obj && typeof obj === "object") selections = obj;
+    } catch (_) {}
+  }
 
-/***********************
- * RENDER
- ***********************/
-const CHOICES = [
-  { key: "fav", label: "Favorite" },
-  { key: "like", label: "Like" },
-  { key: "int", label: "Interested" },
-  { key: "no", label: "No" },
-  { key: "empty", label: "Unset" },
-];
+  let saveTimer = null;
+  function saveLocalDebounced() {
+    if (saveTimer) window.clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(() => {
+      try { localStorage.setItem(LOCAL_KEY, JSON.stringify(selections)); } catch (_) {}
+    }, 120);
+  }
 
-function cellKey(catId, groupId, itemId, colName) {
-  return `${catId}__${groupId}__${itemId}__${colName}`;
-}
+  // =========================
+  // RENDER
+  // =========================
+  function render() {
+    const root = el("sheet");
+    root.innerHTML = "";
 
-function renderSheet(categories, state, readOnly) {
-  const root = el("sheet");
-  root.innerHTML = "";
+    if (!SHEET.length) {
+      const d = document.createElement("div");
+      d.className = "card";
+      d.innerHTML = `<div class="section">No data loaded. Check that <b>INTIMACY.txt</b> exists next to <b>index.html</b>.</div>`;
+      root.appendChild(d);
+      return;
+    }
 
-  for (const cat of categories) {
-    const card = document.createElement("section");
-    card.className = "card";
+    for (const cat of SHEET) {
+      const card = document.createElement("div");
+      card.className = "card";
 
-    const head = document.createElement("div");
-    head.className = "cardHeader";
+      const head = document.createElement("div");
+      head.className = "cardHead";
 
-    const title = document.createElement("h2");
-    title.className = "cardTitle";
-    title.textContent = cat.title;
+      const left = document.createElement("div");
+      left.className = "cardHeadLeft";
+      left.innerHTML = `
+        <h2 class="cardTitle"></h2>
+        <p class="cardDesc"></p>
+      `;
+      left.querySelector(".cardTitle").textContent = cat.title;
+      left.querySelector(".cardDesc").textContent = cat.description || "";
 
-    const sub = document.createElement("p");
-    sub.className = "cardSub";
-    sub.textContent = ""; // keep minimal; item tooltips carry the real explanations.
+      const help = document.createElement("button");
+      help.className = "catHelpBtn";
+      help.textContent = "?";
+      help.title = "Category info";
+      help.addEventListener("click", (e) => {
+        const r = help.getBoundingClientRect();
+        openTooltip({
+          title: cat.title,
+          body: cat.description || "No category description provided.",
+          x: r.right + 10,
+          y: r.top,
+          searchTerm: cat.title
+        });
+      });
 
-    head.appendChild(title);
-    head.appendChild(sub);
-    card.appendChild(head);
+      head.appendChild(left);
+      head.appendChild(help);
+      card.appendChild(head);
 
-    for (const group of cat.groups) {
-      const g = document.createElement("div");
-      g.className = "group";
-      g.textContent = group.header;
-      card.appendChild(g);
+      for (const section of cat.sections) {
+        const sec = document.createElement("div");
+        sec.className = "section";
 
-      const table = document.createElement("table");
-      table.className = "table";
+        const titleRow = document.createElement("div");
+        titleRow.className = "sectionTitleRow";
+        titleRow.innerHTML = `<div class="sectionTitle"></div>`;
+        titleRow.querySelector(".sectionTitle").textContent = section.title || "General";
+        sec.appendChild(titleRow);
 
-      for (const item of group.items) {
-        const tr = document.createElement("tr");
-        tr.className = "row";
+        const cols = section.columns || ["General"];
+        const table = document.createElement("div");
+        table.className = "table";
+        table.style.setProperty("--cols", String(cols.length));
 
-        const tdLabel = document.createElement("td");
-        tdLabel.className = "cellLabel";
+        if (cols.length > 1) {
+          const labels = document.createElement("div");
+          labels.className = "colLabelRow";
+          labels.style.setProperty("--cols", String(cols.length));
 
-        const labelWrap = document.createElement("div");
-        labelWrap.className = "labelText";
-        labelWrap.textContent = item.name;
+          const spacer = document.createElement("div");
+          labels.appendChild(spacer);
 
-        const qBtn = document.createElement("button");
-        qBtn.className = "qBtn";
-        qBtn.type = "button";
-        qBtn.textContent = "?";
-        qBtn.title = "Explain";
-        qBtn.onclick = (e) => {
-          e.stopPropagation();
-          openTip(qBtn, item.name, item.desc || "");
-        };
-
-        tdLabel.appendChild(labelWrap);
-        tdLabel.appendChild(qBtn);
-
-        const tdDots = document.createElement("td");
-        tdDots.className = "cellDots";
-
-        const dotsWrap = document.createElement("div");
-        dotsWrap.className = "dots";
-
-        // For each column in this group, render a set of 5 dots.
-        for (const col of group.columns) {
-          const colWrap = document.createElement("div");
-          colWrap.style.display = "inline-flex";
-          colWrap.style.alignItems = "center";
-          colWrap.style.gap = "8px";
-
-          if (group.columns.length > 1) {
-            const tag = document.createElement("span");
-            tag.style.fontSize = "11px";
-            tag.style.color = "#111827";
-            tag.style.fontWeight = "800";
-            tag.textContent = col;
-            colWrap.appendChild(tag);
+          for (const c of cols) {
+            const cl = document.createElement("div");
+            cl.className = "colLabel";
+            cl.textContent = c;
+            labels.appendChild(cl);
           }
-
-          const key = cellKey(cat.id, group.id, item.id, col);
-          const current = state[key] || "empty";
-
-          for (const c of CHOICES) {
-            const b = document.createElement("button");
-            b.type = "button";
-            b.className = `dotChoice ${c.key} ${current === c.key ? "selected" : ""}`;
-            b.title = `${col}: ${c.label}`;
-            b.disabled = !!readOnly;
-
-            b.onclick = () => {
-              state[key] = c.key;
-              saveLocal(state);
-              // Re-render only this row cheaply by re-rendering whole sheet (still fast enough for v1)
-              renderSheet(window.KINK_SHEET_DATA, loadLocal(), false);
-            };
-
-            colWrap.appendChild(b);
-          }
-
-          dotsWrap.appendChild(colWrap);
+          sec.appendChild(labels);
         }
 
-        tdDots.appendChild(dotsWrap);
-        tr.appendChild(tdLabel);
-        tr.appendChild(tdDots);
-        table.appendChild(tr);
+        for (const item of (section.items || [])) {
+          const row = document.createElement("div");
+          row.className = "row" + (cols.length > 1 ? " multi" : "");
+          row.style.setProperty("--cols", String(cols.length));
+
+          const leftCell = document.createElement("div");
+          leftCell.className = "itemLeft";
+
+          const name = document.createElement("div");
+          name.className = "itemName";
+          name.textContent = item.name;
+
+          const info = document.createElement("button");
+          info.className = "infoBtn";
+          info.textContent = "?";
+          info.title = "Show description";
+          info.addEventListener("click", (e) => {
+            const r = info.getBoundingClientRect();
+            openTooltip({
+              title: item.name,
+              body: item.desc || "No description provided.",
+              x: r.right + 10,
+              y: r.top,
+              searchTerm: item.name
+            });
+          });
+
+          leftCell.appendChild(info);
+          leftCell.appendChild(name);
+          row.appendChild(leftCell);
+
+          // one dots group per column
+          for (const colName of cols) {
+            const dotsWrap = document.createElement("div");
+            dotsWrap.className = "dots";
+
+            const itemKey = keyFor(cat.title, section.title, colName, item.name);
+            const current = selections[itemKey] || "empty";
+
+            for (const r of RATINGS) {
+              const b = document.createElement("button");
+              b.className = "dotBtn";
+              b.type = "button";
+              b.setAttribute("aria-label", `${item.name} (${colName}) → ${r.label}`);
+
+              const dot = document.createElement("span");
+              dot.className = `dot ${r.className} state` + (current === r.id ? " selected" : "");
+              dot.dataset.key = itemKey;
+              dot.dataset.rating = r.id;
+
+              b.appendChild(dot);
+
+              b.addEventListener("click", () => {
+                selections[itemKey] = r.id;
+                saveLocalDebounced();
+                // update this row only (cheap)
+                dotsWrap.querySelectorAll(".dot").forEach(d => {
+                  d.classList.toggle("selected", d.dataset.rating === selections[itemKey]);
+                });
+              });
+
+              dotsWrap.appendChild(b);
+            }
+
+            row.appendChild(dotsWrap);
+          }
+
+          table.appendChild(row);
+        }
+
+        sec.appendChild(table);
+        card.appendChild(sec);
       }
 
-      card.appendChild(table);
+      root.appendChild(card);
     }
-
-    root.appendChild(card);
-  }
-}
-
-/***********************
- * SHARE (Supabase)
- ***********************/
-async function saveSheet(id, stateObj) {
-  // You need a table named "sheets" with columns:
-  // id (text, primary key)
-  // data (jsonb)
-  // created_at (timestamp default now)
-  const { error } = await sb.from("sheets").upsert({ id, data: stateObj });
-  if (error) throw error;
-}
-
-async function loadSheet(id) {
-  const { data, error } = await sb.from("sheets").select("data").eq("id", id).single();
-  if (error) throw error;
-  return data?.data || {};
-}
-
-/***********************
- * EXPORT PDF
- ***********************/
-function exportPdf() {
-  // Print current DOM => reflects your real selections.
-  window.print();
-}
-
-/***********************
- * MAIN
- ***********************/
-async function main() {
-  hookTip();
-
-  el("exportPdf").onclick = exportPdf;
-
-  el("clearLocal").onclick = () => {
-    localStorage.removeItem(LOCAL_KEY);
-    setStatus("Local draft cleared.");
-    renderSheet(window.KINK_SHEET_DATA, loadLocal(), false);
-  };
-
-  el("customize").onclick = () => {
-    alert("Customize UI is v2. For now, edit sheetData.js RAW_TEXT.");
-  };
-
-  const shareId = getShareId();
-
-  // Shared view
-  if (shareId) {
-    setStatus("Loading shared sheet...");
-    try {
-      const shared = await loadSheet(shareId);
-      renderSheet(window.KINK_SHEET_DATA, shared, true);
-      setStatus("Viewing shared sheet (read-only).");
-      // hide actions that shouldn't be used in shared mode
-      el("getLink").disabled = true;
-      el("clearLocal").disabled = true;
-      el("shareUrl").value = location.href;
-    } catch (e) {
-      console.error(e);
-      setStatus("Failed to load shared sheet.");
-    }
-    return;
   }
 
-  // Local editable view
-  renderSheet(window.KINK_SHEET_DATA, loadLocal(), false);
+  // =========================
+  // SUPABASE SHARE
+  // =========================
+  async function saveSheet(id, data) {
+    if (!sb) throw new Error("Supabase not configured.");
+    const payload = { id, data };
+    const { error } = await sb.from(TABLE_NAME).upsert(payload);
+    if (error) throw error;
+  }
 
-  el("getLink").onclick = async () => {
-    setStatus("Saving...");
-    el("getLink").disabled = true;
+  async function loadSheet(id) {
+    if (!sb) throw new Error("Supabase not configured.");
+    const { data, error } = await sb.from(TABLE_NAME).select("data").eq("id", id).single();
+    if (error) throw error;
+    return data?.data || null;
+  }
 
+  // =========================
+  // EXPORT PDF
+  // =========================
+  function exportPdf() {
+    // browser print uses the live DOM → your current selections
+    window.print();
+  }
+
+  // =========================
+  // CUSTOMIZE (simple, safe)
+  // =========================
+  function showCustomizeModal() {
+    // Not doing heavy editing UI yet. This keeps it stable.
+    const back = document.createElement("div");
+    back.className = "modalBack";
+    const modal = document.createElement("div");
+    modal.className = "modal";
+    modal.innerHTML = `
+      <h3>Customize</h3>
+      <p>
+        For now, customization is done by editing <b>INTIMACY.txt</b>.
+        Keep the same format:
+        <br><br>
+        <code>SECTION</code><br>
+        <code>* Item name - Short explanation</code>
+      </p>
+      <div class="modalActions">
+        <button id="closeModal" class="secondary">Close</button>
+      </div>
+    `;
+    document.body.appendChild(back);
+    document.body.appendChild(modal);
+    back.style.display = "block";
+    modal.style.display = "block";
+
+    function close() {
+      back.remove();
+      modal.remove();
+    }
+    back.addEventListener("click", close);
+    modal.querySelector("#closeModal").addEventListener("click", close);
+  }
+
+  // =========================
+  // BOOT
+  // =========================
+  async function boot() {
+    setStatus("Loading data…");
+
+    // Load data txt
     try {
-      const id = makeId(10);
-      const state = loadLocal();
-      await saveSheet(id, state);
+      const res = await fetch(`${DATA_URL}?v=${Date.now()}`);
+      if (!res.ok) throw new Error(`Failed to fetch ${DATA_URL} (${res.status})`);
+      const raw = await res.text();
+      SHEET = window.parseSheetFromTxt(raw);
 
-      const url = `${location.origin}/${id}`;
-      el("shareUrl").value = url;
-      el("shareUrl").select();
-      setStatus("Saved. Share the link.");
+      if (!SHEET.length) {
+        setStatus("Loaded file, but parsed 0 categories. Check the INTIMACY.txt format.");
+      } else {
+        setStatus(`Loaded ${SHEET.length} categories.`);
+      }
     } catch (e) {
       console.error(e);
-      setStatus("Save failed. Check Supabase RLS policies / table name.");
-    } finally {
-      el("getLink").disabled = false;
+      setStatus(`Data load failed: ${e.message}`);
+      SHEET = [];
     }
-  };
-}
 
-main();
+    // Local first
+    loadLocal();
+
+    // If shared link id exists, load it (overwrites local selections)
+    sharedId = qs("id");
+    if (sharedId) {
+      try {
+        setStatus("Loading shared sheet…");
+        const remote = await loadSheet(sharedId);
+        if (remote && typeof remote === "object") {
+          selections = remote;
+          setStatus("Loaded shared sheet. Edit locally and click GET LINK to create your own share link.");
+        } else {
+          setStatus("Share link exists but has no data.");
+        }
+      } catch (e) {
+        console.error(e);
+        setStatus(`Failed to load share: ${e.message}`);
+      }
+    }
+
+    render();
+
+    // Wire buttons
+    el("exportPdf").onclick = exportPdf;
+
+    el("clearLocal").onclick = () => {
+      localStorage.removeItem(LOCAL_KEY);
+      selections = {};
+      closeTooltip();
+      render();
+      setStatus("Local draft cleared.");
+    };
+
+    el("customize").onclick = showCustomizeModal;
+
+    el("getLink").onclick = async () => {
+      try {
+        setStatus("Saving…");
+        el("getLink").disabled = true;
+
+        const id = makeId(10);
+        await saveSheet(id, selections);
+
+        const url = `${window.location.origin}${window.location.pathname}?id=${id}`;
+        el("shareUrl").value = url;
+        el("shareUrl").select();
+        setStatus("Saved. Share the link.");
+      } catch (e) {
+        console.error(e);
+        setStatus(`Save failed: ${e.message || "Unknown error"}`);
+      } finally {
+        el("getLink").disabled = false;
+      }
+    };
+  }
+
+  boot();
+})();
