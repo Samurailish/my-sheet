@@ -1,558 +1,449 @@
-/* ================================
-   My Sheet — style.css (FULL)
-   ================================ */
-
-/* ---------- Theme ---------- */
+/* =========================
+   Base
+========================= */
 :root{
   --bg: #f5f7fb;
   --panel: #ffffff;
   --text: #0f172a;
   --muted: #64748b;
-  --border: #e5e7eb;
+  --line: #e6eaf2;
 
-  /* States */
-  --fav: #4aa3ff;   /* Favorite (blue) */
-  --like: #55c88a;  /* Like (green) */
-  --int: #f2cf64;   /* Interested (yellow) */
-  --no:  #ea7a7a;   /* No (red) */
+  --header: #777f8f;
 
-  --shadow: 0 14px 40px rgba(2, 6, 23, 0.08);
+  --fav: #3aa0ff;
+  --like: #43c07a;
+  --int: #e6c24f;
+  --no:  #e06a6a;
+  --empty: #cbd5e1;
 }
 
-/* ---------- Base ---------- */
 *{ box-sizing: border-box; }
-html, body{ height:100%; }
+html,body{ height:100%; }
 body{
   margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  background: var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
   color: var(--text);
+  background: var(--bg);
 }
 
-a{ color: inherit; text-decoration: none; }
+a{ color: inherit; }
 
 .wrap{
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 18px 18px 42px;
+  margin: 24px auto;
+  padding: 0 16px 32px;
 }
 
-/* ---------- Header / Top ---------- */
+/* If your index.html doesn't have .wrap yet, this still looks fine */
 .top{
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px 18px 14px;
-  box-shadow: 0 12px 34px rgba(2,6,23,.06);
-}
-
-.titleWrap{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:16px;
+  max-width: 1200px;
+  margin: 24px auto 0;
+  padding: 0 16px;
 }
 
 h1{
-  margin: 0 0 6px 0;
+  margin: 0 0 6px;
   font-size: 44px;
-  line-height: 1.05;
   letter-spacing: -0.02em;
 }
-
 .sub{
-  margin: 0 0 14px 0;
+  margin: 0 0 14px;
   color: var(--muted);
   font-size: 14px;
 }
 
+/* =========================
+   Legend + actions
+========================= */
 .legend{
   display:flex;
   align-items:center;
-  flex-wrap: wrap;
   gap: 14px;
-  margin: 8px 0 12px;
-  user-select:none;
-}
-
-.legendItem{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  color: #111827;
+  flex-wrap: wrap;
+  margin: 10px 0 14px;
+  color: var(--muted);
   font-size: 13px;
 }
-
-.dot{
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
+.legend .dot{
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
   display:inline-block;
-  border: 1px solid rgba(0,0,0,0.12);
+  margin-right: 6px;
+  border: 2px solid transparent;
+  vertical-align: -2px;
 }
-.dot.fav{ background: var(--fav); }
-.dot.like{ background: var(--like); }
-.dot.int{ background: var(--int); }
-.dot.no{ background: var(--no); }
-.dot.empty{ background: #fff; }
+.legend .fav{ background: var(--fav); border-color: var(--fav); }
+.legend .like{ background: var(--like); border-color: var(--like); }
+.legend .int{ background: var(--int); border-color: var(--int); }
+.legend .no{ background: var(--no); border-color: var(--no); }
+.legend .empty{ background: #fff; border-color: var(--empty); }
 
 .actions{
   display:flex;
-  align-items:center;
-  flex-wrap: wrap;
   gap: 10px;
-  margin: 10px 0 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
 }
-
-button{
-  font: inherit;
-  cursor: pointer;
+.actions button{
+  appearance:none;
   border: 0;
-  outline: none;
-}
-
-.btn{
-  padding: 10px 14px;
   border-radius: 10px;
-  font-weight: 800;
-  font-size: 13px;
-  letter-spacing: 0.02em;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
   background: #0b1220;
   color: #fff;
-  box-shadow: 0 8px 18px rgba(2,6,23,.18);
-  transition: transform .08s ease, opacity .08s ease;
 }
-.btn:hover{ transform: translateY(-1px); }
-.btn:active{ transform: translateY(0); opacity: .92; }
-.btn:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
-
-.btn.primary{
-  background: #ef4444;
-  box-shadow: 0 10px 24px rgba(239, 68, 68, .25);
-}
-
-.btn.secondary{
+.actions button:hover{ filter: brightness(1.05); }
+.actions button:active{ transform: translateY(1px); }
+.actions button.secondary{
   background: #111827;
+  opacity: 0.92;
+}
+.actions button#getLink{
+  background: #ef4444;
 }
 
 #shareUrl{
-  width: 100%;
-  margin-top: 10px;
+  width: min(820px, 100%);
+  display:block;
+  margin: 10px 0 6px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   background: #fff;
   font-size: 14px;
-  color: #111827;
 }
-
 .status{
-  margin-top: 8px;
+  min-height: 20px;
   color: var(--muted);
   font-size: 13px;
-  min-height: 18px;
+  margin-bottom: 14px;
 }
 
-/* ---------- Sheet Layout ---------- */
+/* =========================
+   Sheet layout (this matches your app.js)
+========================= */
 .sheet{
-  margin-top: 14px;
-}
-
-.grid{
-  margin-top: 14px;
+  max-width: 1200px;
+  margin: 0 auto 32px;
+  padding: 0 16px 32px;
   display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 16px;
 }
 
-@media (max-width: 980px){
-  .grid{ grid-template-columns: 1fr; }
-}
-
-/* ---------- Cards ---------- */
-.card{
+/* Section card */
+.section{
   background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  overflow:hidden;
-  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(15,23,42,0.03);
 }
 
-.cardHead{
-  padding: 14px 16px 12px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(to bottom, rgba(15, 23, 42, .55), rgba(15, 23, 42, .55));
+.sectionHeader{
+  background: var(--header);
   color: #fff;
-  position: relative;
+  padding: 12px 14px 10px;
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 10px;
 }
-
-.cardTitle{
+.sectionTitleWrap{
+  min-width: 0;
+}
+.sectionTitle{
+  font-size: 18px;
   font-weight: 900;
   letter-spacing: 0.02em;
-  font-size: 18px;
-  margin: 0;
 }
-
-.cardDesc{
-  margin: 4px 0 0;
+.sectionDesc{
+  margin-top: 2px;
   font-size: 12px;
-  opacity: .95;
-  color: rgba(255,255,255,.92);
+  opacity: 0.95;
 }
 
-.cardHelp{
-  position:absolute;
-  right: 12px;
-  top: 12px;
-  width: 26px;
-  height: 26px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.14);
-  border: 1px solid rgba(255,255,255,.22);
+.sectionHelp,
+.rowHelp{
+  appearance:none;
+  border: 1px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.18);
   color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
   font-weight: 900;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  cursor: pointer;
+  flex: 0 0 auto;
 }
-.cardHelp:hover{ background: rgba(255,255,255,.20); }
+.sectionHelp:hover{ background: rgba(255,255,255,0.24); }
 
-/* ---------- Sections ---------- */
-.section{
-  padding: 12px 16px 8px;
-}
-
-.sectionTitle{
-  margin: 8px 0 6px;
+.groupTitle{
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  background: #f8fafc;
+  color: #0b1220;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   font-size: 11px;
-  letter-spacing: 0.14em;
-  font-weight: 900;
-  color: #0f172a;
   text-transform: uppercase;
 }
 
-.sectionHint{
-  margin: 0 0 8px 0;
-  color: var(--muted);
-  font-size: 12px;
+.rows{
+  padding: 2px 0;
 }
 
-/* ---------- Rows ---------- */
 .row{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap: 12px;
-  padding: 10px 0;
-  border-top: 1px solid rgba(229,231,235,.9);
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
 }
+.row:first-child{ border-top: 0; }
 
-.row:first-of-type{
-  border-top: 0;
-}
-
-.rowLeft{
+.rowLabel{
   display:flex;
   align-items:center;
   gap: 10px;
   min-width: 0;
+  flex: 1 1 auto;
+}
+.rowLabelText{
+  font-weight: 700;
+  font-size: 13px;
+  color: #0b1220;
+  min-width: 0;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.itemName{
-  font-weight: 900;
-  color: #0f172a;
-  font-size: 15px;
-  line-height: 1.15;
-  word-break: break-word;
-}
-
-.itemHelp{
+.rowHelp{
   width: 22px;
   height: 22px;
-  border-radius: 999px;
-  border: 1px solid rgba(0,0,0,.10);
+  border: 1px solid var(--line);
   background: #fff;
-  color: #111827;
-  font-weight: 900;
+  color: #0b1220;
+}
+.rowHelp:hover{ background:#f1f5f9; }
+
+.roleCells{
   display:flex;
   align-items:center;
-  justify-content:center;
+  gap: 10px;
   flex: 0 0 auto;
 }
-.itemHelp:hover{ background:#f8fafc; }
+.roleCell{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+.roleTitle{
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+}
 
-/* ---------- Choice Dots (Unselected muted / Selected full color) ---------- */
-.choiceGroup{
+.dots{
   display:flex;
   align-items:center;
   gap: 8px;
 }
 
-.choice{
-  width: 36px;
-  height: 22px;
+/* =========================
+   Choice dots (key part)
+   - Unselected = desaturated, dim
+   - Selected = full color + ring + ✓
+   - Always has colored border (prints better)
+========================= */
+.choiceDot{
+  width: 28px;
+  height: 18px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.9);
-  border: 1px solid rgba(0,0,0,.12);
+  border: 2px solid var(--empty);
+  background: #fff;
+  cursor:pointer;
   position: relative;
+
+  /* unselected look */
+  opacity: 0.35;
+  filter: saturate(0) brightness(1.1);
+}
+
+.choiceDot:hover{
+  opacity: 0.55;
+  filter: saturate(0) brightness(1.05);
+}
+
+.choiceDot.active{
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 0 0 3px rgba(15,23,42,0.08);
+}
+
+/* Checkmark so it still makes sense in grayscale printing */
+.choiceDot.active::after{
+  content: "✓";
+  position:absolute;
+  inset: 0;
   display:flex;
   align-items:center;
   justify-content:center;
-  overflow:hidden;
-
-  /* Default: muted/desaturated so selection is obvious */
-  opacity: 0.32;
-  filter: saturate(0.15) brightness(1.02);
-  transition: transform .08s ease, opacity .12s ease, filter .12s ease, box-shadow .12s ease, border-color .12s ease;
-}
-
-.choice:hover{
-  transform: translateY(-1px);
-  opacity: 0.42;
-  filter: saturate(0.25) brightness(1.03);
-}
-
-.choice.active{
-  opacity: 1;
-  filter: saturate(1) brightness(1);
-  box-shadow: 0 8px 18px rgba(2,6,23,.16);
-  border-color: rgba(0,0,0,.16);
-}
-
-.choice[data-state="fav"]{ background: color-mix(in srgb, var(--fav) 86%, #fff 14%); }
-.choice[data-state="like"]{ background: color-mix(in srgb, var(--like) 86%, #fff 14%); }
-.choice[data-state="int"]{ background: color-mix(in srgb, var(--int) 88%, #fff 12%); }
-.choice[data-state="no"]{  background: color-mix(in srgb, var(--no) 86%, #fff 14%); }
-.choice[data-state="empty"]{ background: #fff; }
-
-.choice .mark{
-  font-weight: 900;
   font-size: 12px;
-  color: rgba(15,23,42,.75);
-  user-select:none;
-  pointer-events:none;
+  font-weight: 900;
+  color: rgba(255,255,255,0.95);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
 }
 
-.choice.active .mark{
-  color: rgba(15,23,42,.92);
+/* State colors (both border + fill when active) */
+.choiceDot.fav{ border-color: var(--fav); }
+.choiceDot.like{ border-color: var(--like); }
+.choiceDot.int{ border-color: var(--int); }
+.choiceDot.no{ border-color: var(--no); }
+
+.choiceDot.fav.active{ background: var(--fav); }
+.choiceDot.like.active{ background: var(--like); }
+.choiceDot.int.active{ background: var(--int); }
+.choiceDot.no.active{ background: var(--no); }
+
+/* Yellow needs darker check for contrast */
+.choiceDot.int.active::after{
+  color: rgba(15,23,42,0.95);
+  text-shadow: none;
 }
 
-/* ---------- Role header (Self/Partner etc) ---------- */
-.roleHeader{
-  display:flex;
-  justify-content:flex-end;
-  gap: 18px;
-  margin: 0 0 6px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 800;
+/* Unset/empty state (no checkmark) */
+.choiceDot.empty{
+  border-color: var(--empty);
+  background: #fff;
+  opacity: 1;
+  filter: none;
 }
-.roleHeader span{ min-width: 64px; text-align:center; }
+.choiceDot.empty::after{ content:""; }
 
-/* ---------- Floating Bubble (explanation tooltip) ---------- */
+/* =========================
+   Help bubble (if your JS uses .bubble)
+========================= */
 .bubble{
-  position: fixed;
-  z-index: 9999;
-  max-width: min(420px, 88vw);
+  position: absolute;
+  z-index: 50;
+  max-width: 360px;
   background: #0b1220;
   color: #fff;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 14px;
-  box-shadow: 0 18px 60px rgba(0,0,0,.35);
-  padding: 12px 12px 10px;
-}
-
-.bubbleTitle{
-  font-weight: 900;
-  font-size: 13px;
-  margin: 0 0 6px 0;
-  opacity: .95;
-}
-
-.bubbleText{
-  margin: 0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
   font-size: 13px;
   line-height: 1.35;
-  color: rgba(255,255,255,.92);
 }
-
-.bubbleActions{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.bubbleActionBtn{
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.14);
-  color: #fff;
-  font-weight: 900;
-  font-size: 12px;
-}
-.bubbleActionBtn:hover{ background: rgba(255,255,255,.18); }
-
-.bubbleClose{
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.12);
-  color: rgba(255,255,255,.92);
-  font-weight: 900;
-  font-size: 12px;
-}
-.bubbleClose:hover{ background: rgba(255,255,255,.14); }
-
-/* ---------- Print legend (shown only for print) ---------- */
-.printLegend{
-  display:none;
+.bubble .bubbleActions{
   margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-}
-.printLegendTitle{
-  font-weight: 900;
-  margin: 0 0 6px;
-}
-.printLegendRow{
   display:flex;
-  align-items:center;
-  gap: 14px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
-.printLegendHint{
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 12px;
+.bubble a,
+.bubble button{
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.bubble button{
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.12);
+  color:#fff;
+}
+.bubble button:hover{ background: rgba(255,255,255,0.18); }
+.bubble a{
+  color: #fff;
+  text-decoration: underline;
 }
 
-/* ================================
-   PRINT (PDF export)
-   ================================ */
+/* =========================
+   Print / PDF compression + color
+========================= */
 @media print{
-  @page{
-    size: A4;
-    margin: 8mm;
+  /* Try hard to preserve colors */
+  *{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  html, body{
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Hide UI stuff */
-  .actions, #shareUrl, .status{ display:none !important; }
-
-  /* Keep legend in print, but make it compact */
-  .printLegend{
-    display:block !important;
-    margin: 0 0 6mm 0;
-    padding: 0;
-    border: 0;
-  }
-  .printLegendTitle{ font-size: 12px; margin: 0 0 2mm 0; }
-  .printLegendRow{ font-size: 11px; }
-  .printLegendHint{ display:none; }
-
-  /* Make the sheet dense */
-  .sheet{ padding: 0 !important; }
-  .top{ padding: 0 0 4mm 0 !important; border:0 !important; box-shadow:none !important; }
-  .titleWrap h1{ font-size: 18px !important; margin:0 0 1mm 0; }
-  .sub{ font-size: 11px !important; margin:0 0 2mm 0; color:#111827; }
-
-  /* Print grid: 3 columns on A4 */
-  .grid{
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 6mm !important;
-  }
-
-  /* Cards should NOT waste vertical space */
-  .card{
-    box-shadow:none !important;
-    border:1px solid #d1d5db !important;
-    border-radius:10px !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-  .cardHead{
-    padding: 3mm 3mm 2mm !important;
-    border-bottom: 1px solid #e5e7eb !important;
-    background: #111827 !important;
-    color:#fff !important;
-  }
-  .cardTitle{
-    font-size: 13px !important;
-    margin:0 !important;
-  }
-  .cardDesc{
-    font-size: 10px !important;
-    margin: 1mm 0 0 !important;
-    color:#e5e7eb !important;
-    opacity: 1 !important;
-  }
-
-  .section{ padding: 2mm 3mm 2mm !important; }
-  .sectionTitle{
-    font-size: 9px !important;
-    margin: 2mm 0 1mm !important;
-    letter-spacing: 0.06em !important;
-  }
-
-  /* Rows compact */
-  .row{
-    padding: 1.5mm 0 !important;
-    gap: 4mm !important;
-  }
-  .rowLeft{ min-width: 0 !important; }
-  .itemName{ font-size: 10.5px !important; font-weight: 800; }
-
-  /* Hide help buttons in print to save space */
-  .itemHelp, .cardHelp{ display:none !important; }
-
-  /* Role headers tiny */
-  .roleHeader{
-    font-size: 9px !important;
-    margin: 0 0 1mm !important;
-  }
-
-  /* Make dot groups smaller */
-  .choiceGroup{
-    width: auto !important;
-    gap: 4px !important;
-  }
-
-  /* In print we want everything visible, but still readable in grayscale */
-  .choice{
-    width: 22px !important;
-    height: 14px !important;
-    opacity: 1 !important;
-    filter: none !important;
+  body{
     background: #fff !important;
-    border: 1px solid rgba(0,0,0,0.18) !important;
-    box-shadow: none !important;
   }
 
-  /* Selected colors (only if user prints background graphics) */
-  .choice.active[data-state="fav"]{ background: var(--fav) !important; }
-  .choice.active[data-state="like"]{ background: var(--like) !important; }
-  .choice.active[data-state="int"]{ background: var(--int) !important; }
-  .choice.active[data-state="no"]{ background: var(--no) !important; }
-  .choice.active[data-state="empty"]{ background:#fff !important; }
-
-  /* Always show letters inside dots in print so grayscale still works */
-  .choice .mark{
-    color:#111827 !important;
-    font-size: 10px !important;
-    font-weight: 900 !important;
+  /* Hide interactive controls, keep title + legend */
+  .actions,
+  #shareUrl,
+  .status{
+    display:none !important;
   }
 
-  /* Prevent ugly splitting */
-  .row, .section, .cardHead{
+  /* Tighter typography */
+  h1{ font-size: 26px; margin-bottom: 2px; }
+  .sub{ font-size: 11px; margin-bottom: 8px; }
+  .legend{ font-size: 11px; margin: 6px 0 10px; }
+
+  /* Pack sections into 2 print columns */
+  .sheet{
+    display:block !important;
+    column-count: 2;
+    column-gap: 10mm;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+
+  /* Prevent awkward splitting */
+  .section{
     break-inside: avoid;
     page-break-inside: avoid;
+    margin: 0 0 10mm 0;
+    border: 1px solid #d9dee8;
+    box-shadow: none;
+  }
+
+  .sectionHeader{
+    padding: 8px 10px;
+  }
+  .sectionTitle{ font-size: 14px; }
+  .sectionDesc{ font-size: 10px; }
+
+  .groupTitle{
+    padding: 7px 10px;
+    font-size: 10px;
+  }
+
+  .row{
+    padding: 6px 10px;
+  }
+  .rowLabelText{ font-size: 11px; }
+  .roleTitle{ font-size: 10px; }
+
+  /* Smaller dots for fewer pages */
+  .choiceDot{
+    width: 22px;
+    height: 14px;
+    border-width: 2px;
+  }
+  .choiceDot.active::after{
+    font-size: 10px;
+  }
+
+  /* Reduce help clutter in print */
+  .rowHelp,
+  .sectionHelp{
+    display:none !important;
+  }
+
+  /* Page setup hint (browser may ignore size) */
+  @page{
+    margin: 10mm;
   }
 }
