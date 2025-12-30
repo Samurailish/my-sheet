@@ -1,449 +1,435 @@
-/* =========================
-   Base
-========================= */
+/* ==========================
+   Base / Reset
+   ========================== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: #0f172a;
+  background: #f5f7fb;
+}
+
+a { color: inherit; text-decoration: none; }
+
 :root{
-  --bg: #f5f7fb;
-  --panel: #ffffff;
-  --text: #0f172a;
+  --card: #ffffff;
   --muted: #64748b;
-  --line: #e6eaf2;
+  --line: #e6ebf3;
+  --shadow: 0 8px 30px rgba(15, 23, 42, .08);
 
-  --header: #777f8f;
-
-  --fav: #3aa0ff;
-  --like: #43c07a;
-  --int: #e6c24f;
-  --no:  #e06a6a;
-  --empty: #cbd5e1;
+  --fav: #2aa7ff;
+  --like: #51c878;
+  --int: #f2c94c;
+  --no:  #f16a6a;
+  --unset: #ffffff;
+  --unset-border: #cbd5e1;
 }
 
-*{ box-sizing: border-box; }
-html,body{ height:100%; }
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
-  color: var(--text);
-  background: var(--bg);
-}
-
-a{ color: inherit; }
-
-.wrap{
+/* ==========================
+   Header
+   ========================== */
+header.top {
   max-width: 1200px;
-  margin: 24px auto;
-  padding: 0 16px 32px;
+  margin: 0 auto;
+  padding: 26px 22px 14px;
 }
 
-/* If your index.html doesn't have .wrap yet, this still looks fine */
-.top{
-  max-width: 1200px;
-  margin: 24px auto 0;
-  padding: 0 16px;
-}
-
-h1{
+h1 {
   margin: 0 0 6px;
-  font-size: 44px;
+  font-size: 56px;
+  line-height: 1;
   letter-spacing: -0.02em;
 }
-.sub{
+
+p.sub {
   margin: 0 0 14px;
   color: var(--muted);
   font-size: 14px;
 }
 
-/* =========================
-   Legend + actions
-========================= */
-.legend{
-  display:flex;
-  align-items:center;
+/* legend row */
+.legend {
+  display: flex;
+  align-items: center;
   gap: 14px;
-  flex-wrap: wrap;
-  margin: 10px 0 14px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.legend .dot{
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  display:inline-block;
-  margin-right: 6px;
-  border: 2px solid transparent;
-  vertical-align: -2px;
-}
-.legend .fav{ background: var(--fav); border-color: var(--fav); }
-.legend .like{ background: var(--like); border-color: var(--like); }
-.legend .int{ background: var(--int); border-color: var(--int); }
-.legend .no{ background: var(--no); border-color: var(--no); }
-.legend .empty{ background: #fff; border-color: var(--empty); }
-
-.actions{
-  display:flex;
-  gap: 10px;
   flex-wrap: wrap;
   margin: 10px 0 12px;
 }
-.actions button{
-  appearance:none;
-  border: 0;
+
+.legend .dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.legend .dot::before{
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+.legend .dot.fav::before{ background: var(--fav); }
+.legend .dot.like::before{ background: var(--like); }
+.legend .dot.int::before{ background: var(--int); }
+.legend .dot.no::before{ background: var(--no); }
+.legend .dot.empty::before{
+  background: #fff;
+  border: 1px solid var(--unset-border);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 14px;
+}
+
+button {
+  font: inherit;
+}
+
+.actions button {
+  height: 38px;
+  padding: 0 14px;
   border-radius: 10px;
-  padding: 10px 14px;
+  border: 1px solid transparent;
+  background: #0f172a;
+  color: #fff;
   font-weight: 700;
   cursor: pointer;
-  background: #0b1220;
-  color: #fff;
-}
-.actions button:hover{ filter: brightness(1.05); }
-.actions button:active{ transform: translateY(1px); }
-.actions button.secondary{
-  background: #111827;
-  opacity: 0.92;
-}
-.actions button#getLink{
-  background: #ef4444;
+  box-shadow: 0 6px 16px rgba(15,23,42,.12);
 }
 
-#shareUrl{
-  width: min(820px, 100%);
-  display:block;
-  margin: 10px 0 6px;
-  padding: 12px 14px;
-  border-radius: 12px;
+.actions button:hover { filter: brightness(1.06); }
+.actions button:disabled { opacity: .55; cursor: not-allowed; }
+
+.actions #getLink {
+  background: #ff4b4b;
+}
+
+.actions button.secondary {
+  background: #0f172a;
+  color: #fff;
+}
+
+#shareUrl {
+  width: min(760px, 100%);
+  height: 40px;
   border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 12px;
   background: #fff;
-  font-size: 14px;
+  outline: none;
 }
-.status{
-  min-height: 20px;
+
+.status {
+  margin-top: 8px;
   color: var(--muted);
-  font-size: 13px;
-  margin-bottom: 14px;
-}
-
-/* =========================
-   Sheet layout (this matches your app.js)
-========================= */
-.sheet{
-  max-width: 1200px;
-  margin: 0 auto 32px;
-  padding: 0 16px 32px;
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap: 16px;
-}
-
-/* Section card */
-.section{
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 1px 0 rgba(15,23,42,0.03);
-}
-
-.sectionHeader{
-  background: var(--header);
-  color: #fff;
-  padding: 12px 14px 10px;
-  display:flex;
-  align-items:flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-.sectionTitleWrap{
-  min-width: 0;
-}
-.sectionTitle{
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-}
-.sectionDesc{
-  margin-top: 2px;
   font-size: 12px;
-  opacity: 0.95;
 }
 
-.sectionHelp,
-.rowHelp{
-  appearance:none;
-  border: 1px solid rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.18);
+/* ==========================
+   Sheet Grid
+   ========================== */
+main.sheet {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 22px 60px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+/* single column on small screens */
+@media (max-width: 980px){
+  main.sheet { grid-template-columns: 1fr; }
+  h1 { font-size: 40px; }
+}
+
+/* ==========================
+   Section Card
+   ========================== */
+.section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.sectionHeader {
+  background: #707783;
   color: #fff;
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  font-weight: 900;
-  cursor: pointer;
-  flex: 0 0 auto;
-}
-.sectionHelp:hover{ background: rgba(255,255,255,0.24); }
-
-.groupTitle{
-  padding: 10px 14px;
-  border-top: 1px solid rgba(255,255,255,0.15);
-  background: #f8fafc;
-  color: #0b1220;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  font-size: 11px;
-  text-transform: uppercase;
-}
-
-.rows{
-  padding: 2px 0;
-}
-
-.row{
-  display:flex;
-  align-items:center;
+  padding: 14px 14px 12px;
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
-  padding: 10px 14px;
-  border-top: 1px solid var(--line);
+  gap: 12px;
 }
-.row:first-child{ border-top: 0; }
 
-.rowLabel{
-  display:flex;
-  align-items:center;
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: .02em;
+}
+
+.sectionHeader .desc {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,.86);
+  line-height: 1.25;
+}
+
+/* Role pills in header (Self/Partner, Giving/Receiving, etc.) */
+.rolePills {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.rolePill {
+  background: rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.22);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+/* ==========================
+   Rows / Items
+   ========================== */
+.rows {
+  padding: 10px 0;
+}
+
+.subHeader {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  color: #0f172a;
+  text-transform: uppercase;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: #f6f8fc;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.row:last-child { border-bottom: 0; }
+
+.rowLabel {
+  display: flex;
+  align-items: center;
   gap: 10px;
-  min-width: 0;
+  min-width: 220px;
   flex: 1 1 auto;
 }
-.rowLabelText{
-  font-weight: 700;
+
+.rowLabel .labelText {
+  font-weight: 650;
   font-size: 13px;
-  color: #0b1220;
-  min-width: 0;
-  overflow:hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: #0f172a;
+  line-height: 1.2;
 }
 
-.rowHelp{
-  width: 22px;
-  height: 22px;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: #0b1220;
-}
-.rowHelp:hover{ background:#f1f5f9; }
-
-.roleCells{
-  display:flex;
-  align-items:center;
-  gap: 10px;
+/* right side: roles -> dots */
+.roleCells {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   flex: 0 0 auto;
 }
-.roleCell{
-  display:flex;
-  align-items:center;
+
+.roleCell {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
-.roleTitle{
+
+.roleHeader {
   font-size: 11px;
-  font-weight: 800;
   color: var(--muted);
-}
-
-.dots{
-  display:flex;
-  align-items:center;
-  gap: 8px;
-}
-
-/* =========================
-   Choice dots (key part)
-   - Unselected = desaturated, dim
-   - Selected = full color + ring + ✓
-   - Always has colored border (prints better)
-========================= */
-.choiceDot{
-  width: 28px;
-  height: 18px;
-  border-radius: 999px;
-  border: 2px solid var(--empty);
-  background: #fff;
-  cursor:pointer;
-  position: relative;
-
-  /* unselected look */
-  opacity: 0.35;
-  filter: saturate(0) brightness(1.1);
-}
-
-.choiceDot:hover{
-  opacity: 0.55;
-  filter: saturate(0) brightness(1.05);
-}
-
-.choiceDot.active{
-  opacity: 1;
-  filter: none;
-  box-shadow: 0 0 0 3px rgba(15,23,42,0.08);
-}
-
-/* Checkmark so it still makes sense in grayscale printing */
-.choiceDot.active::after{
-  content: "✓";
-  position:absolute;
-  inset: 0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(255,255,255,0.95);
-  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
-}
-
-/* State colors (both border + fill when active) */
-.choiceDot.fav{ border-color: var(--fav); }
-.choiceDot.like{ border-color: var(--like); }
-.choiceDot.int{ border-color: var(--int); }
-.choiceDot.no{ border-color: var(--no); }
-
-.choiceDot.fav.active{ background: var(--fav); }
-.choiceDot.like.active{ background: var(--like); }
-.choiceDot.int.active{ background: var(--int); }
-.choiceDot.no.active{ background: var(--no); }
-
-/* Yellow needs darker check for contrast */
-.choiceDot.int.active::after{
-  color: rgba(15,23,42,0.95);
-  text-shadow: none;
-}
-
-/* Unset/empty state (no checkmark) */
-.choiceDot.empty{
-  border-color: var(--empty);
-  background: #fff;
-  opacity: 1;
-  filter: none;
-}
-.choiceDot.empty::after{ content:""; }
-
-/* =========================
-   Help bubble (if your JS uses .bubble)
-========================= */
-.bubble{
-  position: absolute;
-  z-index: 50;
-  max-width: 360px;
-  background: #0b1220;
-  color: #fff;
-  border-radius: 12px;
-  padding: 10px 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  font-size: 13px;
-  line-height: 1.35;
-}
-.bubble .bubbleActions{
-  margin-top: 8px;
-  display:flex;
-  gap: 8px;
-}
-.bubble a,
-.bubble button{
-  font: inherit;
   font-weight: 800;
-  cursor: pointer;
-}
-.bubble button{
-  border: 0;
-  border-radius: 10px;
-  padding: 8px 10px;
-  background: rgba(255,255,255,0.12);
-  color:#fff;
-}
-.bubble button:hover{ background: rgba(255,255,255,0.18); }
-.bubble a{
-  color: #fff;
-  text-decoration: underline;
 }
 
-/* =========================
-   Print / PDF compression + color
-========================= */
-@media print{
-  /* Try hard to preserve colors */
-  *{
+/* ==========================
+   Choice Dots (your 5 options)
+   - default = desaturated and dim
+   - active = full color
+   ========================== */
+.choiceRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: #f3f6fb;
+  border: 1px solid #e8eef8;
+}
+
+.choiceDot {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, .10);
+  cursor: pointer;
+
+  /* dim + desaturate by default */
+  opacity: .45;
+  filter: saturate(.20) brightness(1.08);
+  transform: translateZ(0);
+  transition: opacity .12s ease, filter .12s ease, box-shadow .12s ease, transform .12s ease;
+}
+
+.choiceDot:hover {
+  opacity: .7;
+  transform: scale(1.03);
+}
+
+.choiceDot.active {
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 0 0 3px rgba(15,23,42,.10);
+}
+
+/* map ids -> colors (your JS uses s.id for className) */
+.choiceDot.fav { background: var(--fav); }
+.choiceDot.like { background: var(--like); }
+.choiceDot.int { background: var(--int); }
+.choiceDot.no { background: var(--no); }
+.choiceDot.unset {
+  background: var(--unset);
+  border: 1px solid var(--unset-border);
+}
+
+/* ==========================
+   Help "?" buttons
+   ========================== */
+.helpBtn, .help, .qBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid #d8e0ee;
+  background: #fff;
+  color: #334155;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.helpBtn:hover, .help:hover, .qBtn:hover {
+  background: #f2f6ff;
+}
+
+/* ==========================
+   Print / PDF
+   - keep colors
+   - more compact
+   - include legend at top if your HTML keeps it in header
+   ========================== */
+@media print {
+  /* important: ask browser to keep colors */
+  * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  body{
+  body {
     background: #fff !important;
   }
 
-  /* Hide interactive controls, keep title + legend */
-  .actions,
-  #shareUrl,
-  .status{
-    display:none !important;
+  header.top {
+    max-width: none;
+    padding: 10mm 10mm 4mm;
   }
 
-  /* Tighter typography */
-  h1{ font-size: 26px; margin-bottom: 2px; }
-  .sub{ font-size: 11px; margin-bottom: 8px; }
-  .legend{ font-size: 11px; margin: 6px 0 10px; }
+  h1 { font-size: 28px; }
+  p.sub { font-size: 11px; margin-bottom: 8px; }
 
-  /* Pack sections into 2 print columns */
-  .sheet{
-    display:block !important;
-    column-count: 2;
-    column-gap: 10mm;
-    padding: 0 !important;
-    max-width: none !important;
+  .actions { display: none !important; } /* no buttons in PDF */
+
+  #shareUrl { display: none !important; }
+  .status { display: none !important; }
+
+  main.sheet {
+    max-width: none;
+    padding: 0 10mm 10mm;
+    gap: 8mm;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* Prevent awkward splitting */
-  .section{
+  .section {
+    box-shadow: none !important;
+    border: 1px solid #cfd8e6;
     break-inside: avoid;
     page-break-inside: avoid;
-    margin: 0 0 10mm 0;
-    border: 1px solid #d9dee8;
+  }
+
+  .sectionHeader {
+    padding: 8px 10px;
+  }
+
+  .sectionHeader h2 { font-size: 14px; }
+  .sectionHeader .desc { font-size: 10px; }
+
+  .row {
+    padding: 6px 10px;
+  }
+
+  .rowLabel .labelText {
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+
+  .roleHeader { font-size: 9px; }
+
+  .choiceRow {
+    gap: 6px;
+    padding: 2px 5px;
+  }
+
+  .choiceDot {
+    width: 16px;
+    height: 16px;
+    opacity: .22;                 /* still dim by default */
+    filter: saturate(.20) brightness(1.08);
+  }
+
+  .choiceDot.active {
+    opacity: 1;
+    filter: none;
     box-shadow: none;
   }
 
-  .sectionHeader{
-    padding: 8px 10px;
-  }
-  .sectionTitle{ font-size: 14px; }
-  .sectionDesc{ font-size: 10px; }
-
-  .groupTitle{
-    padding: 7px 10px;
+  .helpBtn, .help, .qBtn {
+    width: 16px;
+    height: 16px;
     font-size: 10px;
   }
 
-  .row{
-    padding: 6px 10px;
-  }
-  .rowLabelText{ font-size: 11px; }
-  .roleTitle{ font-size: 10px; }
-
-  /* Smaller dots for fewer pages */
-  .choiceDot{
-    width: 22px;
-    height: 14px;
-    border-width: 2px;
-  }
-  .choiceDot.active::after{
-    font-size: 10px;
-  }
-
-  /* Reduce help clutter in print */
-  .rowHelp,
-  .sectionHelp{
-    display:none !important;
-  }
-
-  /* Page setup hint (browser may ignore size) */
-  @page{
+  @page {
+    size: A4;
     margin: 10mm;
   }
 }
