@@ -1,299 +1,286 @@
-/* global window */
-window.SHEET_DATA = [
-  {
-    id: "intimacy",
-    title: "INTIMACY",
-    desc: "Affection, closeness, and non-explicit intimacy behaviors.",
-    groups: [
-      {
-        id: "general",
-        title: "General",
-        columns: [{ key: "general", label: "" }],
-        items: [
-          { label: "Romance / Affection", q: "romance affection relationship intimacy" },
-          { label: "Hugging", q: "hugging affection intimacy" },
-          { label: "Kissing (body)", q: "kissing body intimacy" },
-          { label: "Kissing (mouth)", q: "kissing mouth intimacy" },
-          { label: "Spooning", q: "spooning cuddling intimacy" },
-          { label: "Using real names", q: "using real names intimacy dynamic" },
-          { label: "Sleepover", q: "sleepover intimacy couple" }
-        ]
-      }
-    ]
-  },
+:root{
+  --bg:#ffffff;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --shadow: 0 10px 30px rgba(0,0,0,.06);
+  --radius:16px;
+  --primary:#ef4444;
+  --btn:#111827;
+  --btnText:#fff;
 
-  {
-    id: "groupings",
-    title: "GROUPINGS",
-    desc: "Group configurations and contexts.",
-    groups: [
-      {
-        id: "general",
-        title: "General",
-        columns: [{ key: "general", label: "" }],
-        items: [
-          { label: "You and 1 male", q: "couple configuration you and 1 male" },
-          { label: "You and 1 female", q: "couple configuration you and 1 female" },
-          { label: "You and 1 male, 1 female", q: "threesome configuration male female" },
-          { label: "You and 2 males", q: "threesome configuration 2 males" },
-          { label: "You and 2 females", q: "threesome configuration 2 females" },
-          { label: "Group setting", q: "group setting intimacy boundaries communication" }
-        ]
-      }
-    ]
-  },
+  --fav:#60a5fa;
+  --like:#6ee7b7;
+  --int:#fcd34d;
+  --no:#fca5a5;
+  --empty:#ffffff;
+}
 
-  {
-    id: "general",
-    title: "GENERAL",
-    desc: "General adult sexual activities and dynamics.",
-    groups: [
-      {
-        id: "giving_receiving",
-        title: "Giving / Receiving",
-        columns: [
-          { key: "giving", label: "Giving" },
-          { key: "receiving", label: "Receiving" }
-        ],
-        items: [
-          { label: "Hand play / Fingering", q: "fingering hand play safety consent" },
-          { label: "Oral sex", q: "oral sex safety consent" },
-          { label: "Deep throat (consensual)", q: "deep throat safety consent" },
-          { label: "Swallowing", q: "swallowing sexual health safety" },
-          { label: "Mutual masturbation", q: "mutual masturbation communication" },
-          { label: "Edging", q: "edging technique consent" },
-          { label: "Teasing", q: "sexual teasing consent communication" },
-          { label: "Strip tease", q: "strip tease intimacy" }
-        ]
-      }
-    ]
-  },
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background:var(--bg);
+  color:#111827;
+}
 
-  {
-    id: "clothing",
-    title: "CLOTHING",
-    desc: "Clothing, outfits, and accessories as part of the experience.",
-    groups: [
-      {
-        id: "self_partner",
-        title: "Self / Partner",
-        columns: [
-          { key: "self", label: "Self" },
-          { key: "partner", label: "Partner" }
-        ],
-        items: [
-          { label: "Clothed sex", q: "clothed sex preferences" },
-          { label: "Lingerie", q: "lingerie preferences" },
-          { label: "Stockings", q: "stockings lingerie" },
-          { label: "Heels", q: "heels intimacy" },
-          { label: "Leather", q: "leather clothing kink fashion" },
-          { label: "Latex", q: "latex clothing kink safety care" },
-          { label: "Uniform", q: "uniform roleplay adult consent" },
-          { label: "Cosplay", q: "cosplay adult roleplay consent" },
-          { label: "Cross-dressing", q: "cross dressing intimacy" },
-          { label: "Formal clothing", q: "formalwear intimacy" }
-        ]
-      }
-    ]
-  },
+.top{
+  padding:22px 24px 14px;
+  border-bottom: 1px solid var(--border);
+}
 
-  {
-    id: "penetration",
-    title: "PENETRATION",
-    desc: "Penetrative activities and variations (consenting adults only).",
-    groups: [
-      {
-        id: "giving_receiving",
-        title: "Giving / Receiving",
-        columns: [
-          { key: "giving", label: "Giving" },
-          { key: "receiving", label: "Receiving" }
-        ],
-        items: [
-          { label: "Penetration (general)", q: "penetration sex safety consent" },
-          { label: "Strap-on (consensual)", q: "strap on safety consent" },
-          { label: "Manual stimulation", q: "manual stimulation consent" },
-          { label: "Toy-assisted penetration", q: "toy assisted penetration safety" }
-        ]
-      }
-    ]
-  },
+h1{margin:0 0 6px;font-size:56px;letter-spacing:-0.02em}
+.sub{margin:0 0 14px;color:var(--muted)}
 
-  {
-    id: "butt",
-    title: "BUTT STUFF",
-    desc: "Anal play and related activities (go slow, use lube, communicate).",
-    groups: [
-      {
-        id: "giving_receiving",
-        title: "Giving / Receiving",
-        columns: [
-          { key: "giving", label: "Giving" },
-          { key: "receiving", label: "Receiving" }
-        ],
-        items: [
-          { label: "Anal teasing", q: "anal teasing safety consent lube" },
-          { label: "Anal toys", q: "anal toys safety lube hygiene" },
-          { label: "Rimming (consensual)", q: "rimming safety hygiene consent" }
-        ]
-      }
-    ]
-  },
+.legend{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+  margin:10px 0 14px;
+  color:#111827;
+  font-size:14px;
+}
 
-  {
-    id: "restrictive",
-    title: "RESTRICTIVE",
-    desc: "Restraints, control, and limitation of movement (safety-first).",
-    groups: [
-      {
-        id: "self_partner",
-        title: "Self / Partner",
-        columns: [
-          { key: "self", label: "Self" },
-          { key: "partner", label: "Partner" }
-        ],
-        items: [
-          { label: "Blindfold", q: "blindfold sensory play consent safety" },
-          { label: "Handcuffs (soft / padded)", q: "padded handcuffs safety consent" },
-          { label: "Rope (basic)", q: "rope bondage safety consent beginner" },
-          { label: "Collar (symbolic)", q: "collar consensual dynamic" },
-          { label: "Leash (play)", q: "leash play consensual dynamic" }
-        ]
-      }
-    ]
-  },
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-bottom:12px;
+}
 
-  {
-    id: "domination",
-    title: "DOMINATION",
-    desc: "Power dynamics (explicit consent and boundaries required).",
-    groups: [
-      {
-        id: "as_roles",
-        title: "As Dom / As Sub",
-        columns: [
-          { key: "dom", label: "As Dom" },
-          { key: "sub", label: "As Sub" }
-        ],
-        items: [
-          { label: "Dominant / Submissive dynamic", q: "dominant submissive consent boundaries" },
-          { label: "Domestic service (consensual)", q: "domestic service consensual dynamic" },
-          { label: "Discipline (consensual)", q: "discipline bdsm consent safety" },
-          { label: "Begging (consensual)", q: "begging kink consent" },
-          { label: "Orgasm control (consensual)", q: "orgasm control consent boundaries" }
-        ]
-      }
-    ]
-  },
+button{
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:700;
+  cursor:pointer;
+  background:var(--primary);
+  color:#fff;
+}
 
-  {
-    id: "touch",
-    title: "TOUCH & STIMULATION",
-    desc: "Physical stimulation and sensation play.",
-    groups: [
-      {
-        id: "actor_subject",
-        title: "Actor / Subject",
-        columns: [
-          { key: "actor", label: "Actor" },
-          { key: "subject", label: "Subject" }
-        ],
-        items: [
-          { label: "Tickling", q: "tickling consent safety" },
-          { label: "Foot play", q: "foot play consent hygiene" },
-          { label: "Massage (sensual)", q: "sensual massage consent" },
-          { label: "Temperature play (mild)", q: "temperature play safety consent" },
-          { label: "Light scratching", q: "light scratching consent safety" }
-        ]
-      }
-    ]
-  },
+button.secondary{
+  background:var(--btn);
+  color:var(--btnText);
+}
 
-  {
-    id: "fluids",
-    title: "FLUIDS",
-    desc: "Fluid-related preferences (health/safety awareness matters).",
-    groups: [
-      {
-        id: "general",
-        title: "General",
-        columns: [{ key: "general", label: "" }],
-        items: [
-          { label: "Blood (medical play discussion)", q: "blood play safety consent risks" },
-          { label: "Watersports", q: "watersports kink safety consent" },
-          { label: "Scat", q: "scat kink safety risks consent" },
-          { label: "Cum play", q: "cum play consent hygiene" }
-        ]
-      }
-    ]
-  },
+button:disabled{opacity:.6;cursor:not-allowed}
 
-  {
-    id: "pain",
-    title: "PAIN",
-    desc: "Impact and pain play (keep it safe, negotiated, and reversible).",
-    groups: [
-      {
-        id: "giving_receiving",
-        title: "Giving / Receiving",
-        columns: [
-          { key: "giving", label: "Giving" },
-          { key: "receiving", label: "Receiving" }
-        ],
-        items: [
-          { label: "Light pain", q: "light pain play consent safety" },
-          { label: "Heavy pain", q: "heavy pain play consent safety aftercare" },
-          { label: "Spanking", q: "spanking safety consent" },
-          { label: "Paddles", q: "paddle impact play safety" },
-          { label: "Whips (beginner-safe discussion)", q: "whip impact play safety consent" }
-        ]
-      }
-    ]
-  },
+#shareUrl{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  outline:none;
+  font-size:14px;
+}
 
-  {
-    id: "toys",
-    title: "TOYS",
-    desc: "Toy usage preferences.",
-    groups: [
-      {
-        id: "on_self_on_others",
-        title: "On Self / On Others",
-        columns: [
-          { key: "self", label: "On Self" },
-          { key: "others", label: "On Others" }
-        ],
-        items: [
-          { label: "Vibrators", q: "vibrator safety cleaning" },
-          { label: "Dildos", q: "dildo safety cleaning" },
-          { label: "Plugs", q: "plug safety cleaning" },
-          { label: "Wands", q: "wand massager safety" },
-          { label: "Sex machine (discussion)", q: "sex machine safety consent" }
-        ]
-      }
-    ]
-  },
+.status{margin-top:8px;color:var(--muted);min-height:18px}
 
-  {
-    id: "scenarios",
-    title: "SCENARIOS",
-    desc: "Role and context scenarios (consensual only).",
-    groups: [
-      {
-        id: "roles",
-        title: "Being center / Participating / Observing",
-        columns: [
-          { key: "center", label: "Being center" },
-          { key: "part", label: "Participating" },
-          { key: "obs", label: "Observing" }
-        ],
-        items: [
-          { label: "Exhibitionism (safe/private)", q: "exhibitionism consent privacy safety" },
-          { label: "Voyeurism (consensual)", q: "voyeurism consent privacy safety" },
-          { label: "Humiliation (consensual)", q: "humiliation kink consent aftercare" },
-          { label: "Medical roleplay (consensual)", q: "medical roleplay consent boundaries" }
-        ]
-      }
-    ]
-  }
-];
+.sheet{
+  padding:22px 24px 40px;
+  display:grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap:18px;
+}
+
+@media (max-width: 980px){
+  .sheet{grid-template-columns:1fr}
+  h1{font-size:44px}
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+
+.cardHeader{
+  padding:14px 16px;
+  background:#f9fafb;
+  border-bottom:1px solid var(--border);
+}
+
+.cardTitle{
+  margin:0;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing: -0.01em;
+}
+
+.cardSub{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.group{
+  padding:10px 16px 6px;
+  color:#111827;
+  font-weight:800;
+  font-size:13px;
+}
+
+.table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.row{
+  border-top:1px solid var(--border);
+}
+
+.cellLabel{
+  padding:12px 16px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.labelText{
+  line-height:1.15;
+}
+
+.qBtn{
+  width:26px;
+  height:26px;
+  border-radius:999px;
+  border:1px solid #cbd5e1;
+  background:#fff;
+  color:#111827;
+  font-weight:900;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+}
+.qBtn:hover{background:#f3f4f6}
+
+.cellDots{
+  padding:10px 16px;
+  text-align:right;
+}
+
+.dots{
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+}
+
+.dot{
+  width:18px;height:18px;border-radius:999px;
+  border:1px solid rgba(0,0,0,.18);
+  display:inline-block;
+}
+
+/* Default: DIM + desaturate so selection is obvious */
+.dotChoice{
+  width:34px;height:22px;border-radius:999px;
+  border:1px solid rgba(0,0,0,.18);
+  background:#fff;
+  cursor:pointer;
+  padding:0;
+  position:relative;
+  filter: grayscale(1) saturate(.15);
+  opacity:.35;
+  transform: translateZ(0);
+}
+
+.dotChoice::after{
+  content:"";
+  position:absolute;
+  inset:3px;
+  border-radius:999px;
+  background:transparent;
+}
+
+.dotChoice.fav::after{background:var(--fav)}
+.dotChoice.like::after{background:var(--like)}
+.dotChoice.int::after{background:var(--int)}
+.dotChoice.no::after{background:var(--no)}
+.dotChoice.empty::after{
+  background:var(--empty);
+  border:1px solid rgba(0,0,0,.18);
+}
+
+/* Selected: full color + strong outline */
+.dotChoice.selected{
+  filter:none;
+  opacity:1;
+  border:2px solid rgba(0,0,0,.55);
+  box-shadow: 0 0 0 3px rgba(0,0,0,.08);
+}
+
+/* Tooltip */
+.tip{
+  position:fixed;
+  min-width:280px;
+  max-width:420px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow: var(--shadow);
+  padding:12px;
+  z-index:9999;
+}
+
+.tip.hidden{display:none}
+
+.tipHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+
+.tipTitle{
+  font-weight:900;
+  font-size:14px;
+}
+
+.tipClose{
+  background:#fff;
+  border:1px solid var(--border);
+  color:#111827;
+  width:28px;height:28px;
+  border-radius:10px;
+  padding:0;
+  cursor:pointer;
+}
+
+.tipBody{
+  color:#111827;
+  font-size:13px;
+  line-height:1.35;
+  white-space:pre-wrap;
+}
+
+.tipFooter{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+
+.tipSearch{
+  background:#111827;
+  color:#fff;
+  border-radius:10px;
+  padding:8px 12px;
+  font-weight:900;
+}
+
+/* Print: hide UI chrome */
+@media print {
+  .actions, #shareUrl, .status, .legend, .sub, #customize, #getLink, #clearLocal, #exportPdf { display:none !important; }
+  body{ background:#fff; }
+  .sheet{ padding:0; gap:10px; }
+  .card{ box-shadow:none; }
+  .qBtn{ display:none !important; }
+  .dotChoice{ opacity:1 !important; filter:none !important; }
+}

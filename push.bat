@@ -1,30 +1,39 @@
 @echo off
 setlocal
 
-cd /d %~dp0
-
 echo === Git status ===
 git status
-echo.
 
-echo === Adding all changes ===
-git add -A
 echo.
-
-set /p msg=Commit message (example: Fix export): 
+set /p msg=Commit message (leave empty to cancel):
 if "%msg%"=="" (
-  echo Cancelled (empty message).
-  pause
+  echo Cancelled.
+  exit /b 0
+)
+
+echo.
+echo === Staging ===
+git add -A
+
+echo.
+echo === Committing ===
+git commit -m "%msg%"
+if errorlevel 1 (
+  echo Commit failed (maybe no changes). Check git status.
+  git status
   exit /b 1
 )
 
-echo === Committing ===
-git commit -m "%msg%"
 echo.
-
 echo === Pushing ===
 git push
-echo.
+if errorlevel 1 (
+  echo Push failed. Check your remote/auth.
+  exit /b 1
+)
 
-echo === Done. If you saw "Everything up-to-date", you had nothing new committed. ===
+echo.
+echo === Done ===
+git log -1 --oneline
+git status
 pause

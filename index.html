@@ -6,13 +6,12 @@
   <title>My Sheet</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
   <header class="top">
     <h1>My Sheet</h1>
     <p class="sub">Pick what you like. Click <b>GET LINK</b> to generate a short share link.</p>
 
-    <div class="legend" aria-label="Legend">
+    <div class="legend">
       <span class="dot fav"></span> Favorite
       <span class="dot like"></span> Like
       <span class="dot int"></span> Interested
@@ -23,7 +22,6 @@
     <div class="actions">
       <button id="customize" class="secondary">Customize</button>
       <button id="getLink">GET LINK</button>
-      <button id="exportPng" class="secondary">Export PNG</button>
       <button id="exportPdf" class="secondary">Export PDF</button>
       <button id="clearLocal" class="secondary" title="Clears your local draft (does not delete shared links)">Clear local</button>
     </div>
@@ -34,12 +32,22 @@
 
   <main class="sheet" id="sheet"></main>
 
-  <!-- Libraries (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- Tooltip bubble -->
+  <div id="tip" class="tip hidden" role="dialog" aria-hidden="true">
+    <div class="tipHeader">
+      <div class="tipTitle" id="tipTitle"></div>
+      <button id="tipClose" class="tipClose" aria-label="Close">✕</button>
+    </div>
+    <div class="tipBody" id="tipBody"></div>
+    <div class="tipFooter">
+      <button id="tipSearch" class="tipSearch">?</button>
+    </div>
+  </div>
 
-  <!-- Your data + app -->
+  <!-- Supabase JS client (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Data + app -->
   <script src="sheetData.js"></script>
   <script src="app.js"></script>
 </body>
