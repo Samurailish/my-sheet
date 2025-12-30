@@ -2,28 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>My Sheet</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <!-- Cache-bust the CSS so you actually see updates -->
+  <link rel="stylesheet" href="style.css?v=7" />
 </head>
+
 <body>
   <header class="top">
     <h1>My Sheet</h1>
     <p class="sub">Pick what you like. Click <b>GET LINK</b> to generate a short share link.</p>
 
     <div class="legend" aria-label="Legend">
-      <span class="dot fav"></span> Favorite
-      <span class="dot like"></span> Like
-      <span class="dot int"></span> Interested
-      <span class="dot no"></span> No
-      <span class="dot empty"></span> Unset
+      <span><span class="dot fav"></span> Favorite</span>
+      <span><span class="dot like"></span> Like</span>
+      <span><span class="dot int"></span> Interested</span>
+      <span><span class="dot no"></span> No</span>
+      <span><span class="dot empty"></span> Unset</span>
     </div>
 
     <div class="actions">
-      <button id="customize" class="secondary">Customize</button>
-      <button id="getLink" class="primary">GET LINK</button>
-      <button id="exportPdf">Export PDF</button>
-      <button id="clearLocal" class="secondary" title="Clears your local draft (does not delete shared links)">Clear local</button>
+      <button id="customize" class="secondary" type="button" title="Customize categories (coming soon)">Customize</button>
+      <button id="getLink" type="button">GET LINK</button>
+      <button id="exportPdf" class="secondary" type="button">Export PDF</button>
+      <button id="clearLocal" class="secondary" type="button" title="Clears your local draft (does not delete shared links)">Clear local</button>
     </div>
 
     <input id="shareUrl" readonly placeholder="Your share link will appear here" />
@@ -32,13 +35,11 @@
 
   <main class="sheet" id="sheet"></main>
 
-  <!-- Supabase JS client (CDN) -->
+  <!-- Supabase JS client (CDN) - include ONCE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Parser + helpers -->
-  <script src="sheetData.js"></script>
-
-  <!-- App -->
-  <script src="app.js"></script>
+  <!-- Your data + app code (cache-bust so browser stops lying to you) -->
+  <script src="sheetData.js?v=7"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
