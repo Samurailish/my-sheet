@@ -387,11 +387,9 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 
 /* =========================
-   PRINT / PDF (BULLETPROOF v2)
-   Strategy:
-   - NO grid (Chromium print scaling bugs)
-   - NO columns (fragmentation gaps + disappearing columns)
-   - Use flex-wrap "rows" of cards (stable in print)
+   PRINT / PDF (clean + dense)
+   - Uses CSS columns to reduce dead space ("masonry")
+   - Fixes label/dots overlap with fixed dot-group widths
 ========================= */
 
 @page{
@@ -400,21 +398,13 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 
 @media print{
-  /* Color accuracy */
+  /* Hide UI */
+  .top, .modal, .modalBack, .tooltip { display:none !important; }
+
+  /* Print color accuracy */
   *{
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-  }
-
-  /* Hide all UI */
-  .top,
-  .actions,
-  #shareUrl,
-  .status,
-  .modal,
-  .modalBack,
-  .tooltip{
-    display:none !important;
   }
 
   html, body{
@@ -423,49 +413,42 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
     padding:0 !important;
   }
 
-  /* HARD: remove clipping everywhere (cropping fix) */
-  *, *::before, *::after{
-    overflow: visible !important;
-  }
+  /* IMPORTANT: avoid mysterious cropping */
+  *{ overflow: visible !important; }
 
   body{
     font-size: 10.5px !important;
     line-height: 1.2 !important;
   }
 
-  /* The sheet becomes a flex wrapping board */
+  /* ✅ Reduce dead space: masonry-style columns */
   .sheet{
     padding: 0 !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: flex-start !important;
-    gap: 10px !important;
+    display: block !important;
 
-    /* prevents weird “shrink to fit” behavior */
+    column-count: 3 !important;
+    column-gap: 10px !important;
+    column-fill: auto !important;
+
     width: 100% !important;
     max-width: 100% !important;
   }
 
-  /* 4 cards per row in landscape (adjust if needed) */
+  /* Cards become "column items" */
   .card{
-    /* Flex-basis 24% leaves room for gaps */
-    flex: 0 0 calc(25% - 8px) !important;
-    width: calc(25% - 8px) !important;
+    display: inline-block !important;
+    width: 100% !important;
+    margin: 0 0 10px 0 !important;
 
     box-shadow: none !important;
     border: 1px solid #d1d5db !important;
-    border-radius: 10px !important;
-    margin: 0 !important;
 
-    /* Let cards break across pages if needed (prevents “missing columns”) */
-    break-inside: auto !important;
-    page-break-inside: auto !important;
-
-    /* Keep the next card from overlaying */
-    position: relative !important;
+    /* Try to keep cards intact, but allow breaking if needed */
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
-  /* If you want less pages, tighten the internals */
+  /* Tighten paddings */
   .cardHead{ padding: 7px 9px !important; }
   .cardTitle{ font-size: 13px !important; }
   .cardDesc{ font-size: 9.5px !important; margin-top: 2px !important; }
@@ -474,63 +457,67 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   .sectionTitleRow{ margin-bottom: 6px !important; }
   .sectionTitle{ font-size: 11px !important; }
 
-  .row{ padding: 5px 0 !important; gap: 8px !important; }
-  .row.multi{ gap: 8px !important; }
+  /* Hide ? in print */
+  .catHelpBtn, .infoBtn{ display:none !important; }
 
-  /* Dot sizing */
-  :root{
-    --dotW: 18px !important;
-    --dotH: 12px !important;
-    --dotGap: 3px !important;
-  }
+  /* ---------- Fix overlap: lock dot-group widths ---------- */
+
+  /* Smaller dots in print */
   .dot{
-    width: var(--dotW) !important;
-    height: var(--dotH) !important;
-    border-width: 1px !important;
+    width: 16px !important;
+    height: 11px !important;
   }
   .dots{
-    gap: var(--dotGap) !important;
-  }
-
-  /* Fix multi-column headers & dot groups:
-     Force dot groups to a known width so rows never overflow */
-  .dots{
-    width: 100px !important;
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
     justify-content: center !important;
+
+    /* 5 dots: 5*16 + 4*4 = 96px -> add some slack */
+    width: 104px !important;
+    min-width: 104px !important;
   }
 
+  /* Row layout: name gets the remaining space, dots are fixed */
   .row{
-    grid-template-columns: minmax(120px, 1fr) auto !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 104px !important;
+    gap: 8px !important;
+    padding: 6px 0 !important;
   }
+
+  /* For multi-column categories (Self/Partner etc.) */
   .row.multi{
-    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), 100px) !important;
+    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 104px) !important;
+    gap: 8px !important;
   }
+
+  /* Column label row must match the same grid widths */
   .colLabelRow{
-    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), 100px) !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 104px) !important;
     gap: 8px !important;
     padding: 6px 0 !important;
     font-size: 10px !important;
   }
 
-  /* Remove ? icons in print */
-  .catHelpBtn,
-  .infoBtn{
-    display:none !important;
+  /* Make sure item name never spills into dot area */
+  .item{
+    min-width: 0 !important;
+  }
+  .itemName{
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 
-  /* Avoid the browser adding headers/footers spacing assumptions */
-  header, footer{
-    display:none !important;
+  /* If you still get any weird breaks, this helps */
+  .section, .cardHead{
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
-  /* Responsive fallback:
-     If paper/driver is narrow (Letter), switch to 3 cards per row */
-  @supports (display: flex){
-    @media (max-width: 1100px){
-      .card{
-        flex: 0 0 calc(33.333% - 8px) !important;
-        width: calc(33.333% - 8px) !important;
-      }
-    }
+  /* Optional: If your printer driver is Letter and too tight, bump to 2 columns */
+  @media (max-width: 1100px){
+    .sheet{ column-count: 2 !important; }
   }
 }
