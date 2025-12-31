@@ -387,27 +387,26 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 
 /* =========================
-   PRINT / PDF (BULLETPROOF)
-   - avoids grid print bugs
-   - avoids overlap/clipping
-   - compacts pages
+   PRINT / PDF (BULLETPROOF v2)
+   Strategy:
+   - NO grid (Chromium print scaling bugs)
+   - NO columns (fragmentation gaps + disappearing columns)
+   - Use flex-wrap "rows" of cards (stable in print)
 ========================= */
 
 @page{
-  /* Let the user/driver decide paper size (A4/Letter), but force landscape preference */
   size: landscape;
   margin: 6mm;
 }
 
 @media print{
-
-  /* Better color fidelity in PDF */
+  /* Color accuracy */
   *{
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Hide UI */
+  /* Hide all UI */
   .top,
   .actions,
   #shareUrl,
@@ -424,38 +423,49 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
     padding:0 !important;
   }
 
-  /* IMPORTANT:
-     Use columns for print (grid printing causes the tiny/whitespace issue) */
+  /* HARD: remove clipping everywhere (cropping fix) */
+  *, *::before, *::after{
+    overflow: visible !important;
+  }
+
+  body{
+    font-size: 10.5px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* The sheet becomes a flex wrapping board */
   .sheet{
     padding: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
 
-    column-count: 3 !important;     /* 3 is the safe sweet spot in landscape */
-    column-gap: 10px !important;
-    column-fill: auto !important;
-
-    /* make sure nothing forces weird widths */
+    /* prevents weird “shrink to fit” behavior */
     width: 100% !important;
     max-width: 100% !important;
   }
 
-  /* Cards: allow printing cleanly (NO clipping) */
+  /* 4 cards per row in landscape (adjust if needed) */
   .card{
-    display: inline-block !important;  /* masonry brick */
-    width: 100% !important;
-    margin: 0 0 10px !important;
+    /* Flex-basis 24% leaves room for gaps */
+    flex: 0 0 calc(25% - 8px) !important;
+    width: calc(25% - 8px) !important;
 
     box-shadow: none !important;
     border: 1px solid #d1d5db !important;
     border-radius: 10px !important;
+    margin: 0 !important;
 
-    overflow: visible !important;      /* CRITICAL: prevent dot clipping */
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
+    /* Let cards break across pages if needed (prevents “missing columns”) */
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+
+    /* Keep the next card from overlaying */
+    position: relative !important;
   }
 
-  /* Compact typography */
-  body{ font-size: 10.5px !important; }
-
+  /* If you want less pages, tighten the internals */
   .cardHead{ padding: 7px 9px !important; }
   .cardTitle{ font-size: 13px !important; }
   .cardDesc{ font-size: 9.5px !important; margin-top: 2px !important; }
@@ -464,40 +474,37 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   .sectionTitleRow{ margin-bottom: 6px !important; }
   .sectionTitle{ font-size: 11px !important; }
 
-  /* Make rows tighter */
   .row{ padding: 5px 0 !important; gap: 8px !important; }
   .row.multi{ gap: 8px !important; }
 
-  /* Print dot sizing (smaller so multi-columns never overlap) */
+  /* Dot sizing */
   :root{
     --dotW: 18px !important;
     --dotH: 12px !important;
     --dotGap: 3px !important;
   }
-
-  /* Force dot-groups to a fixed width so they can't push outside the card */
-  .dots{
-    gap: var(--dotGap) !important;
-    width: 100px !important;              /* fixed group width = no overflow */
-    justify-content: center !important;
-  }
-
   .dot{
     width: var(--dotW) !important;
     height: var(--dotH) !important;
     border-width: 1px !important;
   }
+  .dots{
+    gap: var(--dotGap) !important;
+  }
 
-  /* Shrink the label column to avoid overflow in print */
+  /* Fix multi-column headers & dot groups:
+     Force dot groups to a known width so rows never overflow */
+  .dots{
+    width: 100px !important;
+    justify-content: center !important;
+  }
+
   .row{
     grid-template-columns: minmax(120px, 1fr) auto !important;
   }
-
   .row.multi{
-    /* label + N groups */
     grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), 100px) !important;
   }
-
   .colLabelRow{
     grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), 100px) !important;
     gap: 8px !important;
@@ -505,15 +512,25 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
     font-size: 10px !important;
   }
 
-  /* Remove ? buttons in print */
+  /* Remove ? icons in print */
   .catHelpBtn,
   .infoBtn{
     display:none !important;
   }
 
-  /* Avoid breaking inside a single row (this prevents ugly half-rows) */
-  .row{
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
+  /* Avoid the browser adding headers/footers spacing assumptions */
+  header, footer{
+    display:none !important;
+  }
+
+  /* Responsive fallback:
+     If paper/driver is narrow (Letter), switch to 3 cards per row */
+  @supports (display: flex){
+    @media (max-width: 1100px){
+      .card{
+        flex: 0 0 calc(33.333% - 8px) !important;
+        width: calc(33.333% - 8px) !important;
+      }
+    }
   }
 }
