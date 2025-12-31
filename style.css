@@ -489,3 +489,53 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
     display:none !important;
   }
 }
+
+/* =========================
+   PRINT HARDENING (browsers sometimes ignore @page orientation)
+========================= */
+@page{
+  size: A4 landscape;
+  margin: 6mm;
+}
+
+@media print{
+  /* force the printed area to use the full page width */
+  html, body{
+    width: 297mm;           /* A4 landscape width */
+    height: 210mm;          /* A4 landscape height */
+  }
+
+  /* If the browser STILL prints portrait, this prevents huge elements */
+  body{
+    zoom: 0.80;             /* scale down content for safety */
+  }
+
+  /* Increase density */
+  .sheet{
+    column-count: 5 !important;
+    column-gap: 8px !important;
+  }
+
+  .card{
+    border-radius: 8px !important;
+  }
+
+  .cardHead{
+    padding: 7px 9px !important;
+  }
+
+  .section{
+    padding: 7px 9px 9px !important;
+  }
+
+  .row{
+    padding: 5px 0 !important;
+  }
+
+  /* smaller dots for print */
+  :root{
+    --dotW: 20px !important;
+    --dotH: 13px !important;
+    --dotGap: 4px !important;
+  }
+}
