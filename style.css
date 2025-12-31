@@ -13,16 +13,13 @@
   --no:#e57b7b;
   --empty:#ffffff;
 
-  /* Responsive dot sizing (prevents multi-column overlap) */
-  --dotW: clamp(22px, 1.6vw, 34px);
-  --dotH: clamp(16px, 1.05vw, 22px);
-  --dotGap: clamp(4px, 0.55vw, 8px);
-
-  /* One dot-group = 5 dots + 4 gaps + a little buffer */
-  --dotGroupWidth: calc((5 * var(--dotW)) + (4 * var(--dotGap)) + 10px);
+  /* FINAL dot sizing (your current working look) */
+  --dotW: 32px;
+  --dotH: 22px;
+  --dotGap: 10px;
 }
 
-*{box-sizing:border-box}
+*{ box-sizing:border-box; }
 
 body{
   margin:0;
@@ -38,8 +35,15 @@ body{
   padding:28px 28px 12px;
   border-bottom:1px solid var(--line);
 }
-h1{margin:0 0 8px;font-size:52px;letter-spacing:-.03em}
-.sub{margin:0 0 14px;color:var(--muted)}
+h1{
+  margin:0 0 8px;
+  font-size:52px;
+  letter-spacing:-.03em;
+}
+.sub{
+  margin:0 0 14px;
+  color:var(--muted);
+}
 
 .legend{
   display:flex;
@@ -50,7 +54,7 @@ h1{margin:0 0 8px;font-size:52px;letter-spacing:-.03em}
   color:var(--muted);
   font-size:14px;
 }
-.legend .dot{margin-right:6px}
+.legend .dot{ margin-right:6px; }
 
 /* ===== Buttons (top actions) ===== */
 .actions{
@@ -68,9 +72,9 @@ button{
   cursor:pointer;
   font-weight:700;
 }
-button.secondary{background:#0b1220}
-button.primary{background:#ef4444;border-color:#ef4444}
-button:disabled{opacity:.6;cursor:not-allowed}
+button.secondary{ background:#0b1220; }
+button.primary{ background:#ef4444; border-color:#ef4444; }
+button:disabled{ opacity:.6; cursor:not-allowed; }
 
 #shareUrl{
   width:100%;
@@ -81,28 +85,28 @@ button:disabled{opacity:.6;cursor:not-allowed}
   margin:8px 0 6px;
   font-size:14px;
 }
-.status{color:var(--muted);min-height:22px}
+.status{ color:var(--muted); min-height:22px; }
 
 /* =========================
-   MASONRY LAYOUT (NO DEAD SPACE)
+   MASONRY LAYOUT (FINAL)
 ========================= */
 .sheet{
   padding:22px 22px 60px;
+  column-count:3;
   column-gap:18px;
-  column-count:4;
 }
-@media (max-width: 1500px){
-  .sheet{ column-count:3; }
-}
-@media (max-width: 1100px){
+
+/* 2 columns when screen gets tighter */
+@media (max-width: 1300px){
   .sheet{ column-count:2; }
-  h1{font-size:40px}
 }
-@media (max-width: 720px){
+
+/* 1 column on mobile */
+@media (max-width: 820px){
   .sheet{ column-count:1; }
 }
 
-/* Each card becomes a masonry “brick” */
+/* Each card is a masonry “brick” */
 .card{
   display:inline-block;
   width:100%;
@@ -111,7 +115,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
   border:1px solid var(--line);
   border-radius:var(--radius);
   box-shadow:var(--shadow);
-  overflow:hidden;            /* IMPORTANT: prevents drawing over other cards */
+  overflow:hidden;            /* prevent any bleed */
   break-inside:avoid;
 }
 
@@ -126,7 +130,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
   align-items:flex-start;
   justify-content:space-between;
 }
-.cardHeadLeft{min-width:0}
+.cardHeadLeft{ min-width:0; }
 .cardTitle{
   margin:0;
   font-size:20px;
@@ -166,9 +170,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 /* =========================
    SECTIONS / TABLE
 ========================= */
-.section{
-  padding:12px 16px 14px;
-}
+.section{ padding:12px 16px 14px; }
 
 .sectionTitleRow{
   display:flex;
@@ -200,11 +202,15 @@ button:disabled{opacity:.6;cursor:not-allowed}
   border-bottom:1px solid var(--line);
 }
 
-/* MULTI-COLUMN rows: responsive dot-groups that won't overflow */
+/* Multi-column rows: label + N dot-groups */
 .row.multi{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), minmax(0, var(--dotGroupWidth)));
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content);
   gap:12px;
+  align-items:center;
 }
+
+/* Allow grid children to shrink/ellipsis correctly */
+.row.multi > *{ min-width:0; }
 
 .itemLeft{
   display:flex;
@@ -222,12 +228,14 @@ button:disabled{opacity:.6;cursor:not-allowed}
 /* Column labels for multi-column sections */
 .colLabelRow{
   display:grid;
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), minmax(0, var(--dotGroupWidth)));
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content);
   gap:12px;
   padding:8px 0;
   color:var(--muted);
   font-size:12px;
 }
+.colLabelRow > *{ min-width:0; }
+
 .colLabel{
   text-align:center;
   font-weight:700;
@@ -242,7 +250,6 @@ button:disabled{opacity:.6;cursor:not-allowed}
   justify-content:center;
   align-items:center;
   flex-wrap:nowrap;
-  min-width:0;
 }
 
 /* Reset so global button styling NEVER touches dot buttons */
@@ -285,11 +292,11 @@ button:disabled{opacity:.6;cursor:not-allowed}
 }
 
 /* Colors */
-.dot.fav{background:var(--fav)}
-.dot.like{background:var(--like)}
-.dot.int{background:var(--int)}
-.dot.no{background:var(--no)}
-.dot.empty{background:var(--empty)}
+.dot.fav{ background:var(--fav); }
+.dot.like{ background:var(--like); }
+.dot.int{ background:var(--int); }
+.dot.no{ background:var(--no); }
+.dot.empty{ background:var(--empty); }
 
 /* =========================
    TOOLTIP
@@ -323,15 +330,18 @@ button:disabled{opacity:.6;cursor:not-allowed}
   gap:10px;
 }
 .tooltipActionBtn{
-  width:26px;height:26px;border-radius:999px;
+  width:26px;
+  height:26px;
+  border-radius:999px;
   border:1px solid rgba(255,255,255,0.18);
   background:rgba(255,255,255,0.08);
   color:#fff;
   font-weight:900;
-  display:grid;place-items:center;
+  display:grid;
+  place-items:center;
   cursor:pointer;
 }
-.tooltipActionBtn:hover{background:rgba(255,255,255,0.14)}
+.tooltipActionBtn:hover{ background:rgba(255,255,255,0.14); }
 .tooltipClose{
   border:0;
   background:transparent;
@@ -344,14 +354,16 @@ button:disabled{opacity:.6;cursor:not-allowed}
    MODAL
 ========================= */
 .modalBack{
-  position:fixed;inset:0;
+  position:fixed;
+  inset:0;
   background:rgba(2,6,23,0.55);
   display:none;
   z-index:9998;
 }
 .modal{
   position:fixed;
-  left:50%;top:50%;
+  left:50%;
+  top:50%;
   transform:translate(-50%,-50%);
   width:min(640px, calc(100vw - 30px));
   background:#fff;
@@ -362,9 +374,17 @@ button:disabled{opacity:.6;cursor:not-allowed}
   display:none;
   z-index:9999;
 }
-.modal h3{margin:0 0 8px}
-.modal p{margin:0 0 12px;color:var(--muted);line-height:1.4}
-.modal .modalActions{display:flex;gap:10px;justify-content:flex-end}
+.modal h3{ margin:0 0 8px; }
+.modal p{
+  margin:0 0 12px;
+  color:var(--muted);
+  line-height:1.4;
+}
+.modal .modalActions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
 
 /* =========================
    PRINT: PDF export
@@ -378,217 +398,4 @@ button:disabled{opacity:.6;cursor:not-allowed}
     padding:0;
   }
   .card{ box-shadow:none; }
-}
-/* =========================
-   BULLETPROOF: stop 2-column rows from overlapping / clipping
-   Works even when cards are narrow (masonry columns).
-========================= */
-
-/* 1) Allow grid children to actually shrink (critical fix) */
-.row.multi > *{
-  min-width: 0;
-}
-.colLabelRow > *{
-  min-width: 0;
-}
-
-/* 2) Force dot-group cells to contain their content */
-.row.multi{
-  align-items: center;
-}
-
-/* 3) Each dot group becomes a "safe box" that can scroll instead of overflowing */
-.row.multi .dots{
-  max-width: 100%;
-  overflow-x: auto;         /* <-- bulletproof */
-  overflow-y: hidden;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 2px;      /* prevents scrollbar clipping */
-  scrollbar-width: thin;    /* firefox */
-}
-
-/* Hide scrollbar (optional, looks cleaner) */
-.row.multi .dots::-webkit-scrollbar{
-  height: 6px;
-}
-.row.multi .dots::-webkit-scrollbar-track{
-  background: transparent;
-}
-.row.multi .dots::-webkit-scrollbar-thumb{
-  background: rgba(15,23,42,0.18);
-  border-radius: 999px;
-}
-
-/* 4) Keep dots from shrinking into weird shapes */
-.row.multi .dot{
-  flex: 0 0 auto;
-}
-
-/* 5) Keep the whole card clean */
-.card{
-  overflow: hidden; /* prevents any drawing outside the rounded card */
-}
-
-/* =========================
-   BULLETPROOF LAYOUT FIX:
-   Prevent cards from becoming too narrow (root cause of overlap)
-========================= */
-
-/* 1) Masonry by column-width, not fixed column-count */
-.sheet{
-  column-count: auto !important;
-  column-width: 520px;      /* <- increase/decrease to taste (480–560) */
-  column-gap: 18px;
-}
-
-/* 2) Hard clamp: never allow more than 3 columns on typical screens */
-@media (min-width: 1400px){
-  .sheet{ column-width: 480px; }
-}
-@media (max-width: 1100px){
-  .sheet{ column-width: 520px; } /* ends up as 2 columns */
-}
-@media (max-width: 720px){
-  .sheet{ column-width: 9999px; } /* 1 column */
-}
-
-/* 3) Make sure nothing can paint outside a card */
-.card{
-  overflow: hidden !important;
-}
-
-/* =========================
-   SCALE DOWN DOTS (helps even more)
-========================= */
-:root{
-  --dotW: 28px !important;
-  --dotH: 18px !important;
-  --dotGap: 6px !important;
-}
-
-/* Keep dot groups from forcing overflow in multi rows */
-.row.multi{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), minmax(0, 1fr)) !important;
-}
-
-/* Ensure grid children can actually shrink */
-.row.multi > *{ min-width: 0; }
-
-/* Dot groups stay inside their cell */
-.row.multi .dots{
-  max-width: 100%;
-  overflow: hidden;
-  justify-content: center;
-  flex-wrap: nowrap;
-}
-
-/* =========================
-   FINAL: NO SLIDERS + NO OVERLAP
-   (removes dot scrolling + keeps cards wide enough)
-========================= */
-
-/* 1) Masonry: keep cards wide (prevents 2-group rows from overflowing) */
-.sheet{
-  column-count: auto !important;
-  column-width: 560px !important;   /* safe width for 2 dot-groups */
-  column-gap: 18px !important;
-}
-
-/* 2) Scale dots down (still clickable, but fits) */
-:root{
-  --dotW: 26px !important;
-  --dotH: 16px !important;
-  --dotGap: 6px !important;
-}
-
-/* If your CSS doesn't use these vars, force the dot size directly too */
-.dot{
-  width: var(--dotW) !important;
-  height: var(--dotH) !important;
-}
-.dots{
-  gap: var(--dotGap) !important;
-}
-
-/* 3) Multi rows: allow grid children to shrink properly */
-.row.multi > *{ min-width: 0 !important; }
-.colLabelRow > *{ min-width: 0 !important; }
-
-/* 4) IMPORTANT: remove ANY horizontal scrolling (kills the slider/arrows) */
-.row.multi .dots{
-  overflow: visible !important;
-  overflow-x: visible !important;
-  overflow-y: visible !important;
-  scrollbar-width: none !important;
-}
-.row.multi .dots::-webkit-scrollbar{
-  display: none !important;
-}
-
-/* 5) Guarantee dot-groups don't push outside the card */
-.card{
-  overflow: hidden !important; /* nothing can paint outside rounded corners */
-}
-
-/* 6) Make the multi grid predictable: label + 2 fixed dot-group columns */
-.row.multi{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content) !important;
-}
-.colLabelRow{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content) !important;
-}
-
-
-/* =========================
-   FIX: 3 columns (not 4) + better scaling
-   No overlap, no sliders.
-========================= */
-
-/* Force 3 columns on desktop */
-.sheet{
-  column-count: 3 !important;
-  column-gap: 18px !important;
-}
-
-/* Drop to 2 columns when screen gets tighter */
-@media (max-width: 1300px){
-  .sheet{ column-count: 2 !important; }
-}
-
-/* 1 column on mobile */
-@media (max-width: 820px){
-  .sheet{ column-count: 1 !important; }
-}
-
-/* Keep cards clean */
-.card{ overflow: hidden !important; }
-
-/* Scale dots slightly smaller so 2-group rows fit comfortably */
-:root{
-  --dotW: 32px !important;
-  --dotH: 22px !important;
-  --dotGap: 10px !important;
-}
-
-/* In case your CSS isn't using vars everywhere */
-.dot{
-  width: var(--dotW) !important;
-  height: var(--dotH) !important;
-}
-.dots{
-  gap: var(--dotGap) !important;
-  flex-wrap: nowrap !important;
-}
-
-/* Make multi-column rows shrink correctly (prevents weird pushes) */
-.row.multi > *{ min-width: 0 !important; }
-.colLabelRow > *{ min-width: 0 !important; }
-
-/* Make dot-group columns content-sized (no scrollbars) */
-.row.multi{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content) !important;
-}
-.colLabelRow{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content) !important;
 }
