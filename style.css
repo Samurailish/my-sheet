@@ -566,9 +566,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
 /* Scale dots slightly smaller so 2-group rows fit comfortably */
 :root{
-  --dotW: 28px !important;
-  --dotH: 18px !important;
-  --dotGap: 6px !important;
+  --dotW: 32px !important;
+  --dotH: 22px !important;
+  --dotGap: 10px !important;
 }
 
 /* In case your CSS isn't using vars everywhere */
