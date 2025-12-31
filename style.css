@@ -17,13 +17,13 @@
 html,body{height:100%}
 body{
   margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   background:var(--bg);
   color:var(--ink);
 }
 a{ color:inherit }
 
-/* TOP */
+/* ===== TOP ===== */
 .top{
   padding:16px 18px 10px;
   border-bottom:1px solid var(--line);
@@ -37,20 +37,18 @@ h1{margin:0 0 6px;font-size:40px;letter-spacing:-.03em}
   align-items:center;
   flex-wrap:wrap;
   margin:8px 0 10px;
-  color:var(--muted);
   font-size:13px;
+  color:var(--muted);
 }
-.legend .key{display:flex;gap:8px;align-items:center}
 .legend .dot{
   width:34px;height:22px;border-radius:999px;
   border:1px solid rgba(15,23,42,.18);
 }
-/* Legend should ALWAYS show colors (not muted) */
-.legend .dot.fav{ background: var(--fav); }
-.legend .dot.like{ background: var(--like); }
-.legend .dot.int{ background: var(--int); }
-.legend .dot.no{ background: var(--no); }
-.legend .dot.unset{ background:#ffffff; }
+.legend .dot.fav{ background:var(--fav) }
+.legend .dot.like{ background:var(--like) }
+.legend .dot.int{ background:var(--int) }
+.legend .dot.no{ background:var(--no) }
+.legend .dot.unset{ background:#fff }
 
 .actions{
   display:flex;
@@ -75,12 +73,10 @@ button.danger{
   background:#ef4444;
   border-color:#ef4444;
 }
-button:disabled{ opacity:.55; cursor:not-allowed }
 
 .bar{
   display:flex;
   gap:10px;
-  align-items:center;
   flex-wrap:wrap;
 }
 .shareOut{
@@ -91,47 +87,28 @@ button:disabled{ opacity:.55; cursor:not-allowed }
   min-width:280px;
   font-size:14px;
   color:var(--muted);
-  background:#fff;
-}
-.status{
-  font-size:13px;
-  color:var(--muted);
-  margin-top:6px;
 }
 
-/* =========================================================
-   MASONRY LAYOUT (fixes dead space between cards)
-   Grid will ALWAYS leave gaps; columns packs upward naturally.
-   ========================================================= */
+/* ===== MASONRY LAYOUT ===== */
 .sheet{
   padding:14px 14px 40px;
   column-gap:12px;
-  column-count:2;            /* default */
+  column-count:2;
 }
 
-/* 3 columns on wide monitors */
-@media (min-width: 1250px){
-  .sheet{ column-count:3; }
+@media (min-width:1250px){ .sheet{column-count:3} }
+@media (min-width:1750px){ .sheet{column-count:4} }
+@media (max-width:980px){
+  .sheet{column-count:1}
+  h1{font-size:34px}
 }
 
-/* 4 columns on very wide monitors */
-@media (min-width: 1750px){
-  .sheet{ column-count:4; }
-}
-
-@media (max-width: 980px){
-  .sheet{ column-count:1; }
-  h1{ font-size:34px; }
-}
-
-/* Cards must not break inside columns */
+/* ===== CARD ===== */
 .card{
   display:inline-block;
   width:100%;
   margin:0 0 12px;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-
+  break-inside:avoid;
   background:var(--card);
   border:1px solid var(--line);
   border-radius:var(--radius);
@@ -139,77 +116,57 @@ button:disabled{ opacity:.55; cursor:not-allowed }
   overflow:hidden;
 }
 
-/* CARD HEAD */
 .cardHead{
   padding:10px 12px;
   border-bottom:1px solid var(--line);
   display:flex;
-  gap:10px;
-  align-items:flex-start;
   justify-content:space-between;
+  gap:10px;
 }
 .cardTitle{
   margin:0;
   font-size:18px;
-  letter-spacing:-.02em;
 }
 .cardDesc{
   margin:6px 0 0;
-  color:var(--muted);
   font-size:12px;
-  line-height:1.35;
+  color:var(--muted);
 }
+
+/* Softer category ? */
 .cardHelp{
+  width:26px;height:26px;
+  border-radius:999px;
   border:1px solid var(--line);
   background:#f1f5f9;
-  color:#334155; /* softer */
-  width:26px;
-  height:26px;
-  border-radius:999px;
+  color:#334155;
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
   font-weight:700;
-  flex:0 0 auto;
 }
-
 .cardHelp:hover{
   background:#e2e8f0;
   color:#0f172a;
 }
 
-/* SECTION */
+/* ===== SECTIONS ===== */
 .section{
   padding:10px 12px 12px;
 }
 .sectionTitle{
   font-size:11px;
-  letter-spacing:.14em;
   font-weight:900;
-  color:#0b1220;
+  letter-spacing:.14em;
   margin:0 0 8px;
   text-transform:uppercase;
 }
 
-/* Column labels for multi-column sections */
-.colLabels{
-  display:grid;
-  grid-template-columns: minmax(240px, 1fr) repeat(var(--cols), auto);
-  gap:12px;
-  padding:8px 0;
-  color:var(--muted);
-  font-size:12px;
-}
-.colLabel{
-  text-align:center;
-  font-weight:700;
-}
-
-/* ROWS */
+/* ===== ROWS ===== */
 .row{
   display:grid;
-  grid-template-columns: minmax(180px, 1fr) auto;
+  grid-template-columns:minmax(180px,1fr) auto;
   gap:10px;
   align-items:center;
   padding:7px 0;
@@ -217,44 +174,42 @@ button:disabled{ opacity:.55; cursor:not-allowed }
 }
 .row:last-child{border-bottom:0}
 .row.multi{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), auto);
+  grid-template-columns:minmax(180px,1fr) repeat(var(--cols),auto);
 }
 
 .itemLeft{
   display:flex;
-  align-items:center;
   gap:8px;
+  align-items:center;
   min-width:0;
 }
 .itemName{
+  font-size:14px;
   font-weight:800;
+  white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  white-space:nowrap;
-  font-size:14px;
+}
+
+/* Softer item ? */
 .itemHelp{
+  width:22px;height:22px;
+  border-radius:999px;
   border:1px solid var(--line);
   background:#f8fafc;
-  color:#475569; /* slate instead of black */
-  width:22px;
-  height:22px;
-  border-radius:999px;
+  color:#475569;
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
   font-weight:700;
-    flex:0 0 auto;
 }
-
 .itemHelp:hover{
   background:#eef2f7;
   color:#0f172a;
 }
 
-.itemHelp:hover{ color:var(--ink) }
-
-/* DOTS */
+/* ===== DOTS ===== */
 .dots{
   display:flex;
   gap:6px;
@@ -262,133 +217,53 @@ button:disabled{ opacity:.55; cursor:not-allowed }
 }
 .dotBtn{
   border:0;
-  padding:0;
   background:transparent;
+  padding:0;
   cursor:pointer;
 }
 
-/* Base dot: lightly tinted so you know the meaning */
+/* Unselected dots = 50% color */
 .dot{
   width:26px;
   height:18px;
   border-radius:999px;
   border:1px solid rgba(15,23,42,.18);
-  display:inline-block;
-  transition: transform .06s ease, filter .12s ease, opacity .12s ease;
-
-  opacity:.45; /* ~50% feel */
+  opacity:.45;
+  transition:.1s;
 }
+.dot.fav{ background:var(--fav) }
+.dot.like{ background:var(--like) }
+.dot.int{ background:var(--int) }
+.dot.no{ background:var(--no) }
+.dot.unset{ background:#fff; opacity:.9 }
 
-/* Light tint per type (UNSELECTED STATE) */
-.dot.fav{ background: var(--fav); }
-.dot.like{ background: var(--like); }
-.dot.int{ background: var(--int); }
-.dot.no{ background: var(--no); }
-
-/* Unset stays neutral */
-.dot.unset{
-  background:#ffffff;
-  opacity:.9;
-}
-
-/* Hover is subtle */
-.dot:hover{
-  transform: translateY(-1px);
-  filter:brightness(1.02);
-}
-
-/* IMPORTANT: your JS uses .selected, not .isActive */
+/* Selected dot = full color */
 .dot.selected{
-  box-shadow: inset 0 0 0 2px rgba(15,23,42,.22);
-  border-color: rgba(15,23,42,.22);
   opacity:1;
+  box-shadow:inset 0 0 0 2px rgba(15,23,42,.22);
 }
+.dot.selected.fav{ background:var(--fav) }
+.dot.selected.like{ background:var(--like) }
+.dot.selected.int{ background:var(--int) }
+.dot.selected.no{ background:var(--no) }
+.dot.selected.unset{ background:#fff }
 
-/* Only selected dots get color */
-.dot.selected.fav{ background: var(--fav); }
-.dot.selected.like{ background: var(--like); }
-.dot.selected.int{ background: var(--int); }
-.dot.selected.no{ background: var(--no); }
-
-/* Unset stays white even when selected */
-.dot.unset{ background:#ffffff; opacity:.9; }
-.dot.selected.unset{ background:#ffffff; opacity:1; }
-
-/* TOOLTIP */
+/* ===== TOOLTIP ===== */
 .tooltip{
   position:fixed;
   max-width:340px;
   background:#0b1220;
   color:#fff;
   border-radius:14px;
-  padding:12px 12px 10px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  padding:12px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
   z-index:10000;
   font-size:13px;
-  line-height:1.35;
-}
-.tooltip .ttTitle{
-  font-weight:900;
-  margin:0 0 6px;
-  font-size:13px;
-}
-.tooltip .ttBody{margin:0;color:rgba(255,255,255,.85)}
-.tooltip .ttActions{
-  margin-top:10px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-}
-.tooltip .ttClose{
-  background:transparent;
-  border:1px solid rgba(255,255,255,.18);
-  color:#fff;
-  border-radius:10px;
-  padding:6px 10px;
-  font-weight:800;
-}
-.tooltip .ttSearch{
-  width:28px;height:28px;border-radius:999px;
-  border:1px solid rgba(255,255,255,.18);
-  background:transparent;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:900;
 }
 
-/* MODAL */
-.modalBack{
-  position:fixed;
-  inset:0;
-  background:rgba(2,6,23,.55);
-  z-index:9000;
-  display:none;
-}
-.modal{
-  position:fixed;
-  z-index:9500;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:min(680px, 92vw);
-  background:#fff;
-  border-radius:18px;
-  border:1px solid var(--line);
-  box-shadow:0 30px 80px rgba(0,0,0,.25);
-  padding:16px;
-  display:none;
-}
-.modal h3{margin:0 0 8px}
-.modal p{margin:0 0 12px;color:var(--muted);line-height:1.4}
-.modal .modalActions{display:flex;gap:10px;justify-content:flex-end}
-
-/* Print: PDF export */
+/* ===== PRINT ===== */
 @media print{
-  .top, .modal, .modalBack { display:none !important; }
-  body{ background:#fff; }
-  .sheet{ padding:0; column-gap:12px; column-count:2; }
-  .card{ box-shadow:none; }
+  .top{display:none}
+  .sheet{column-count:2}
+  .card{box-shadow:none}
 }
