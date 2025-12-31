@@ -13,9 +13,13 @@
   --no:#e57b7b;
   --empty:#ffffff;
 
-  /* Each dot group = 5 pills + gaps.
-     If you want extra safety: set this to 180px */
-  --dotGroupWidth: 170px;
+  /* Responsive dot sizing (prevents multi-column overlap) */
+  --dotW: clamp(22px, 1.6vw, 34px);
+  --dotH: clamp(16px, 1.05vw, 22px);
+  --dotGap: clamp(4px, 0.55vw, 8px);
+
+  /* One dot-group = 5 dots + 4 gaps + a little buffer */
+  --dotGroupWidth: calc((5 * var(--dotW)) + (4 * var(--dotGap)) + 10px);
 }
 
 *{box-sizing:border-box}
@@ -85,7 +89,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .sheet{
   padding:22px 22px 60px;
   column-gap:18px;
-  column-count:4;           /* default wide screens */
+  column-count:4;
 }
 @media (max-width: 1500px){
   .sheet{ column-count:3; }
@@ -107,7 +111,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
   border:1px solid var(--line);
   border-radius:var(--radius);
   box-shadow:var(--shadow);
-  overflow:visible;       /* avoid clipping dot groups */
+  overflow:hidden;            /* IMPORTANT: prevents drawing over other cards */
   break-inside:avoid;
 }
 
@@ -196,10 +200,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
   border-bottom:1px solid var(--line);
 }
 
-/* MULTI-COLUMN rows: FIX CROPPING
-   Left label column + N dot-group columns with guaranteed width */
+/* MULTI-COLUMN rows: responsive dot-groups that won't overflow */
 .row.multi{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), var(--dotGroupWidth));
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), minmax(0, var(--dotGroupWidth)));
   gap:12px;
 }
 
@@ -209,7 +212,6 @@ button:disabled{opacity:.6;cursor:not-allowed}
   gap:10px;
   min-width:0;
 }
-
 .itemName{
   font-weight:800;
   overflow:hidden;
@@ -220,7 +222,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 /* Column labels for multi-column sections */
 .colLabelRow{
   display:grid;
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), var(--dotGroupWidth));
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), minmax(0, var(--dotGroupWidth)));
   gap:12px;
   padding:8px 0;
   color:var(--muted);
@@ -236,10 +238,10 @@ button:disabled{opacity:.6;cursor:not-allowed}
 ========================= */
 .dots{
   display:flex;
-  gap:8px;
+  gap:var(--dotGap);
   justify-content:center;
   align-items:center;
-  flex-wrap:nowrap;      /* critical: don’t wrap and don’t collapse */
+  flex-wrap:nowrap;
   min-width:0;
 }
 
@@ -260,8 +262,8 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
 /* Dot pill */
 .dot{
-  width:34px;
-  height:22px;
+  width:var(--dotW);
+  height:var(--dotH);
   border-radius:999px;
   border:1px solid rgba(15,23,42,0.18);
   display:inline-block;
