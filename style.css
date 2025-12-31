@@ -161,8 +161,8 @@ button:disabled{ opacity:.55; cursor:not-allowed }
 }
 .cardHelp{
   border:1px solid var(--line);
-  background:#fff;
-  color:var(--ink);
+  background:#f1f5f9;
+  color:#334155; /* softer */
   width:26px;
   height:26px;
   border-radius:999px;
@@ -170,8 +170,13 @@ button:disabled{ opacity:.55; cursor:not-allowed }
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  font-weight:800;
+  font-weight:700;
   flex:0 0 auto;
+}
+
+.cardHelp:hover{
+  background:#e2e8f0;
+  color:#0f172a;
 }
 
 /* SECTION */
@@ -227,11 +232,10 @@ button:disabled{ opacity:.55; cursor:not-allowed }
   text-overflow:ellipsis;
   white-space:nowrap;
   font-size:14px;
-}
 .itemHelp{
   border:1px solid var(--line);
-  background:#fff;
-  color:var(--muted);
+  background:#f8fafc;
+  color:#475569; /* slate instead of black */
   width:22px;
   height:22px;
   border-radius:999px;
@@ -239,9 +243,15 @@ button:disabled{ opacity:.55; cursor:not-allowed }
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  font-weight:800;
-  flex:0 0 auto;
+  font-weight:700;
+    flex:0 0 auto;
 }
+
+.itemHelp:hover{
+  background:#eef2f7;
+  color:#0f172a;
+}
+
 .itemHelp:hover{ color:var(--ink) }
 
 /* DOTS */
@@ -257,7 +267,7 @@ button:disabled{ opacity:.55; cursor:not-allowed }
   cursor:pointer;
 }
 
-/* Base dot: neutral (so it looks unselected) */
+/* Base dot: lightly tinted so you know the meaning */
 .dot{
   width:26px;
   height:18px;
@@ -266,8 +276,19 @@ button:disabled{ opacity:.55; cursor:not-allowed }
   display:inline-block;
   transition: transform .06s ease, filter .12s ease, opacity .12s ease;
 
-  background:#f1f5f9;
-  opacity:.95;
+  opacity:.45; /* ~50% feel */
+}
+
+/* Light tint per type (UNSELECTED STATE) */
+.dot.fav{ background: var(--fav); }
+.dot.like{ background: var(--like); }
+.dot.int{ background: var(--int); }
+.dot.no{ background: var(--no); }
+
+/* Unset stays neutral */
+.dot.unset{
+  background:#ffffff;
+  opacity:.9;
 }
 
 /* Hover is subtle */
