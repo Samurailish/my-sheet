@@ -1,12 +1,13 @@
-/* global window */
+/* sheetData.js
+   Builds window.SHEET_DATA from a raw TXT format:
 
-window.SHEET_CONFIG = {
-  // IMPORTANT: put INTIMACY.txt next to index.html so this fetch works on Vercel.
-  dataUrl: "./INTIMACY.txt",
-  // Search engine requested:
-  searchBase: "https://www.pornhub.com/video/search?search=",
+   CATEGORY
+   Section Title (or "A | B" for 2 columns)
+   * Item name - Explanation text
+*/
 
-  categoryDescriptions: {
+(() => {
+  const CATEGORY_DESC = {
     "INTIMACY": "Affection, closeness, and non-explicit intimacy behaviors.",
     "CLOTHING": "Clothing, outfits, and accessories as part of the experience.",
     "GROUPINGS": "Group configurations and contexts.",
@@ -15,107 +16,119 @@ window.SHEET_CONFIG = {
     "SPECIAL POSITIONS": "Positions, suspension, and unusual physical setups.",
     "BUTT STUFF": "Anal play and related activities.",
     "RESTRICTIVE": "Restraints, control, and limitation of movement.",
-    "TOYS": "Toys and devices.",
+    "TOYS": "Sex toys and devices.",
     "DOMINATION": "Power dynamics, roles, and control.",
-    "SCENARIOS": "Common scenes and setups.",
-    "TABOO SCENARIOS": "Edgy fantasies — discuss consent and boundaries.",
-    "SURREALISM": "Fantasy / unreal / impossible scenarios.",
-    "FLUIDS": "Bodily fluids and related play.",
-    "TOUCH & STIMULATION": "Touch-focused stimulation and sensation play.",
-    "PAIN": "Impact / sensation intensity play.",
-    "MARKING": "Marks, lasting or temporary.",
-    "ROLE PLAY": "Character and dynamic role-play.",
-    "FOOD PLAY": "Food used as a sensual element.",
-    "MEDICAL PLAY": "Clinical-themed play.",
-    "MINDFULNESS": "Slow, present, consent-forward intimacy."
-  }
-};
-
-function isAllCapsCategory(line) {
-  // Category lines in your txt are like: INTIMACY, CLOTHING, GROUPINGS... :contentReference[oaicite:3]{index=3}
-  if (!line) return false;
-  if (line.startsWith("*") || line.startsWith("●")) return false;
-  // must contain at least one letter
-  if (!/[A-Z]/.test(line)) return false;
-  // treat as category if line equals its uppercase and doesn't contain pipes
-  return line === line.toUpperCase() && !line.includes("|") && line.length <= 40;
-}
-
-function parseItemLine(line) {
-  // line: "* Romance / Affection - Tender emotional and physical closeness..." :contentReference[oaicite:4]{index=4}
-  const cleaned = line.replace(/^\s*[\*\u25cf]\s+/, "").trim();
-  const idx = cleaned.indexOf(" - ");
-  if (idx === -1) return { name: cleaned, desc: "" };
-  return {
-    name: cleaned.slice(0, idx).trim(),
-    desc: cleaned.slice(idx + 3).trim()
+    "SCENARIOS": "Roleplay and scenario-based activities.",
+    "TABOO SCENARIOS": "Taboo roleplay themes (fictional/consensual framing).",
+    "SURREALISM": "Fantasy/surreal themes and non-realistic elements.",
+    "FLUIDS": "Messy/wet play and bodily fluids.",
+    "TOUCH & STIMULATION": "Touch-based stimulation and sensory play.",
+    "PAIN": "Impact and pain play (consensual)."
+    // Any categories not listed here will simply show no description (cleaner than making stuff up).
   };
-}
 
-function safeId(str) {
-  return String(str)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .slice(0, 80);
-}
+  // ✅ PASTE YOUR FULL TXT HERE (your INTIMACY.txt content)
+  const RAW = String.raw`PASTE_YOUR_TXT_HERE`;
 
-window.parseSheetFromTxt = function parseSheetFromTxt(rawText) {
-  const text = rawText.replace(/^\uFEFF/, ""); // strip BOM if present
-  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const clean = (s) => (s || "").replace(/\uFEFF/g, "").trim();
 
-  const categories = [];
-  let currentCat = null;
-  let currentSection = null;
+  const slug = (s) =>
+    clean(s)
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
 
-  for (const line of lines) {
-    if (isAllCapsCategory(line)) {
-      currentCat = {
-        id: safeId(line),
-        title: line,
-        description: (window.SHEET_CONFIG.categoryDescriptions[line] || ""),
-        sections: []
-      };
-      categories.push(currentCat);
-      currentSection = null;
-      continue;
+  const isCategoryLine = (line) => {
+    const s = clean(line);
+    if (!s) return false;
+    if (s.startsWith("*")) return false;
+    // Category lines are all caps in your file
+    if (s !== s.toUpperCase()) return false;
+    // keep it strict-ish
+    return /^[A-Z0-9 &/'()\-]+$/.test(s) && s.length >= 3;
+  };
+
+  const parseSectionColumns = (title) => {
+    const t = clean(title);
+    if (t.includes("|")) {
+      return t.split("|").map(x => clean(x));
     }
+    // Special known case: "Self / Partner" etc.
+    if (/^\s*Self\s*\/\s*Partner\s*$/i.test(t)) return ["Self", "Partner"];
+    return null; // single-column section
+  };
 
-    if (!currentCat) continue;
+  const parseItemLine = (line) => {
+    // "* Name - Explanation"
+    const s = clean(line).replace(/^\*\s*/, "");
+    const idx = s.indexOf(" - ");
+    if (idx === -1) return { label: s, help: "" };
+    return {
+      label: clean(s.slice(0, idx)),
+      help: clean(s.slice(idx + 3))
+    };
+  };
 
-    // Item line
-    if (/^\s*[\*\u25cf]\s+/.test(line)) {
-      if (!currentSection) {
-        currentSection = { title: "General", columns: ["General"], items: [] };
-        currentCat.sections.push(currentSection);
+  function buildData(raw) {
+    const lines = raw.split(/\r?\n/).map(clean);
+
+    const categories = [];
+    let cat = null;
+    let section = null;
+
+    const pushSection = () => null;
+    const pushCategory = () => {
+      if (cat) categories.push(cat);
+      cat = null;
+      section = null;
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line) continue;
+
+      if (isCategoryLine(line)) {
+        pushCategory();
+        const title = clean(line);
+        cat = {
+          id: slug(title),
+          title,
+          description: CATEGORY_DESC[title] || "",
+          sections: []
+        };
+        continue;
       }
-      const it = parseItemLine(line);
-      currentSection.items.push(it);
-      continue;
+
+      if (!cat) continue; // ignore junk before first category
+
+      if (line.startsWith("*")) {
+        if (!section) {
+          section = {
+            title: "General",
+            columns: null,
+            items: []
+          };
+          cat.sections.push(section);
+        }
+        section.items.push(parseItemLine(line));
+        continue;
+      }
+
+      // If it's not a category and not an item, it's a section header
+      section = {
+        title: line,
+        columns: parseSectionColumns(line),
+        items: []
+      };
+      cat.sections.push(section);
     }
 
-    // Section / columns header line:
-    // Examples from your txt:
-    // "General" :contentReference[oaicite:5]{index=5}
-    // "Self | Partner" :contentReference[oaicite:6]{index=6}
-    // "Giving | Receiving" :contentReference[oaicite:7]{index=7}
-    const hasPipes = line.includes("|");
-    if (hasPipes) {
-      const cols = line.split("|").map(s => s.trim()).filter(Boolean);
-      currentSection = {
-        title: cols.join(" / "),
-        columns: cols,
-        items: []
-      };
-    } else {
-      currentSection = {
-        title: line,
-        columns: ["General"],
-        items: []
-      };
-    }
-    currentCat.sections.push(currentSection);
+    // finalize
+    pushCategory();
+
+    return categories;
   }
 
-  return categories;
-};
+  window.SHEET_DATA = buildData(RAW);
+})();

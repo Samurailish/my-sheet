@@ -2,31 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>My Sheet</title>
-
-  <!-- Cache-bust the CSS so you actually see updates -->
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
+  <!-- PRINT HEADER (only shows in print/PDF) -->
+  <div class="printHeader" aria-hidden="true">
+    <div class="printTitleRow">
+      <div class="printTitle">My Sheet</div>
+      <div class="legend legend--compact">
+        <div class="legendItem"><span class="dotLegend favorite"></span> Favorite</div>
+        <div class="legendItem"><span class="dotLegend like"></span> Like</div>
+        <div class="legendItem"><span class="dotLegend interested"></span> Interested</div>
+        <div class="legendItem"><span class="dotLegend no"></span> No</div>
+        <div class="legendItem"><span class="dotLegend unset"></span> Unset</div>
+      </div>
+    </div>
+    <div class="printNote">Tip: selected dots show letters (F/L/I/N/U) so the PDF stays readable even in black & white.</div>
+  </div>
+
   <header class="top">
     <h1>My Sheet</h1>
     <p class="sub">Pick what you like. Click <b>GET LINK</b> to generate a short share link.</p>
 
-    <div class="legend" aria-label="Legend">
-      <span><span class="dot fav"></span> Favorite</span>
-      <span><span class="dot like"></span> Like</span>
-      <span><span class="dot int"></span> Interested</span>
-      <span><span class="dot no"></span> No</span>
-      <span><span class="dot empty"></span> Unset</span>
+    <div class="legend">
+      <div class="legendItem"><span class="dotLegend favorite"></span> Favorite</div>
+      <div class="legendItem"><span class="dotLegend like"></span> Like</div>
+      <div class="legendItem"><span class="dotLegend interested"></span> Interested</div>
+      <div class="legendItem"><span class="dotLegend no"></span> No</div>
+      <div class="legendItem"><span class="dotLegend unset"></span> Unset</div>
     </div>
 
     <div class="actions">
-      <button id="customize" class="secondary" type="button" title="Customize categories (coming soon)">Customize</button>
-      <button id="getLink" type="button">GET LINK</button>
-      <button id="exportPdf" class="secondary" type="button">Export PDF</button>
-      <button id="clearLocal" class="secondary" type="button" title="Clears your local draft (does not delete shared links)">Clear local</button>
+      <button id="customizeBtn" class="secondary">Customize</button>
+      <button id="getLink" class="primary">GET LINK</button>
+      <button id="exportPdf" class="secondary">Export PDF</button>
+      <button id="clearLocal" class="secondary" title="Clears your local draft (does not delete shared links)">Clear local</button>
     </div>
 
     <input id="shareUrl" readonly placeholder="Your share link will appear here" />
@@ -35,11 +48,27 @@
 
   <main class="sheet" id="sheet"></main>
 
-  <!-- Supabase JS client (CDN) - include ONCE -->
+  <!-- Customize Modal -->
+  <div id="modalBackdrop" class="modalBackdrop hidden"></div>
+  <div id="customizeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="customizeTitle">
+    <div class="modalHeader">
+      <div class="modalTitle" id="customizeTitle">Customize</div>
+      <button id="closeCustomize" class="iconBtn" aria-label="Close">✕</button>
+    </div>
+    <div class="modalBody" id="customizeBody">
+      <!-- filled by JS -->
+    </div>
+    <div class="modalFooter">
+      <button id="showAllCats" class="secondary">Show all</button>
+      <button id="saveCustomize" class="primary">Save</button>
+    </div>
+  </div>
+
+  <!-- Supabase JS client (CDN, UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Your data + app code (cache-bust so browser stops lying to you) -->
-  <script src="sheetData.js?v=7"></script>
-  <script src="app.js?v=7"></script>
+  <!-- Data + App -->
+  <script src="sheetData.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
