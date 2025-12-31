@@ -482,3 +482,59 @@ button:disabled{opacity:.6;cursor:not-allowed}
   justify-content: center;
   flex-wrap: nowrap;
 }
+
+/* =========================
+   FINAL: NO SLIDERS + NO OVERLAP
+   (removes dot scrolling + keeps cards wide enough)
+========================= */
+
+/* 1) Masonry: keep cards wide (prevents 2-group rows from overflowing) */
+.sheet{
+  column-count: auto !important;
+  column-width: 560px !important;   /* safe width for 2 dot-groups */
+  column-gap: 18px !important;
+}
+
+/* 2) Scale dots down (still clickable, but fits) */
+:root{
+  --dotW: 26px !important;
+  --dotH: 16px !important;
+  --dotGap: 6px !important;
+}
+
+/* If your CSS doesn't use these vars, force the dot size directly too */
+.dot{
+  width: var(--dotW) !important;
+  height: var(--dotH) !important;
+}
+.dots{
+  gap: var(--dotGap) !important;
+}
+
+/* 3) Multi rows: allow grid children to shrink properly */
+.row.multi > *{ min-width: 0 !important; }
+.colLabelRow > *{ min-width: 0 !important; }
+
+/* 4) IMPORTANT: remove ANY horizontal scrolling (kills the slider/arrows) */
+.row.multi .dots{
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+}
+.row.multi .dots::-webkit-scrollbar{
+  display: none !important;
+}
+
+/* 5) Guarantee dot-groups don't push outside the card */
+.card{
+  overflow: hidden !important; /* nothing can paint outside rounded corners */
+}
+
+/* 6) Make the multi grid predictable: label + 2 fixed dot-group columns */
+.row.multi{
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content) !important;
+}
+.colLabelRow{
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content) !important;
+}
