@@ -387,18 +387,18 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 
 /* =========================
-   PRINT / PDF COMPRESSION
+   PRINT / PDF: NO CROPPING VERSION
+   (Disable masonry columns, use grid instead)
 ========================= */
 
-/* Page size + margins (biggest lever) */
 @page{
   size: A4 landscape;
-  margin: 8mm;
+  margin: 6mm;
 }
 
 @media print{
 
-  /* Hide all the UI junk */
+  /* hide UI */
   .top,
   .actions,
   #shareUrl,
@@ -409,66 +409,53 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
     display:none !important;
   }
 
-  /* Overall density */
   html, body{
     background:#fff !important;
   }
 
-  /* Reduce base font size */
-  body{
-    font-size: 11px !important;
-  }
-
-  /* Compact masonry for print */
+  /* IMPORTANT: disable masonry columns in print */
   .sheet{
     padding: 0 !important;
-    column-count: 4 !important;     /* denser */
-    column-gap: 10px !important;
+    column-count: initial !important;
+    column-gap: 0 !important;
+
+    /* Use grid for predictable PDF layout */
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important; /* 4 cards per row */
+    gap: 10px !important;
+    align-items: start !important;
   }
 
-  /* Compact cards */
+  /* Cards must be normal blocks in grid (not inline-block masonry bricks) */
   .card{
+    display: block !important;
+    width: auto !important;
+    margin: 0 !important;
+    break-inside: auto !important;
     box-shadow: none !important;
+
+    /* DON'T CLIP in print */
+    overflow: visible !important;
+
     border: 1px solid #d1d5db !important;
     border-radius: 10px !important;
-    margin: 0 0 10px !important;
-    break-inside: avoid;
   }
 
-  /* Compact headers */
-  .cardHead{
-    padding: 8px 10px !important;
-  }
-  .cardTitle{
-    font-size: 14px !important;
-  }
-  .cardDesc{
-    font-size: 10px !important;
-    margin-top: 3px !important;
-  }
+  /* Compact spacing */
+  body{ font-size: 11px !important; }
 
-  /* Compact section spacing */
-  .section{
-    padding: 8px 10px 10px !important;
-  }
-  .sectionTitle{
-    font-size: 10px !important;
-  }
+  .cardHead{ padding: 8px 10px !important; }
+  .cardTitle{ font-size: 14px !important; }
+  .cardDesc{ font-size: 10px !important; margin-top: 3px !important; }
+  .section{ padding: 8px 10px 10px !important; }
+  .row{ padding: 5px 0 !important; gap: 8px !important; }
+  .row.multi{ gap: 8px !important; }
 
-  /* Tighten rows */
-  .row{
-    padding: 6px 0 !important;
-    gap: 8px !important;
-  }
-  .row.multi{
-    gap: 8px !important;
-  }
-
-  /* Shrink dots in print only */
+  /* Smaller dots in print */
   :root{
-    --dotW: 22px !important;
-    --dotH: 14px !important;
-    --dotGap: 5px !important;
+    --dotW: 20px !important;
+    --dotH: 13px !important;
+    --dotGap: 4px !important;
   }
   .dot{
     width: var(--dotW) !important;
@@ -478,64 +465,15 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
     gap: var(--dotGap) !important;
   }
 
-  /* Make item text a bit smaller so rows don't wrap */
-  .itemName{
-    font-size: 11px !important;
-  }
-
-  /* Less “?” noise on paper */
+  /* Optional: remove ? buttons on paper */
   .catHelpBtn,
   .infoBtn{
     display:none !important;
   }
-}
 
-/* =========================
-   PRINT HARDENING (browsers sometimes ignore @page orientation)
-========================= */
-@page{
-  size: A4 landscape;
-  margin: 6mm;
-}
-
-@media print{
-  /* force the printed area to use the full page width */
-  html, body{
-    width: 297mm;           /* A4 landscape width */
-    height: 210mm;          /* A4 landscape height */
-  }
-
-  /* If the browser STILL prints portrait, this prevents huge elements */
-  body{
-    zoom: 0.80;             /* scale down content for safety */
-  }
-
-  /* Increase density */
-  .sheet{
-    column-count: 5 !important;
-    column-gap: 8px !important;
-  }
-
-  .card{
-    border-radius: 8px !important;
-  }
-
-  .cardHead{
-    padding: 7px 9px !important;
-  }
-
-  .section{
-    padding: 7px 9px 9px !important;
-  }
-
-  .row{
-    padding: 5px 0 !important;
-  }
-
-  /* smaller dots for print */
-  :root{
-    --dotW: 20px !important;
-    --dotH: 13px !important;
-    --dotGap: 4px !important;
+  /* If some browsers still clip, this helps them paginate more safely */
+  .card, .section, .table, .row{
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }
