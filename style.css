@@ -387,15 +387,105 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 
 /* =========================
-   PRINT: PDF export
+   PRINT / PDF COMPRESSION
 ========================= */
+
+/* Page size + margins (biggest lever) */
+@page{
+  size: A4 landscape;
+  margin: 8mm;
+}
+
 @media print{
-  .top, .modal, .modalBack { display:none !important; }
-  body{ background:#fff; }
-  .sheet{
-    column-count:2;
-    column-gap:12px;
-    padding:0;
+
+  /* Hide all the UI junk */
+  .top,
+  .actions,
+  #shareUrl,
+  .status,
+  .modal,
+  .modalBack,
+  .tooltip{
+    display:none !important;
   }
-  .card{ box-shadow:none; }
+
+  /* Overall density */
+  html, body{
+    background:#fff !important;
+  }
+
+  /* Reduce base font size */
+  body{
+    font-size: 11px !important;
+  }
+
+  /* Compact masonry for print */
+  .sheet{
+    padding: 0 !important;
+    column-count: 4 !important;     /* denser */
+    column-gap: 10px !important;
+  }
+
+  /* Compact cards */
+  .card{
+    box-shadow: none !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 10px !important;
+    margin: 0 0 10px !important;
+    break-inside: avoid;
+  }
+
+  /* Compact headers */
+  .cardHead{
+    padding: 8px 10px !important;
+  }
+  .cardTitle{
+    font-size: 14px !important;
+  }
+  .cardDesc{
+    font-size: 10px !important;
+    margin-top: 3px !important;
+  }
+
+  /* Compact section spacing */
+  .section{
+    padding: 8px 10px 10px !important;
+  }
+  .sectionTitle{
+    font-size: 10px !important;
+  }
+
+  /* Tighten rows */
+  .row{
+    padding: 6px 0 !important;
+    gap: 8px !important;
+  }
+  .row.multi{
+    gap: 8px !important;
+  }
+
+  /* Shrink dots in print only */
+  :root{
+    --dotW: 22px !important;
+    --dotH: 14px !important;
+    --dotGap: 5px !important;
+  }
+  .dot{
+    width: var(--dotW) !important;
+    height: var(--dotH) !important;
+  }
+  .dots{
+    gap: var(--dotGap) !important;
+  }
+
+  /* Make item text a bit smaller so rows don't wrap */
+  .itemName{
+    font-size: 11px !important;
+  }
+
+  /* Less “?” noise on paper */
+  .catHelpBtn,
+  .infoBtn{
+    display:none !important;
+  }
 }
