@@ -1,523 +1,387 @@
-:root{
-  --bg:#ffffff;
-  --ink:#0f172a;
-  --muted:#64748b;
-  --line:#e5e7eb;
-  --card:#ffffff;
-  --shadow: 0 10px 30px rgba(2,6,23,0.06);
-  --radius:18px;
+/* =========================
+   Base / Reset
+========================= */
+*,
+*::before,
+*::after { box-sizing: border-box; }
 
-  --fav:#4da3ff;
-  --like:#55c57a;
-  --int:#f0c96a;
-  --no:#e57b7b;
-  --empty:#ffffff;
+html, body { height: 100%; }
 
-  /* FINAL dot sizing (your current working look) */
-  --dotW: 32px;
-  --dotH: 22px;
-  --dotGap: 10px;
-}
-
-*{ box-sizing:border-box; }
-
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--ink);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #0f172a;
+  background: #ffffff;
 }
 
 /* =========================
-   TOP HEADER
+   Layout
 ========================= */
-.top{
-  padding:28px 28px 12px;
-  border-bottom:1px solid var(--line);
-}
-h1{
-  margin:0 0 8px;
-  font-size:52px;
-  letter-spacing:-.03em;
-}
-.sub{
-  margin:0 0 14px;
-  color:var(--muted);
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 22px 18px 40px;
 }
 
-.legend{
-  display:flex;
-  gap:14px;
-  align-items:center;
-  flex-wrap:wrap;
-  margin:10px 0 16px;
-  color:var(--muted);
-  font-size:14px;
-}
-.legend .dot{ margin-right:6px; }
-
-/* ===== Buttons (top actions) ===== */
-.actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:12px;
-}
-button{
-  border:1px solid var(--line);
-  background:#0b1220;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:700;
-}
-button.secondary{ background:#0b1220; }
-button.primary{ background:#ef4444; border-color:#ef4444; }
-button:disabled{ opacity:.6; cursor:not-allowed; }
-
-#shareUrl{
-  width:100%;
-  padding:12px 14px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  outline:none;
-  margin:8px 0 6px;
-  font-size:14px;
-}
-.status{ color:var(--muted); min-height:22px; }
-
-/* =========================
-   MASONRY LAYOUT (FINAL)
-========================= */
-.sheet{
-  padding:22px 22px 60px;
-  column-count:3;
-  column-gap:18px;
+h1 {
+  margin: 0 0 6px;
+  font-size: 44px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
 }
 
-/* 2 columns when screen gets tighter */
-@media (max-width: 1300px){
-  .sheet{ column-count:2; }
+.subhead {
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 13px;
 }
 
-/* 1 column on mobile */
-@media (max-width: 820px){
-  .sheet{ column-count:1; }
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0 12px;
 }
 
-/* Each card is a masonry “brick” */
-.card{
-  display:inline-block;
-  width:100%;
-  margin:0 0 18px;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  overflow:hidden;            /* prevent any bleed */
-  break-inside:avoid;
+button, .btn {
+  border: 1px solid #e2e8f0;
+  background: #0b1220;
+  color: #fff;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+button.secondary, .btn.secondary {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+button.danger, .btn.danger {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+button:active { transform: translateY(1px); }
+
+.linkBox {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #334155;
+  background: #fff;
+  font-size: 13px;
 }
 
 /* =========================
-   CARD HEADER
+   Legend
 ========================= */
-.cardHead{
-  padding:14px 16px;
-  border-bottom:1px solid var(--line);
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-  justify-content:space-between;
-}
-.cardHeadLeft{ min-width:0; }
-.cardTitle{
-  margin:0;
-  font-size:20px;
-  letter-spacing:-.02em;
-}
-.cardDesc{
-  margin:6px 0 0;
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.35;
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 10px;
+  color: #64748b;
+  font-size: 12px;
 }
 
-/* Less-depressing “?” buttons */
-.catHelpBtn,
-.infoBtn{
-  border-radius:999px;
-  border:1px solid rgba(15,23,42,0.14);
-  background:rgba(15,23,42,0.06);
-  color:rgba(15,23,42,0.70);
-  font-weight:900;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-  flex:0 0 auto;
-  transition: background .12s ease, color .12s ease, transform .06s ease;
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.catHelpBtn{ width:28px; height:28px; }
-.infoBtn{ width:24px; height:24px; }
 
-.catHelpBtn:hover,
-.infoBtn:hover{
-  background:rgba(15,23,42,0.10);
-  color:rgba(15,23,42,0.92);
-  transform: translateY(-1px);
+.legendSwatch {
+  width: 24px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  opacity: 0.6; /* “50% color” look */
+}
+
+.legendSwatch.fav { background: #60a5fa; }
+.legendSwatch.like { background: #6fcf97; }
+.legendSwatch.int { background: #f2c76e; }
+.legendSwatch.no { background: #e57373; }
+.legendSwatch.empty { background: #ffffff; }
+
+/* =========================
+   Cards Grid
+========================= */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+  margin-top: 10px;
+}
+
+@media (max-width: 1280px) {
+  .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 980px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .cards { grid-template-columns: 1fr; }
 }
 
 /* =========================
-   SECTIONS / TABLE
+   Card
 ========================= */
-.section{ padding:12px 16px 14px; }
-
-.sectionTitleRow{
-  display:flex;
-  align-items:baseline;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:8px;
-}
-.sectionTitle{
-  font-weight:900;
-  font-size:13px;
-  color:#111827;
-  text-transform:uppercase;
-  letter-spacing:.08em;
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  overflow: visible; /* IMPORTANT: never clip in print */
 }
 
-.table{
-  width:100%;
-  border-top:1px solid var(--line);
+.cardHeader {
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-/* Single-column rows */
-.row{
-  display:grid;
-  grid-template-columns: minmax(180px, 1fr) auto;
-  gap:12px;
-  align-items:center;
-  padding:10px 0;
-  border-bottom:1px solid var(--line);
+.cardTitle {
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  font-size: 14px;
+  margin: 0;
 }
 
-/* Multi-column rows: label + N dot-groups */
-.row.multi{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content);
-  gap:12px;
-  align-items:center;
+.cardDesc {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 11px;
 }
 
-/* Allow grid children to shrink/ellipsis correctly */
-.row.multi > *{ min-width:0; }
-
-.itemLeft{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-width:0;
+.helpBtn {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  background: #f3f4f6;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  cursor: pointer;
 }
-.itemName{
-  font-weight:800;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+
+.cardBody { padding: 10px 0 8px; }
+
+.groupTitle {
+  padding: 8px 14px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  font-weight: 900;
+  color: #0f172a;
+  border-top: 1px solid #eef2f7;
 }
 
-/* Column labels for multi-column sections */
-.colLabelRow{
-  display:grid;
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content);
-  gap:12px;
-  padding:8px 0;
-  color:var(--muted);
-  font-size:12px;
+.groupTitle:first-child {
+  border-top: none;
+  padding-top: 6px;
 }
-.colLabelRow > *{ min-width:0; }
 
-.colLabel{
-  text-align:center;
-  font-weight:700;
+/* column labels row */
+.colLabelRow {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 6px 14px 6px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.colLabelRow .labels {
+  display: flex;
+  justify-content: flex-end;
+  gap: 18px;
+  min-width: 0;
+}
+
+.colLabelRow .labels span { white-space: nowrap; }
+
+/* =========================
+   Rows
+========================= */
+.row {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 14px;
+  border-top: 1px solid #eef2f7;
+}
+
+.row:first-of-type { border-top: none; }
+
+.infoBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.18);
+  background: #f3f4f6;
+  color: #334155; /* less depressing than pure black */
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.itemName {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  min-width: 0;             /* crucial */
+  overflow: hidden;         /* crucial */
+  text-overflow: ellipsis;  /* nice */
+  white-space: nowrap;      /* keeps rows tidy on screen */
+}
+
+/* Dots area */
+.dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Each rating button */
+.dotBtn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.dot {
+  width: 22px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  display: inline-block;
+  opacity: 0.55; /* “50% color” until selected */
+  transition: opacity 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+
+/* rating colors */
+.dot.fav  { background: #60a5fa; }
+.dot.like { background: #6fcf97; }
+.dot.int  { background: #f2c76e; }
+.dot.no   { background: #e57373; }
+.dot.empty{ background: #ffffff; }
+
+/* selected state (JS adds .selected on button) */
+.dotBtn.selected .dot {
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.08);
+}
+
+/* hover (desktop) */
+@media (hover: hover) {
+  .dotBtn:hover .dot { transform: translateY(-1px); opacity: 0.9; }
 }
 
 /* =========================
-   RATING DOTS
+   PRINT / PDF (the important part)
 ========================= */
-.dots{
-  display:flex;
-  gap:var(--dotGap);
-  justify-content:center;
-  align-items:center;
-  flex-wrap:nowrap;
+@page {
+  /* You can switch to A4 by replacing 'Letter' with 'A4' if you prefer */
+  size: Letter portrait;
+  margin: 10mm;
 }
 
-/* Reset so global button styling NEVER touches dot buttons */
-.dotBtn{
-  -webkit-appearance:none;
-  appearance:none;
-  border:0 !important;
-  background:transparent !important;
-  padding:0 !important;
-  margin:0;
-  line-height:0;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
+@media print {
+  /* Remove browser weirdness */
+  html, body { height: auto !important; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-/* Dot pill */
-.dot{
-  width:var(--dotW);
-  height:var(--dotH);
-  border-radius:999px;
-  border:1px solid rgba(15,23,42,0.18);
-  display:inline-block;
-  transition: transform .06s ease, filter .12s ease, opacity .12s ease, box-shadow .12s ease;
-}
+  /* Hide UI-only controls (optional). If you want them in PDF, comment these out. */
+  .controls, .subhead, .legend { display: none !important; }
 
-/* Default state = show ~50% color so user understands legend */
-.dot.state{
-  opacity:.55;
-  filter:saturate(.75) brightness(1.02);
-}
-
-/* Selected pops */
-.dot.selected{
-  opacity:1;
-  filter:saturate(1) brightness(1);
-  box-shadow: 0 0 0 3px rgba(2,6,23,0.10);
-  transform: scale(1.03);
-}
-
-/* Colors */
-.dot.fav{ background:var(--fav); }
-.dot.like{ background:var(--like); }
-.dot.int{ background:var(--int); }
-.dot.no{ background:var(--no); }
-.dot.empty{ background:var(--empty); }
-
-/* =========================
-   TOOLTIP
-========================= */
-.tooltip{
-  position:fixed;
-  z-index:9999;
-  max-width:360px;
-  background:#0b1220;
-  color:#fff;
-  border:1px solid rgba(255,255,255,0.14);
-  border-radius:14px;
-  padding:12px 12px 10px;
-  box-shadow: 0 18px 55px rgba(0,0,0,0.25);
-}
-.tooltipTitle{
-  font-weight:900;
-  margin:0 0 6px;
-}
-.tooltipBody{
-  margin:0;
-  color:rgba(255,255,255,0.85);
-  line-height:1.35;
-  font-size:13px;
-}
-.tooltipActions{
-  margin-top:10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-.tooltipActionBtn{
-  width:26px;
-  height:26px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,0.18);
-  background:rgba(255,255,255,0.08);
-  color:#fff;
-  font-weight:900;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-}
-.tooltipActionBtn:hover{ background:rgba(255,255,255,0.14); }
-.tooltipClose{
-  border:0;
-  background:transparent;
-  color:rgba(255,255,255,0.75);
-  cursor:pointer;
-  font-weight:800;
-}
-
-/* =========================
-   MODAL
-========================= */
-.modalBack{
-  position:fixed;
-  inset:0;
-  background:rgba(2,6,23,0.55);
-  display:none;
-  z-index:9998;
-}
-.modal{
-  position:fixed;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:min(640px, calc(100vw - 30px));
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:18px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  display:none;
-  z-index:9999;
-}
-.modal h3{ margin:0 0 8px; }
-.modal p{
-  margin:0 0 12px;
-  color:var(--muted);
-  line-height:1.4;
-}
-.modal .modalActions{
-  display:flex;
-  gap:10px;
-  justify-content:flex-end;
-}
-
-/* =========================
-   PRINT / PDF (clean + dense)
-   - Uses CSS columns to reduce dead space ("masonry")
-   - Fixes label/dots overlap with fixed dot-group widths
-========================= */
-
-@page{
-  size: landscape;
-  margin: 6mm;
-}
-
-@media print{
-  /* Hide UI */
-  .top, .modal, .modalBack, .tooltip { display:none !important; }
-
-  /* Print color accuracy */
-  *{
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  html, body{
-    background:#fff !important;
-    margin:0 !important;
-    padding:0 !important;
-  }
-
-  /* IMPORTANT: avoid mysterious cropping */
-  *{ overflow: visible !important; }
-
-  body{
-    font-size: 10.5px !important;
-    line-height: 1.2 !important;
-  }
-
-  /* ✅ Reduce dead space: masonry-style columns */
-  .sheet{
+  .container {
+    max-width: none !important;
     padding: 0 !important;
-    display: block !important;
-
-    column-count: 3 !important;
-    column-gap: 10px !important;
-    column-fill: auto !important;
-
-    width: 100% !important;
-    max-width: 100% !important;
+    margin: 0 !important;
   }
 
-  /* Cards become "column items" */
-  .card{
-    display: inline-block !important;
-    width: 100% !important;
-    margin: 0 0 10px 0 !important;
+  /* Make the sheet denser */
+  h1 { font-size: 18px !important; margin: 0 0 6px !important; }
 
-    box-shadow: none !important;
-    border: 1px solid #d1d5db !important;
-
-    /* Try to keep cards intact, but allow breaking if needed */
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
-
-  /* Tighten paddings */
-  .cardHead{ padding: 7px 9px !important; }
-  .cardTitle{ font-size: 13px !important; }
-  .cardDesc{ font-size: 9.5px !important; margin-top: 2px !important; }
-
-  .section{ padding: 7px 9px 9px !important; }
-  .sectionTitleRow{ margin-bottom: 6px !important; }
-  .sectionTitle{ font-size: 11px !important; }
-
-  /* Hide ? in print */
-  .catHelpBtn, .infoBtn{ display:none !important; }
-
-  /* ---------- Fix overlap: lock dot-group widths ---------- */
-
-  /* Smaller dots in print */
-  .dot{
-    width: 16px !important;
-    height: 11px !important;
-  }
-  .dots{
-    gap: 4px !important;
-    flex-wrap: nowrap !important;
-    justify-content: center !important;
-
-    /* 5 dots: 5*16 + 4*4 = 96px -> add some slack */
-    width: 104px !important;
-    min-width: 104px !important;
-  }
-
-  /* Row layout: name gets the remaining space, dots are fixed */
-  .row{
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 104px !important;
-    gap: 8px !important;
-    padding: 6px 0 !important;
-  }
-
-  /* For multi-column categories (Self/Partner etc.) */
-  .row.multi{
-    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 104px) !important;
+  .cards {
+    /* Use 4 columns for print density. Change to 3 if you want bigger text. */
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     gap: 8px !important;
   }
 
-  /* Column label row must match the same grid widths */
-  .colLabelRow{
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 104px) !important;
+  .card {
+    border-radius: 10px !important;
+    overflow: visible !important; /* NO clipping */
+    break-inside: auto !important;            /* reduce dead space */
+    page-break-inside: auto !important;       /* reduce dead space */
+  }
+
+  .cardHeader { padding: 8px 10px !important; }
+  .cardBody { padding: 6px 0 6px !important; }
+
+  .cardTitle { font-size: 11px !important; }
+  .cardDesc  { font-size: 9px !important; }
+
+  .groupTitle { padding: 6px 10px !important; font-size: 9px !important; }
+
+  .colLabelRow, .row {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
     gap: 8px !important;
-    padding: 6px 0 !important;
+  }
+
+  /* BIG FIX: prevent overlap by allowing the dots block to wrap in print */
+  .dots {
+    flex-wrap: wrap !important;
+    row-gap: 4px !important;
+    justify-content: flex-end !important;
+  }
+
+  /* BIG FIX: allow names to wrap in print so they don't fight the dots */
+  .itemName {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+  }
+
+  .infoBtn, .helpBtn {
+    width: 18px !important;
+    height: 18px !important;
     font-size: 10px !important;
   }
 
-  /* Make sure item name never spills into dot area */
-  .item{
-    min-width: 0 !important;
-  }
-  .itemName{
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
+  /* Dots smaller in print */
+  .dot {
+    width: 14px !important;
+    height: 9px !important;
+    opacity: 0.6 !important;
   }
 
-  /* If you still get any weird breaks, this helps */
-  .section, .cardHead{
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
+  .dotBtn.selected .dot { opacity: 1 !important; }
 
-  /* Optional: If your printer driver is Letter and too tight, bump to 2 columns */
-  @media (max-width: 1100px){
-    .sheet{ column-count: 2 !important; }
-  }
+  /* Ensure nothing uses clipping that murders print */
+  * { box-shadow: none !important; }
 }
