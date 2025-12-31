@@ -429,3 +429,56 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .card{
   overflow: hidden; /* prevents any drawing outside the rounded card */
 }
+
+/* =========================
+   BULLETPROOF LAYOUT FIX:
+   Prevent cards from becoming too narrow (root cause of overlap)
+========================= */
+
+/* 1) Masonry by column-width, not fixed column-count */
+.sheet{
+  column-count: auto !important;
+  column-width: 520px;      /* <- increase/decrease to taste (480–560) */
+  column-gap: 18px;
+}
+
+/* 2) Hard clamp: never allow more than 3 columns on typical screens */
+@media (min-width: 1400px){
+  .sheet{ column-width: 480px; }
+}
+@media (max-width: 1100px){
+  .sheet{ column-width: 520px; } /* ends up as 2 columns */
+}
+@media (max-width: 720px){
+  .sheet{ column-width: 9999px; } /* 1 column */
+}
+
+/* 3) Make sure nothing can paint outside a card */
+.card{
+  overflow: hidden !important;
+}
+
+/* =========================
+   SCALE DOWN DOTS (helps even more)
+========================= */
+:root{
+  --dotW: 28px !important;
+  --dotH: 18px !important;
+  --dotGap: 6px !important;
+}
+
+/* Keep dot groups from forcing overflow in multi rows */
+.row.multi{
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), minmax(0, 1fr)) !important;
+}
+
+/* Ensure grid children can actually shrink */
+.row.multi > *{ min-width: 0; }
+
+/* Dot groups stay inside their cell */
+.row.multi .dots{
+  max-width: 100%;
+  overflow: hidden;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
