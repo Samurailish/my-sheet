@@ -4,266 +4,381 @@
   --muted:#64748b;
   --line:#e5e7eb;
   --card:#ffffff;
-  --shadow: 0 6px 18px rgba(2,6,23,.05);
-  --radius:14px;
+  --shadow: 0 10px 30px rgba(2,6,23,0.06);
+  --radius:18px;
 
   --fav:#4da3ff;
   --like:#55c57a;
   --int:#f0c96a;
   --no:#e57b7b;
+  --empty:#ffffff;
 }
 
-*{ box-sizing:border-box }
-html,body{height:100%}
+*{box-sizing:border-box}
 body{
   margin:0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   background:var(--bg);
   color:var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
-a{ color:inherit }
 
-/* ===== TOP ===== */
+/* =========================
+   TOP HEADER
+========================= */
 .top{
-  padding:16px 18px 10px;
+  padding:28px 28px 12px;
   border-bottom:1px solid var(--line);
 }
-h1{margin:0 0 6px;font-size:40px;letter-spacing:-.03em}
-.sub{margin:0 0 10px;color:var(--muted)}
+h1{margin:0 0 8px;font-size:52px;letter-spacing:-.03em}
+.sub{margin:0 0 14px;color:var(--muted)}
 
 .legend{
   display:flex;
-  gap:10px;
+  gap:14px;
   align-items:center;
   flex-wrap:wrap;
-  margin:8px 0 10px;
-  font-size:13px;
+  margin:10px 0 16px;
   color:var(--muted);
+  font-size:14px;
 }
-.legend .dot{
-  width:34px;height:22px;border-radius:999px;
-  border:1px solid rgba(15,23,42,.18);
-}
-.legend .dot.fav{ background:var(--fav) }
-.legend .dot.like{ background:var(--like) }
-.legend .dot.int{ background:var(--int) }
-.legend .dot.no{ background:var(--no) }
-.legend .dot.unset{ background:#fff }
+.legend .dot{margin-right:6px}
 
 .actions{
   display:flex;
-  gap:8px;
+  gap:10px;
   flex-wrap:wrap;
-  margin-bottom:10px;
+  margin-bottom:12px;
 }
+
+/* Global buttons (kept), but rating-dot buttons are HARD reset below */
 button{
   border:1px solid var(--line);
   background:#0b1220;
   color:#fff;
-  padding:9px 12px;
+  padding:10px 14px;
   border-radius:10px;
   cursor:pointer;
   font-weight:700;
 }
-button.secondary{
-  background:#f1f5f9;
-  color:#0f172a;
-}
-button.danger{
-  background:#ef4444;
-  border-color:#ef4444;
-}
+button.secondary{background:#0b1220}
+button.primary{background:#ef4444;border-color:#ef4444}
+button:disabled{opacity:.6;cursor:not-allowed}
 
-.bar{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.shareOut{
-  flex:1;
+#shareUrl{
+  width:100%;
+  padding:12px 14px;
   border:1px solid var(--line);
-  padding:10px 12px;
   border-radius:12px;
-  min-width:280px;
+  outline:none;
+  margin:8px 0 6px;
   font-size:14px;
-  color:var(--muted);
 }
+.status{color:var(--muted);min-height:22px}
 
-/* ===== MASONRY LAYOUT ===== */
+/* =========================
+   MASONRY LAYOUT (NO DEAD SPACE)
+   This removes the big empty gaps.
+========================= */
 .sheet{
-  padding:14px 14px 40px;
-  column-gap:12px;
-  column-count:2;
+  padding:22px 22px 60px;
+  column-count:4;
+  column-gap:18px;
 }
-
-@media (min-width:1250px){ .sheet{column-count:3} }
-@media (min-width:1750px){ .sheet{column-count:4} }
-@media (max-width:980px){
+@media (max-width: 1400px){
+  .sheet{column-count:3}
+}
+@media (max-width: 980px){
   .sheet{column-count:1}
-  h1{font-size:34px}
+  h1{font-size:40px}
 }
 
-/* ===== CARD ===== */
+/* Cards inside columns */
 .card{
   display:inline-block;
   width:100%;
-  margin:0 0 12px;
   break-inside:avoid;
   background:var(--card);
   border:1px solid var(--line);
   border-radius:var(--radius);
   box-shadow:var(--shadow);
   overflow:hidden;
+  margin:0 0 18px;
 }
 
+/* =========================
+   CARD HEADER
+========================= */
 .cardHead{
-  padding:10px 12px;
+  padding:14px 16px;
   border-bottom:1px solid var(--line);
   display:flex;
-  justify-content:space-between;
   gap:10px;
+  align-items:flex-start;
+  justify-content:space-between;
 }
+.cardHeadLeft{min-width:0}
 .cardTitle{
   margin:0;
-  font-size:18px;
+  font-size:20px;
+  letter-spacing:-.02em;
 }
 .cardDesc{
   margin:6px 0 0;
-  font-size:12px;
   color:var(--muted);
+  font-size:13px;
+  line-height:1.35;
 }
 
-/* Softer category ? */
-.cardHelp{
-  width:26px;height:26px;
-  border-radius:999px;
-  border:1px solid var(--line);
+/* Make the header (?) less black/depressing */
+.catHelpBtn{
+  width:26px;height:26px;border-radius:999px;
+  border:1px solid #cbd5e1;
   background:#f1f5f9;
   color:#334155;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  font-weight:900;
+  display:grid;place-items:center;
   cursor:pointer;
-  font-weight:700;
+  flex:0 0 auto;
 }
-.cardHelp:hover{
+.catHelpBtn:hover{
   background:#e2e8f0;
   color:#0f172a;
 }
 
-/* ===== SECTIONS ===== */
+/* =========================
+   SECTIONS / TABLE
+========================= */
 .section{
-  padding:10px 12px 12px;
+  padding:12px 16px 14px;
+}
+.sectionTitleRow{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:8px;
 }
 .sectionTitle{
-  font-size:11px;
   font-weight:900;
-  letter-spacing:.14em;
-  margin:0 0 8px;
+  font-size:13px;
+  color:#111827;
   text-transform:uppercase;
+  letter-spacing:.08em;
 }
 
-/* ===== ROWS ===== */
+.table{
+  width:100%;
+  border-top:1px solid var(--line);
+}
 .row{
   display:grid;
-  grid-template-columns:minmax(180px,1fr) auto;
-  gap:10px;
+  grid-template-columns: minmax(240px, 1fr) auto;
+  gap:12px;
   align-items:center;
-  padding:7px 0;
+  padding:10px 0;
   border-bottom:1px solid var(--line);
 }
-.row:last-child{border-bottom:0}
 .row.multi{
-  grid-template-columns:minmax(180px,1fr) repeat(var(--cols),auto);
+  grid-template-columns: minmax(240px, 1fr) repeat(var(--cols), auto);
 }
 
 .itemLeft{
   display:flex;
-  gap:8px;
   align-items:center;
+  gap:10px;
   min-width:0;
 }
 .itemName{
-  font-size:14px;
   font-weight:800;
-  white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
-/* Softer item ? */
-.itemHelp{
-  width:22px;height:22px;
-  border-radius:999px;
-  border:1px solid var(--line);
-  background:#f8fafc;
-  color:#475569;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+/* Make row (?) also lighter */
+.infoBtn{
+  width:22px;height:22px;border-radius:999px;
+  border:1px solid #cbd5e1;
+  background:#f1f5f9;
+  color:#334155;
+  font-weight:900;
+  display:grid;place-items:center;
   cursor:pointer;
-  font-weight:700;
+  flex:0 0 auto;
 }
-.itemHelp:hover{
-  background:#eef2f7;
+.infoBtn:hover{
+  background:#e2e8f0;
   color:#0f172a;
 }
 
-/* ===== DOTS ===== */
+/* Column labels */
+.colLabelRow{
+  display:grid;
+  grid-template-columns: minmax(240px, 1fr) repeat(var(--cols), auto);
+  gap:12px;
+  padding:8px 0;
+  color:var(--muted);
+  font-size:12px;
+}
+.colLabel{
+  text-align:center;
+  font-weight:700;
+}
+
+/* =========================
+   DOTS (THIS FIXES YOUR BLACK DOT PROBLEM)
+========================= */
 .dots{
   display:flex;
-  gap:6px;
+  gap:8px;
   justify-content:center;
 }
+
+/* HARD RESET so global button styling NEVER affects dot buttons */
 .dotBtn{
-  border:0;
-  background:transparent;
-  padding:0;
+  -webkit-appearance:none;
+  appearance:none;
+  border:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  margin:0;
+  line-height:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   cursor:pointer;
 }
 
-/* Unselected dots = 50% color */
+/* Base dot */
 .dot{
-  width:26px;
-  height:18px;
+  width:34px;
+  height:22px;
   border-radius:999px;
-  border:1px solid rgba(15,23,42,.18);
-  opacity:.45;
-  transition:.1s;
+  border:1px solid rgba(15,23,42,0.18);
+  display:inline-block;
+  transition: transform .06s ease, filter .12s ease, opacity .12s ease, box-shadow .12s ease;
 }
-.dot.fav{ background:var(--fav) }
-.dot.like{ background:var(--like) }
-.dot.int{ background:var(--int) }
-.dot.no{ background:var(--no) }
-.dot.unset{ background:#fff; opacity:.9 }
 
-/* Selected dot = full color */
+/* IMPORTANT:
+   Default = show the color at ~50% so you can recognize the meaning,
+   but still clearly unselected. */
+.dot.state{
+  opacity:0.55;
+  filter:saturate(0.65) brightness(1.02);
+}
+
+/* Selected pops */
 .dot.selected{
   opacity:1;
-  box-shadow:inset 0 0 0 2px rgba(15,23,42,.22);
+  filter:saturate(1) brightness(1);
+  box-shadow: 0 0 0 3px rgba(2,6,23,0.12);
+  transform: scale(1.03);
 }
-.dot.selected.fav{ background:var(--fav) }
-.dot.selected.like{ background:var(--like) }
-.dot.selected.int{ background:var(--int) }
-.dot.selected.no{ background:var(--no) }
-.dot.selected.unset{ background:#fff }
 
-/* ===== TOOLTIP ===== */
+/* Colors */
+.dot.fav{background:var(--fav)}
+.dot.like{background:var(--like)}
+.dot.int{background:var(--int)}
+.dot.no{background:var(--no)}
+.dot.empty{background:var(--empty)}
+
+/* Make “Unset” look intentionally neutral */
+.dot.empty.state{
+  opacity:1;
+  filter:none;
+  background:#ffffff;
+}
+
+/* =========================
+   TOOLTIP (unchanged)
+========================= */
 .tooltip{
   position:fixed;
-  max-width:340px;
+  z-index:9999;
+  max-width:360px;
   background:#0b1220;
   color:#fff;
+  border:1px solid rgba(255,255,255,0.14);
   border-radius:14px;
-  padding:12px;
-  box-shadow:0 20px 60px rgba(0,0,0,.25);
-  z-index:10000;
+  padding:12px 12px 10px;
+  box-shadow: 0 18px 55px rgba(0,0,0,0.25);
+}
+.tooltipTitle{
+  font-weight:900;
+  margin:0 0 6px;
+}
+.tooltipBody{
+  margin:0;
+  color:rgba(255,255,255,0.85);
+  line-height:1.35;
   font-size:13px;
 }
+.tooltipActions{
+  margin-top:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.tooltipActionBtn{
+  width:26px;height:26px;border-radius:999px;
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.08);
+  color:#fff;
+  font-weight:900;
+  display:grid;place-items:center;
+  cursor:pointer;
+  padding:0; /* keep compact */
+}
+.tooltipActionBtn:hover{background:rgba(255,255,255,0.14)}
+.tooltipClose{
+  border:0;
+  background:transparent;
+  color:rgba(255,255,255,0.75);
+  cursor:pointer;
+  font-weight:800;
+  padding:0; /* keep compact */
+}
 
-/* ===== PRINT ===== */
+/* =========================
+   MODAL
+========================= */
+.modalBack{
+  position:fixed;inset:0;
+  background:rgba(2,6,23,0.55);
+  display:none;
+  z-index:9998;
+}
+.modal{
+  position:fixed;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  width:min(640px, calc(100vw - 30px));
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:16px;
+  display:none;
+  z-index:9999;
+}
+.modal h3{margin:0 0 8px}
+.modal p{margin:0 0 12px;color:var(--muted);line-height:1.4}
+.modal .modalActions{display:flex;gap:10px;justify-content:flex-end}
+
+/* =========================
+   PRINT (PDF export)
+========================= */
 @media print{
-  .top{display:none}
-  .sheet{column-count:2}
-  .card{box-shadow:none}
+  .top, .modal, .modalBack { display:none !important; }
+  body{ background:#fff; }
+  .sheet{
+    padding:0;
+    column-count:2;  /* printable */
+    column-gap:12px;
+  }
+  .card{
+    box-shadow:none;
+    margin:0 0 12px;
+  }
 }
