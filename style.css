@@ -13,10 +13,13 @@
   --no:#e57b7b;
   --empty:#ffffff;
 
-  /* FINAL dot sizing (your current working look) */
+  /* SCREEN dot sizing (your current working look) */
   --dotW: 32px;
   --dotH: 22px;
   --dotGap: 10px;
+
+  /* dots per group (do not change unless UI changes) */
+  --dotCount: 5;
 }
 
 *{ box-sizing:border-box; }
@@ -63,6 +66,8 @@ h1{
   flex-wrap:wrap;
   margin-bottom:12px;
 }
+
+/* IMPORTANT: keep global button styling, but dot buttons are reset below */
 button{
   border:1px solid var(--line);
   background:#0b1220;
@@ -88,7 +93,7 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 .status{ color:var(--muted); min-height:22px; }
 
 /* =========================
-   MASONRY LAYOUT (FINAL)
+   MASONRY LAYOUT (SCREEN)
 ========================= */
 .sheet{
   padding:22px 22px 60px;
@@ -115,7 +120,7 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   border:1px solid var(--line);
   border-radius:var(--radius);
   box-shadow:var(--shadow);
-  overflow:hidden;            /* prevent any bleed */
+  overflow:hidden;
   break-inside:avoid;
 }
 
@@ -192,7 +197,9 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   border-top:1px solid var(--line);
 }
 
-/* Single-column rows */
+/* rows: label + dots group(s)
+   NOTE: minmax(180px) is your “desktop guarantee”
+*/
 .row{
   display:grid;
   grid-template-columns: minmax(180px, 1fr) auto;
@@ -277,7 +284,7 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   transition: transform .06s ease, filter .12s ease, opacity .12s ease, box-shadow .12s ease;
 }
 
-/* Default state = show ~50% color so user understands legend */
+/* Default state = ~50% color so user understands legend */
 .dot.state{
   opacity:.55;
   filter:saturate(.75) brightness(1.02);
@@ -386,10 +393,55 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   justify-content:flex-end;
 }
 
+/* =========================================================
+   RESPONSIVE FIXES (THIS is what makes Mac/Phone not break)
+   - shrink dots as width shrinks
+   - if too narrow: STACK dots under the label (no overlap)
+========================================================= */
+
+/* slightly smaller dots on medium screens */
+@media (max-width: 980px){
+  :root{
+    --dotW: 28px;
+    --dotH: 20px;
+    --dotGap: 8px;
+  }
+}
+
+/* phone-ish: smaller dots */
+@media (max-width: 560px){
+  :root{
+    --dotW: 24px;
+    --dotH: 18px;
+    --dotGap: 7px;
+  }
+  h1{ font-size:40px; }
+  .top{ padding:22px 16px 10px; }
+  .sheet{ padding:16px 16px 50px; }
+}
+
+/* VERY narrow: stack layout = bulletproof (no cropping) */
+@media (max-width: 420px){
+  /* rows become 2 lines: label then dots */
+  .row,
+  .row.multi{
+    grid-template-columns: 1fr !important;
+    gap:8px !important;
+    align-items:start !important;
+  }
+
+  /* column label row becomes hidden (it won't fit anyway) */
+  .colLabelRow{ display:none !important; }
+
+  /* dots align left under label */
+  .dots{ justify-content:flex-start !important; }
+
+  /* allow slightly more text before ellipsis */
+  .itemName{ max-width: 100%; }
+}
+
 /* =========================
-   PRINT / PDF (clean + dense)
-   - Uses CSS columns to reduce dead space ("masonry")
-   - Fixes label/dots overlap with fixed dot-group widths
+   PRINT / PDF (clean + dense + NO overlap)
 ========================= */
 
 @page{
@@ -413,42 +465,37 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
     padding:0 !important;
   }
 
-  /* IMPORTANT: avoid mysterious cropping */
-  *{ overflow: visible !important; }
-
   body{
     font-size: 10.5px !important;
     line-height: 1.2 !important;
   }
 
-  /* ✅ Reduce dead space: masonry-style columns */
+  /* Use columns to reduce dead space */
   .sheet{
     padding: 0 !important;
     display: block !important;
-
-    column-count: 3 !important;
+    column-count: 4 !important;
     column-gap: 10px !important;
     column-fill: auto !important;
-
     width: 100% !important;
     max-width: 100% !important;
   }
 
-  /* Cards become "column items" */
   .card{
     display: inline-block !important;
     width: 100% !important;
     margin: 0 0 10px 0 !important;
-
     box-shadow: none !important;
     border: 1px solid #d1d5db !important;
 
-    /* Try to keep cards intact, but allow breaking if needed */
+    /* keep together when possible */
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+
+    /* IMPORTANT: do NOT force overflow visible globally */
+    overflow: hidden !important;
   }
 
-  /* Tighten paddings */
   .cardHead{ padding: 7px 9px !important; }
   .cardTitle{ font-size: 13px !important; }
   .cardDesc{ font-size: 9.5px !important; margin-top: 2px !important; }
@@ -460,64 +507,60 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   /* Hide ? in print */
   .catHelpBtn, .infoBtn{ display:none !important; }
 
-  /* ---------- Fix overlap: lock dot-group widths ---------- */
-
   /* Smaller dots in print */
+  :root{
+    --dotW: 16px;
+    --dotH: 11px;
+    --dotGap: 4px;
+  }
+
+  /* Compute “one dot group width” so label NEVER overlaps dots */
+  /* groupW = dotCount*dotW + (dotCount-1)*dotGap + a little slack */
+  .sheet{
+    --groupW: calc((var(--dotCount) * var(--dotW)) + ((var(--dotCount) - 1) * var(--dotGap)) + 8px);
+  }
+
   .dot{
-    width: 16px !important;
-    height: 11px !important;
+    width: var(--dotW) !important;
+    height: var(--dotH) !important;
   }
   .dots{
-    gap: 4px !important;
+    gap: var(--dotGap) !important;
     flex-wrap: nowrap !important;
     justify-content: center !important;
-
-    /* 5 dots: 5*16 + 4*4 = 96px -> add some slack */
-    width: 104px !important;
-    min-width: 104px !important;
+    width: var(--groupW) !important;
+    min-width: var(--groupW) !important;
   }
 
-  /* Row layout: name gets the remaining space, dots are fixed */
+  /* Row layout: name gets remaining space; dots fixed width */
   .row{
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 104px !important;
+    grid-template-columns: minmax(0, 1fr) var(--groupW) !important;
     gap: 8px !important;
     padding: 6px 0 !important;
   }
 
-  /* For multi-column categories (Self/Partner etc.) */
   .row.multi{
-    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 104px) !important;
+    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), var(--groupW)) !important;
     gap: 8px !important;
   }
 
-  /* Column label row must match the same grid widths */
   .colLabelRow{
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 104px) !important;
+    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), var(--groupW)) !important;
     gap: 8px !important;
     padding: 6px 0 !important;
     font-size: 10px !important;
   }
 
-  /* Make sure item name never spills into dot area */
-  .item{
-    min-width: 0 !important;
-  }
   .itemName{
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
   }
 
-  /* If you still get any weird breaks, this helps */
-  .section, .cardHead{
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
-
-  /* Optional: If your printer driver is Letter and too tight, bump to 2 columns */
+  /* If your printer driver forces Letter and gets tight, drop to 3 columns */
   @media (max-width: 1100px){
-    .sheet{ column-count: 2 !important; }
+    .sheet{ column-count: 3 !important; }
   }
 }
