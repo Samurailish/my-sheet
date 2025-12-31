@@ -379,3 +379,53 @@ button:disabled{opacity:.6;cursor:not-allowed}
   }
   .card{ box-shadow:none; }
 }
+/* =========================
+   BULLETPROOF: stop 2-column rows from overlapping / clipping
+   Works even when cards are narrow (masonry columns).
+========================= */
+
+/* 1) Allow grid children to actually shrink (critical fix) */
+.row.multi > *{
+  min-width: 0;
+}
+.colLabelRow > *{
+  min-width: 0;
+}
+
+/* 2) Force dot-group cells to contain their content */
+.row.multi{
+  align-items: center;
+}
+
+/* 3) Each dot group becomes a "safe box" that can scroll instead of overflowing */
+.row.multi .dots{
+  max-width: 100%;
+  overflow-x: auto;         /* <-- bulletproof */
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;      /* prevents scrollbar clipping */
+  scrollbar-width: thin;    /* firefox */
+}
+
+/* Hide scrollbar (optional, looks cleaner) */
+.row.multi .dots::-webkit-scrollbar{
+  height: 6px;
+}
+.row.multi .dots::-webkit-scrollbar-track{
+  background: transparent;
+}
+.row.multi .dots::-webkit-scrollbar-thumb{
+  background: rgba(15,23,42,0.18);
+  border-radius: 999px;
+}
+
+/* 4) Keep dots from shrinking into weird shapes */
+.row.multi .dot{
+  flex: 0 0 auto;
+}
+
+/* 5) Keep the whole card clean */
+.card{
+  overflow: hidden; /* prevents any drawing outside the rounded card */
+}
