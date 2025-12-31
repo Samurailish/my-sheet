@@ -387,18 +387,27 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 
 /* =========================
-   PRINT / PDF: NO CROPPING VERSION
-   (Disable masonry columns, use grid instead)
+   PRINT / PDF (BULLETPROOF)
+   - avoids grid print bugs
+   - avoids overlap/clipping
+   - compacts pages
 ========================= */
 
 @page{
-  size: A4 landscape;
+  /* Let the user/driver decide paper size (A4/Letter), but force landscape preference */
+  size: landscape;
   margin: 6mm;
 }
 
 @media print{
 
-  /* hide UI */
+  /* Better color fidelity in PDF */
+  *{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide UI */
   .top,
   .actions,
   #shareUrl,
@@ -411,69 +420,100 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 
   html, body{
     background:#fff !important;
+    margin:0 !important;
+    padding:0 !important;
   }
 
-  /* IMPORTANT: disable masonry columns in print */
+  /* IMPORTANT:
+     Use columns for print (grid printing causes the tiny/whitespace issue) */
   .sheet{
     padding: 0 !important;
-    column-count: initial !important;
-    column-gap: 0 !important;
 
-    /* Use grid for predictable PDF layout */
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important; /* 4 cards per row */
-    gap: 10px !important;
-    align-items: start !important;
+    column-count: 3 !important;     /* 3 is the safe sweet spot in landscape */
+    column-gap: 10px !important;
+    column-fill: auto !important;
+
+    /* make sure nothing forces weird widths */
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
-  /* Cards must be normal blocks in grid (not inline-block masonry bricks) */
+  /* Cards: allow printing cleanly (NO clipping) */
   .card{
-    display: block !important;
-    width: auto !important;
-    margin: 0 !important;
-    break-inside: auto !important;
+    display: inline-block !important;  /* masonry brick */
+    width: 100% !important;
+    margin: 0 0 10px !important;
+
     box-shadow: none !important;
-
-    /* DON'T CLIP in print */
-    overflow: visible !important;
-
     border: 1px solid #d1d5db !important;
     border-radius: 10px !important;
+
+    overflow: visible !important;      /* CRITICAL: prevent dot clipping */
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
-  /* Compact spacing */
-  body{ font-size: 11px !important; }
+  /* Compact typography */
+  body{ font-size: 10.5px !important; }
 
-  .cardHead{ padding: 8px 10px !important; }
-  .cardTitle{ font-size: 14px !important; }
-  .cardDesc{ font-size: 10px !important; margin-top: 3px !important; }
-  .section{ padding: 8px 10px 10px !important; }
+  .cardHead{ padding: 7px 9px !important; }
+  .cardTitle{ font-size: 13px !important; }
+  .cardDesc{ font-size: 9.5px !important; margin-top: 2px !important; }
+
+  .section{ padding: 7px 9px 9px !important; }
+  .sectionTitleRow{ margin-bottom: 6px !important; }
+  .sectionTitle{ font-size: 11px !important; }
+
+  /* Make rows tighter */
   .row{ padding: 5px 0 !important; gap: 8px !important; }
   .row.multi{ gap: 8px !important; }
 
-  /* Smaller dots in print */
+  /* Print dot sizing (smaller so multi-columns never overlap) */
   :root{
-    --dotW: 20px !important;
-    --dotH: 13px !important;
-    --dotGap: 4px !important;
+    --dotW: 18px !important;
+    --dotH: 12px !important;
+    --dotGap: 3px !important;
   }
+
+  /* Force dot-groups to a fixed width so they can't push outside the card */
+  .dots{
+    gap: var(--dotGap) !important;
+    width: 100px !important;              /* fixed group width = no overflow */
+    justify-content: center !important;
+  }
+
   .dot{
     width: var(--dotW) !important;
     height: var(--dotH) !important;
-  }
-  .dots{
-    gap: var(--dotGap) !important;
+    border-width: 1px !important;
   }
 
-  /* Optional: remove ? buttons on paper */
+  /* Shrink the label column to avoid overflow in print */
+  .row{
+    grid-template-columns: minmax(120px, 1fr) auto !important;
+  }
+
+  .row.multi{
+    /* label + N groups */
+    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), 100px) !important;
+  }
+
+  .colLabelRow{
+    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), 100px) !important;
+    gap: 8px !important;
+    padding: 6px 0 !important;
+    font-size: 10px !important;
+  }
+
+  /* Remove ? buttons in print */
   .catHelpBtn,
   .infoBtn{
     display:none !important;
   }
 
-  /* If some browsers still clip, this helps them paginate more safely */
-  .card, .section, .table, .row{
-    page-break-inside: avoid !important;
+  /* Avoid breaking inside a single row (this prevents ugly half-rows) */
+  .row{
     break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 }
