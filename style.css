@@ -17,6 +17,13 @@
   --dotW: 32px;
   --dotH: 22px;
   --dotGap: 10px;
+
+  /* Each rating group is ALWAYS 5 pills */
+  --dotCount: 5;
+  --dotCountMinus1: 4;
+
+  /* BULLETPROOF: fixed width for one dots-group (prevents Safari/mac clipping) */
+  --dotsW: calc((var(--dotW) * var(--dotCount)) + (var(--dotGap) * var(--dotCountMinus1)));
 }
 
 *{ box-sizing:border-box; }
@@ -115,7 +122,7 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   border:1px solid var(--line);
   border-radius:var(--radius);
   box-shadow:var(--shadow);
-  overflow:hidden;            /* prevent any bleed */
+  overflow:hidden;            /* keep: but prevent overflow via fixed dots widths */
   break-inside:avoid;
 }
 
@@ -195,8 +202,9 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 /* Single-column rows */
 .row{
   display:grid;
-  grid-template-columns: minmax(180px, 1fr) auto;
-  gap:12px;
+  /* BULLETPROOF: dots column is fixed width, not max-content */
+  grid-template-columns: minmax(180px, 1fr) var(--dotsW);
+  column-gap:12px;
   align-items:center;
   padding:10px 0;
   border-bottom:1px solid var(--line);
@@ -204,13 +212,14 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 
 /* Multi-column rows: label + N dot-groups */
 .row.multi{
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content);
-  gap:12px;
+  /* BULLETPROOF: each dots group column has fixed width */
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), var(--dotsW));
+  column-gap:12px;
   align-items:center;
 }
 
 /* Allow grid children to shrink/ellipsis correctly */
-.row.multi > *{ min-width:0; }
+.row > *{ min-width:0; }
 
 .itemLeft{
   display:flex;
@@ -228,8 +237,8 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 /* Column labels for multi-column sections */
 .colLabelRow{
   display:grid;
-  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content);
-  gap:12px;
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), var(--dotsW));
+  column-gap:12px;
   padding:8px 0;
   color:var(--muted);
   font-size:12px;
@@ -250,6 +259,11 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   justify-content:center;
   align-items:center;
   flex-wrap:nowrap;
+
+  /* BULLETPROOF: lock dots group to the computed width */
+  width:var(--dotsW);
+  flex:0 0 var(--dotsW);
+  max-width:var(--dotsW);
 }
 
 /* Reset so global button styling NEVER touches dot buttons */
@@ -387,57 +401,78 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 
 /* =========================
-   PRINT / PDF (clean + dense)
-   - Uses CSS columns to reduce dead space ("masonry")
-   - Fixes label/dots overlap with fixed dot-group widths
+   RESPONSIVE (screen)
+   Goal: never crop dots; shrink dots a bit on smaller screens.
 ========================= */
 
-@page{
-  size: landscape;
-  margin: 6mm;
-}
-
-/* ---------- Responsive fixes for narrow screens (prevents dot clipping) ---------- */
 @media (max-width: 1150px){
   :root{
-    --dotW: 16px;
-    --dotH: 16px;
+    --dotW: 18px;
+    --dotH: 18px;
     --dotGap: 6px;
+    --dotsW: calc((var(--dotW) * var(--dotCount)) + (var(--dotGap) * var(--dotCountMinus1)));
+  }
+
+  .row{
+    grid-template-columns: minmax(150px, 1fr) var(--dotsW);
+    column-gap:10px;
   }
   .row.multi{
-    grid-template-columns: minmax(140px, 1fr) repeat(var(--cols), max-content);
-    column-gap: 10px;
+    grid-template-columns: minmax(150px, 1fr) repeat(var(--cols), var(--dotsW));
+    column-gap:10px;
+  }
+  .colLabelRow{
+    grid-template-columns: minmax(150px, 1fr) repeat(var(--cols), var(--dotsW));
+    column-gap:10px;
   }
 }
 
 @media (max-width: 780px){
   :root{
-    --dotW: 14px;
-    --dotH: 14px;
+    --dotW: 16px;
+    --dotH: 16px;
     --dotGap: 5px;
+    --dotsW: calc((var(--dotW) * var(--dotCount)) + (var(--dotGap) * var(--dotCountMinus1)));
   }
+
   .row{
-    padding: 10px 12px;
+    grid-template-columns: minmax(130px, 1fr) var(--dotsW);
+    column-gap:8px;
   }
   .row.multi{
-    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), max-content);
-    column-gap: 8px;
+    grid-template-columns: minmax(130px, 1fr) repeat(var(--cols), var(--dotsW));
+    column-gap:8px;
+  }
+  .colLabelRow{
+    grid-template-columns: minmax(130px, 1fr) repeat(var(--cols), var(--dotsW));
+    column-gap:8px;
   }
 }
 
 /* Phone: stack the dot groups so nothing gets cropped */
 @media (max-width: 520px){
+  .row{
+    grid-template-columns: 1fr;
+    row-gap: 8px;
+    padding: 10px 0;
+  }
   .row.multi{
     grid-template-columns: 1fr;
     row-gap: 8px;
   }
-  .row.multi .dots{
-    justify-content: flex-start;
+  .colLabelRow{
+    display:none;
+  }
+  .dots{
+    justify-content:flex-start;
   }
 }
 
+/* =========================
+   PRINT / PDF (dense + no overlaps)
+========================= */
+
 @page{
-  /* Most browsers honor this for "Save as PDF". */
   size: A4 landscape;
   margin: 8mm;
 }
@@ -460,11 +495,16 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   }
 
   /* Hide interactive UI */
-  .top .btn, .top button, .top .actions, .top .shareRow, .top .linkRow{
+  .top button, .top .actions, #shareUrl, .status, .legend{
     display: none !important;
   }
 
-  /* Print in true columns (no “balanced” empty columns) */
+  .top{
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  /* Masonry columns for print */
   .sheet{
     padding: 0 !important;
     display: block !important;
@@ -473,44 +513,39 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
     column-fill: auto !important;
   }
 
-  /* Cards should never split across columns/pages */
   .card{
     break-inside: avoid !important;
     page-break-inside: avoid !important;
-    overflow: visible !important; /* prevent clipping at rounded corners */
     box-shadow: none !important;
   }
 
-  /* Compact spacing */
+  /* Smaller dots for print */
   :root{
-    --rowPadY: 6px;
-    --rowPadX: 10px;
-
     --dotW: 12px;
     --dotH: 12px;
     --dotGap: 4px;
-    --dotRadius: 999px;
+    --dotsW: calc((var(--dotW) * var(--dotCount)) + (var(--dotGap) * var(--dotCountMinus1)));
   }
 
   .row{
-    padding: var(--rowPadY) var(--rowPadX) !important;
+    padding: 6px 10px !important;
+    grid-template-columns: minmax(120px, 1fr) var(--dotsW) !important;
+    column-gap: 8px !important;
   }
 
-  /* Text must not wrap into the dots */
+  .row.multi{
+    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), var(--dotsW)) !important;
+    column-gap: 8px !important;
+  }
+
+  .colLabelRow{
+    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), var(--dotsW)) !important;
+    column-gap: 8px !important;
+  }
+
   .itemName{
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    max-width: 100% !important;
-  }
-
-  /* Keep the “two-axis” rows from overflowing column width */
-  .row.multi{
-    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), max-content) !important;
-    column-gap: 8px !important;
-  }
-
-  .dots{
-    gap: var(--dotGap) !important;
   }
 }
