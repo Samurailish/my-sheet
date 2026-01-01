@@ -13,13 +13,10 @@
   --no:#e57b7b;
   --empty:#ffffff;
 
-  /* ✅ Responsive dot sizing (bulletproof across Mac/Windows/resize) */
-  --dotW: clamp(22px, 2.4vw, 32px);
-  --dotH: clamp(16px, 1.6vw, 22px);
-  --dotGap: clamp(6px, 1vw, 10px);
-
-  /* dots per group (do not change unless UI changes) */
-  --dotCount: 5;
+  /* FINAL dot sizing (your current working look) */
+  --dotW: 32px;
+  --dotH: 22px;
+  --dotGap: 10px;
 }
 
 *{ box-sizing:border-box; }
@@ -66,8 +63,6 @@ h1{
   flex-wrap:wrap;
   margin-bottom:12px;
 }
-
-/* IMPORTANT: keep global button styling, but dot buttons are reset below */
 button{
   border:1px solid var(--line);
   background:#0b1220;
@@ -93,7 +88,7 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 .status{ color:var(--muted); min-height:22px; }
 
 /* =========================
-   MASONRY LAYOUT (SCREEN)
+   MASONRY LAYOUT (FINAL)
 ========================= */
 .sheet{
   padding:22px 22px 60px;
@@ -120,7 +115,7 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   border:1px solid var(--line);
   border-radius:var(--radius);
   box-shadow:var(--shadow);
-  overflow:hidden;
+  overflow:hidden;            /* prevent any bleed */
   break-inside:avoid;
 }
 
@@ -197,10 +192,10 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   border-top:1px solid var(--line);
 }
 
-/* ✅ Bulletproof row sizing: label can shrink before collision */
+/* Single-column rows */
 .row{
   display:grid;
-  grid-template-columns: minmax(clamp(120px, 30vw, 180px), 1fr) auto;
+  grid-template-columns: minmax(180px, 1fr) auto;
   gap:12px;
   align-items:center;
   padding:10px 0;
@@ -209,9 +204,7 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 
 /* Multi-column rows: label + N dot-groups */
 .row.multi{
-  grid-template-columns:
-    minmax(clamp(120px, 30vw, 180px), 1fr)
-    repeat(var(--cols), max-content);
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content);
   gap:12px;
   align-items:center;
 }
@@ -219,29 +212,23 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 /* Allow grid children to shrink/ellipsis correctly */
 .row.multi > *{ min-width:0; }
 
-/* Left side */
 .itemLeft{
   display:flex;
   align-items:center;
   gap:10px;
   min-width:0;
 }
-
-/* ✅ Safari needs this or text can ignore grid constraints */
 .itemName{
   font-weight:800;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
-  min-width:0;
 }
 
 /* Column labels for multi-column sections */
 .colLabelRow{
   display:grid;
-  grid-template-columns:
-    minmax(clamp(120px, 30vw, 180px), 1fr)
-    repeat(var(--cols), max-content);
+  grid-template-columns: minmax(180px, 1fr) repeat(var(--cols), max-content);
   gap:12px;
   padding:8px 0;
   color:var(--muted);
@@ -290,7 +277,7 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   transition: transform .06s ease, filter .12s ease, opacity .12s ease, box-shadow .12s ease;
 }
 
-/* Default state = ~50% color so user understands legend */
+/* Default state = show ~50% color so user understands legend */
 .dot.state{
   opacity:.55;
   filter:saturate(.75) brightness(1.02);
@@ -399,47 +386,10 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   justify-content:flex-end;
 }
 
-/* =========================================================
-   RESPONSIVE FIXES (Mac/Phone safe)
-   - dots scale via clamp() already
-   - stack earlier to avoid “almost fits then overlaps”
-========================================================= */
-
-@media (max-width: 560px){
-  h1{ font-size:40px; }
-  .top{ padding:22px 16px 10px; }
-  .sheet{ padding:16px 16px 50px; }
-}
-
-/* ✅ Stack rows earlier (not just tiny phones) to stop overlaps */
-@media (max-width: 680px){
-  .row,
-  .row.multi{
-    grid-template-columns: 1fr !important;
-    gap:8px !important;
-    align-items:start !important;
-  }
-
-  .colLabelRow{ display:none !important; }
-  .dots{ justify-content:flex-start !important; }
-}
-
-/* VERY narrow: still keep (last resort) */
-@media (max-width: 420px){
-  .row,
-  .row.multi{
-    grid-template-columns: 1fr !important;
-    gap:8px !important;
-    align-items:start !important;
-  }
-
-  .colLabelRow{ display:none !important; }
-  .dots{ justify-content:flex-start !important; }
-  .itemName{ max-width: 100%; }
-}
-
 /* =========================
-   PRINT / PDF (clean + dense + NO overlap)
+   PRINT / PDF (clean + dense)
+   - Uses CSS columns to reduce dead space ("masonry")
+   - Fixes label/dots overlap with fixed dot-group widths
 ========================= */
 
 @page{
@@ -447,109 +397,120 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   margin: 6mm;
 }
 
-@media print{
-  /* Hide UI */
-  .top, .modal, .modalBack, .tooltip { display:none !important; }
+/* ---------- Responsive fixes for narrow screens (prevents dot clipping) ---------- */
+@media (max-width: 1150px){
+  :root{
+    --dotW: 16px;
+    --dotH: 16px;
+    --dotGap: 6px;
+  }
+  .row.multi{
+    grid-template-columns: minmax(140px, 1fr) repeat(var(--cols), max-content);
+    column-gap: 10px;
+  }
+}
 
-  /* Print color accuracy */
+@media (max-width: 780px){
+  :root{
+    --dotW: 14px;
+    --dotH: 14px;
+    --dotGap: 5px;
+  }
+  .row{
+    padding: 10px 12px;
+  }
+  .row.multi{
+    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), max-content);
+    column-gap: 8px;
+  }
+}
+
+/* Phone: stack the dot groups so nothing gets cropped */
+@media (max-width: 520px){
+  .row.multi{
+    grid-template-columns: 1fr;
+    row-gap: 8px;
+  }
+  .row.multi .dots{
+    justify-content: flex-start;
+  }
+}
+
+@page{
+  /* Most browsers honor this for "Save as PDF". */
+  size: A4 landscape;
+  margin: 8mm;
+}
+
+@media print{
+  /* Keep colors in PDF */
   *{
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   html, body{
-    background:#fff !important;
-    margin:0 !important;
-    padding:0 !important;
+    background: #fff !important;
   }
 
   body{
-    font-size: 10.5px !important;
+    margin: 0 !important;
+    font-size: 10px !important;
     line-height: 1.2 !important;
   }
 
-  /* Use columns to reduce dead space */
+  /* Hide interactive UI */
+  .top .btn, .top button, .top .actions, .top .shareRow, .top .linkRow{
+    display: none !important;
+  }
+
+  /* Print in true columns (no “balanced” empty columns) */
   .sheet{
     padding: 0 !important;
     display: block !important;
     column-count: 4 !important;
     column-gap: 10px !important;
     column-fill: auto !important;
-    width: 100% !important;
+  }
+
+  /* Cards should never split across columns/pages */
+  .card{
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    overflow: visible !important; /* prevent clipping at rounded corners */
+    box-shadow: none !important;
+  }
+
+  /* Compact spacing */
+  :root{
+    --rowPadY: 6px;
+    --rowPadX: 10px;
+
+    --dotW: 12px;
+    --dotH: 12px;
+    --dotGap: 4px;
+    --dotRadius: 999px;
+  }
+
+  .row{
+    padding: var(--rowPadY) var(--rowPadX) !important;
+  }
+
+  /* Text must not wrap into the dots */
+  .itemName{
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     max-width: 100% !important;
   }
 
-  .card{
-    display: inline-block !important;
-    width: 100% !important;
-    margin: 0 0 10px 0 !important;
-    box-shadow: none !important;
-    border: 1px solid #d1d5db !important;
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-    overflow: hidden !important;
+  /* Keep the “two-axis” rows from overflowing column width */
+  .row.multi{
+    grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), max-content) !important;
+    column-gap: 8px !important;
   }
 
-  .cardHead{ padding: 7px 9px !important; }
-  .cardTitle{ font-size: 13px !important; }
-  .cardDesc{ font-size: 9.5px !important; margin-top: 2px !important; }
-
-  .section{ padding: 7px 9px 9px !important; }
-  .sectionTitleRow{ margin-bottom: 6px !important; }
-  .sectionTitle{ font-size: 11px !important; }
-
-  /* Hide ? in print */
-  .catHelpBtn, .infoBtn{ display:none !important; }
-
-  /* Smaller dots in print */
-  :root{
-    --dotW: 16px;
-    --dotH: 11px;
-    --dotGap: 4px;
-  }
-
-  /* Compute “one dot group width” so label NEVER overlaps dots */
-  .sheet{
-    --groupW: calc((var(--dotCount) * var(--dotW)) + ((var(--dotCount) - 1) * var(--dotGap)) + 8px);
-  }
-
-  .dot{
-    width: var(--dotW) !important;
-    height: var(--dotH) !important;
-  }
   .dots{
     gap: var(--dotGap) !important;
-    flex-wrap: nowrap !important;
-    justify-content: center !important;
-    width: var(--groupW) !important;
-    min-width: var(--groupW) !important;
-  }
-
-  /* Row layout: name gets remaining space; dots fixed width */
-  .row{
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) var(--groupW) !important;
-    gap: 8px !important;
-    padding: 6px 0 !important;
-  }
-
-  .row.multi{
-    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), var(--groupW)) !important;
-    gap: 8px !important;
-  }
-
-  .colLabelRow{
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), var(--groupW)) !important;
-    gap: 8px !important;
-    padding: 6px 0 !important;
-    font-size: 10px !important;
-  }
-
-  .itemName{
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
   }
 }
-#234
