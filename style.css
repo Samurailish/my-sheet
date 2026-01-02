@@ -514,3 +514,79 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
     gap: var(--dotGap) !important;
   }
 }
+
+
+/* ===============================
+   FIX: stop global button styling from hijacking rating dots
+   Put this at the VERY BOTTOM
+================================ */
+
+/* 1) Scope the “real” button styling to the top action buttons only */
+.actions button,
+.modal .modalActions button,
+.tooltipActionBtn {
+  border: 1px solid var(--line);
+  background: #0b1220;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* Keep your variants */
+.actions button.primary,
+.modal .modalActions button.primary {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+.actions button.secondary,
+.modal .modalActions button.secondary {
+  background: #0b1220;
+}
+
+/* 2) Remove the global button rule impact (override it) */
+button {
+  /* neutralize the earlier global rule without breaking scoped buttons */
+  background: initial;
+  color: inherit;
+  padding: initial;
+  border: initial;
+  border-radius: initial;
+  font-weight: inherit;
+}
+
+/* 3) Hard reset ANY dot button, regardless of what class your HTML uses */
+.table button,
+.row button,
+.dots button,
+button.dotBtn,
+button.dot {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  line-height: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 4) Ensure the visible pill is always the .dot element */
+.dot {
+  display: inline-block !important;
+  width: var(--dotW) !important;
+  height: var(--dotH) !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(15,23,42,0.18) !important;
+}
+
+/* 5) If your HTML uses <button class="dot fav"> directly (no wrapper),
+      force those to behave like dots */
+button.dot.fav  { background: var(--fav)  !important; }
+button.dot.like { background: var(--like) !important; }
+button.dot.int  { background: var(--int)  !important; }
+button.dot.no   { background: var(--no)   !important; }
+button.dot.empty{ background: var(--empty)!important; }
