@@ -13,18 +13,16 @@
   --no: #e57b7b;
   --empty: #ffffff;
 
-  /* SIZING ADJUSTMENTS (Scaled down slightly to fix clipping) */
-  --dotW: 28px;  /* Was 32px */
-  --dotH: 20px;  /* Was 22px */
-  --dotGap: 8px; /* Was 10px */
+  /* SIZING: Calibrated for "No Clip" on Mac */
+  --dotW: 28px;
+  --dotH: 20px;
+  --dotGap: 8px;
 }
 
 /* =========================
    RESET & BASICS
 ========================= */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -34,10 +32,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-button {
-  cursor: pointer;
-  font-family: inherit;
-}
+button { cursor: pointer; font-family: inherit; }
 
 /* =========================
    TOP HEADER
@@ -49,7 +44,7 @@ button {
 
 h1 {
   margin: 0 0 8px;
-  font-size: clamp(28px, 4vw, 42px); /* Slightly smaller title */
+  font-size: clamp(28px, 4vw, 42px);
   letter-spacing: -.03em;
   line-height: 1.1;
 }
@@ -79,7 +74,7 @@ h1 {
 }
 
 /* =========================
-   UI BUTTONS (Actions only)
+   UI BUTTONS
 ========================= */
 .actions {
   display: flex;
@@ -94,31 +89,22 @@ h1 {
   border: 1px solid var(--line);
   background: #0b1220;
   color: #fff;
-  padding: 8px 12px; /* Slightly more compact */
+  padding: 8px 12px;
   border-radius: 10px;
   font-weight: 700;
   font-size: 13px;
   transition: opacity 0.2s;
 }
 
-.actions button:hover,
-.modal button:hover {
-  opacity: 0.9;
-}
+.actions button:hover, .modal button:hover { opacity: 0.9; }
 
-.actions button.primary,
-.modal button.primary {
-  background: #ef4444;
-  border-color: #ef4444;
+.actions button.primary, .modal button.primary {
+  background: #ef4444; border-color: #ef4444;
 }
-.actions button.secondary,
-.modal button.secondary {
+.actions button.secondary, .modal button.secondary {
   background: #0b1220;
 }
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 #shareUrl {
   width: 100%;
@@ -139,7 +125,7 @@ button:disabled {
 }
 
 /* =========================
-   MASONRY LAYOUT
+   MASONRY LAYOUT (Default Desktop)
 ========================= */
 .sheet {
   padding: 20px;
@@ -148,32 +134,22 @@ button:disabled {
   width: 100%;
 }
 
-@media (max-width: 1300px) {
-  .sheet { column-count: 2; }
-}
-@media (max-width: 800px) {
-  .sheet { column-count: 1; }
-}
-
-/* The Card */
 .card {
-  position: relative; 
-  display: inline-block; 
+  position: relative;
+  display: inline-block;
   width: 100%;
   margin: 0 0 18px;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  
-  /* Safari Masonry Fixes */
   break-inside: avoid;
   -webkit-column-break-inside: avoid;
   page-break-inside: avoid;
 }
 
 /* =========================
-   CARD HEADER
+   CARD CONTENT
 ========================= */
 .cardHead {
   padding: 12px 14px;
@@ -183,18 +159,13 @@ button:disabled {
   align-items: flex-start;
   justify-content: space-between;
 }
-
-.cardHeadLeft {
-  min-width: 0;
-}
-
+.cardHeadLeft { min-width: 0; }
 .cardTitle {
   margin: 0;
-  font-size: 18px; /* Slightly smaller */
+  font-size: 18px;
   letter-spacing: -.02em;
   font-weight: 800;
 }
-
 .cardDesc {
   margin: 4px 0 0;
   color: var(--muted);
@@ -202,9 +173,7 @@ button:disabled {
   line-height: 1.35;
 }
 
-/* Small Icon Buttons */
-.catHelpBtn,
-.infoBtn {
+.catHelpBtn, .infoBtn {
   appearance: none;
   border-radius: 999px;
   border: 1px solid rgba(15, 23, 42, 0.14);
@@ -220,158 +189,107 @@ button:disabled {
 }
 .catHelpBtn { width: 26px; height: 26px; }
 .infoBtn { width: 22px; height: 22px; margin-right: 6px; }
-
-.catHelpBtn:hover,
-.infoBtn:hover {
+.catHelpBtn:hover, .infoBtn:hover {
   background: rgba(15, 23, 42, 0.10);
   color: rgba(15, 23, 42, 0.92);
   transform: translateY(-1px);
 }
 
-/* =========================
-   SECTIONS & GRID
-========================= */
-.section {
-  padding: 10px 14px 12px;
-}
-
+.section { padding: 10px 14px 12px; }
 .sectionTitleRow {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; margin-bottom: 6px;
 }
 .sectionTitle {
-  font-weight: 900;
-  font-size: 11px;
-  color: #111827;
-  text-transform: uppercase;
-  letter-spacing: .08em;
+  font-weight: 900; font-size: 11px; color: #111827;
+  text-transform: uppercase; letter-spacing: .08em;
 }
 
-.table {
-  width: 100%;
-  border-top: 1px solid var(--line);
-}
+.table { width: 100%; border-top: 1px solid var(--line); }
 
-/* THE ROW */
+/* DEFAULT ROW (Desktop) */
 .row {
   display: grid;
-  /* Min-width slightly increased for text legibility, allowed to shrink */
   grid-template-columns: minmax(120px, 1fr) auto;
   gap: 10px;
   align-items: center;
   padding: 8px 0;
   border-bottom: 1px solid var(--line);
 }
-
 .row.multi {
   grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), auto);
 }
 
 .itemLeft {
-  display: flex;
-  align-items: center;
-  min-width: 0; 
-  overflow: hidden;
+  display: flex; align-items: center; min-width: 0; overflow: hidden;
 }
-
 .itemName {
-  font-weight: 600;
-  font-size: 13px; /* Reduced from 14px to prevent clipping */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-weight: 600; font-size: 13px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* =========================
-   DOTS
-========================= */
-.dots {
-  display: flex;
-  gap: var(--dotGap);
-  align-items: center;
-}
-
+/* DOTS */
+.dots { display: flex; gap: var(--dotGap); align-items: center; }
 .dotBtn {
-  appearance: none;
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  appearance: none; background: transparent !important;
+  border: 0 !important; padding: 0 !important; margin: 0;
+  display: flex; align-items: center; justify-content: center;
 }
-
 .dot {
-  width: var(--dotW);
-  height: var(--dotH);
-  border-radius: 999px;
-  border: 1px solid rgba(15, 23, 42, 0.18);
-  display: block;
-  transition: transform .1s, filter .1s, opacity .1s, box-shadow .1s;
-  opacity: 0.5;
-  filter: saturate(0.6);
-  background: var(--empty);
+  width: var(--dotW); height: var(--dotH);
+  border-radius: 999px; border: 1px solid rgba(15, 23, 42, 0.18);
+  display: block; transition: transform .1s, filter .1s, opacity .1s;
+  opacity: 0.5; filter: saturate(0.6); background: var(--empty);
 }
-
 .dot.fav { background: var(--fav); }
 .dot.like { background: var(--like); }
 .dot.int { background: var(--int); }
 .dot.no { background: var(--no); }
 .dot.empty { background: var(--empty); }
-
 .dot.selected {
-  opacity: 1;
-  filter: none;
-  transform: scale(1.1);
-  box-shadow: 0 0 0 2px rgba(2, 6, 23, 0.1);
-  border-color: rgba(0,0,0,0.3);
-  z-index: 1;
+  opacity: 1; filter: none; transform: scale(1.1);
+  box-shadow: 0 0 0 2px rgba(2, 6, 23, 0.1); border-color: rgba(0,0,0,0.3); z-index: 1;
 }
 
-/* Column Labels */
 .colLabelRow {
   display: grid;
   grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), auto);
-  gap: 10px;
-  padding: 6px 0;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  gap: 10px; padding: 6px 0; color: var(--muted);
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
 }
 .colLabel {
   text-align: center;
-  /* Dynamically calculated minimum width based on new dot sizes */
-  min-width: calc((var(--dotW) * 5) + (var(--dotGap) * 4)); 
+  min-width: calc((var(--dotW) * 5) + (var(--dotGap) * 4));
 }
 
 /* =========================
-   RESPONSIVE / MOBILE
+   SCREEN-ONLY RESPONSIVE
+   (Crucial: These are wrapped in @media screen so they NEVER trigger in Print)
 ========================= */
-@media (max-width: 1100px) {
-  :root {
-    --dotW: 24px;
-    --dotH: 16px;
-    --dotGap: 5px;
-  }
+
+@media screen and (max-width: 1300px) {
+  .sheet { column-count: 2; }
 }
 
-@media (max-width: 600px) {
+@media screen and (max-width: 1100px) {
+  :root { --dotW: 24px; --dotH: 16px; --dotGap: 5px; }
+}
+
+@media screen and (max-width: 800px) {
+  .sheet { column-count: 1; }
+}
+
+@media screen and (max-width: 600px) {
   .top { padding: 20px 16px; }
   .sheet { padding: 16px; }
   
+  /* Mobile Stacking Logic */
   .row, .row.multi {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
   }
-  
   .itemLeft { width: 100%; }
   .itemName { white-space: normal; }
   .colLabelRow { display: none; }
@@ -379,131 +297,112 @@ button:disabled {
 }
 
 /* =========================
-   TOOLTIP & MODAL
+   TOOLTIP / MODAL
 ========================= */
 .tooltip {
-  position: fixed;
-  z-index: 9999;
-  max-width: 300px;
-  background: #0b1220;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-  font-size: 13px;
-  line-height: 1.4;
-  pointer-events: auto;
+  position: fixed; z-index: 9999; max-width: 300px;
+  background: #0b1220; color: #fff; border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px; padding: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  font-size: 13px; line-height: 1.4;
 }
-.tooltipTitle {
-  font-weight: 800;
-  margin: 0 0 6px;
-  font-size: 14px;
-}
-.tooltipBody {
-  margin: 0 0 12px;
-  color: rgba(255, 255, 255, 0.85);
-}
-.tooltipActions {
-  display: flex;
-  justify-content: space-between;
-}
+.tooltipTitle { font-weight: 800; margin: 0 0 6px; font-size: 14px; }
+.tooltipBody { margin: 0 0 12px; color: rgba(255,255,255,0.85); }
+.tooltipActions { display: flex; justify-content: space-between; }
 .tooltipClose {
-  background: transparent;
-  border: none;
-  color: rgba(255,255,255,0.6);
-  font-weight: 700;
-  padding: 0;
-  cursor: pointer;
+  background: transparent; border: none; color: rgba(255,255,255,0.6);
+  font-weight: 700; padding: 0; cursor: pointer;
 }
 
 .modalBack {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(2px);
-  z-index: 9998;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(2px); z-index: 9998;
 }
 .modal {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: min(500px, 90vw);
-  background: #fff;
-  border-radius: 18px;
-  padding: 24px;
-  z-index: 9999;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(500px, 90vw); background: #fff; border-radius: 18px;
+  padding: 24px; z-index: 9999; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
 }
 .modal h3 { margin-top: 0; }
 .modalActions { display: flex; justify-content: flex-end; margin-top: 20px; }
 
 /* =========================
    PRINT STYLES
-   (The "Compress that" fix for Mac)
+   (Force Desktop layout regardless of paper size)
 ========================= */
+@page {
+  size: landscape; /* Suggest landscape to the browser */
+  margin: 1cm;
+}
+
 @media print {
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  
-  /* CRITICAL: Zoom out to fit 29 pages into ~4 pages */
-  body {
-    zoom: 75%;
+
+  /* Force "Desktop" view by resetting layout vars */
+  :root {
+    --dotW: 14px !important;
+    --dotH: 12px !important;
+    --dotGap: 4px !important;
   }
 
-  /* Clean up UI */
-  .top, .catHelpBtn, .infoBtn, .modal, .tooltip { 
-    display: none !important; 
-  }
+  /* Hide UI */
+  .top, .catHelpBtn, .infoBtn, .modal, .tooltip { display: none !important; }
 
+  /* Base Containers */
   body, .sheet {
     background: #fff !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
+    font-size: 11px !important; /* Smaller text fits more */
   }
-  
-  /* Use basic block display instead of flex to prevent page-break confusion */
+
+  /* Zoom out to fit 3-4 columns comfortably */
+  body { zoom: 70%; }
+
+  /* Force Masonry Columns (Overrides any mobile single-column rules) */
   .sheet {
-    column-count: 3 !important;
-    column-gap: 1em !important;
+    column-count: 4 !important; /* Force 4 columns for max density */
+    column-gap: 15px !important;
     display: block !important;
   }
-  
+
+  /* Card styling for print */
   .card {
     border: 1px solid #ccc !important;
     box-shadow: none !important;
     break-inside: avoid !important;
-    margin-bottom: 1em !important;
-    display: inline-block !important; /* Masonry brick */
+    margin-bottom: 12px !important;
+    display: inline-block !important;
     width: 100% !important;
   }
-
-  /* Reduce sizes further for paper */
-  :root {
-    --dotW: 14px !important;
-    --dotH: 12px !important;
-    --dotGap: 4px !important;
-  }
-  
   .cardTitle { font-size: 14px !important; }
-  .cardDesc { display: none !important; } /* Save space */
-  .sectionTitle { font-size: 10px !important; margin-bottom: 4px !important; }
-  .section { padding: 6px !important; }
+  .cardDesc { display: none !important; }
 
-  .dot {
-    border: 1px solid #999 !important;
-    opacity: 1 !important; 
-  }
-
-  .row {
-    grid-template-columns: 1fr auto !important;
-    page-break-inside: avoid;
+  /* ROW LAYOUT: Force Grid (Side-by-side) 
+     This fixes the "Phone" look on Mac PDF. 
+  */
+  .row, .row.multi {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important; /* Name | Dots */
+    gap: 8px !important;
     padding: 4px 0 !important;
     border-bottom: 1px solid #eee !important;
   }
+  
+  .row.multi {
+    grid-template-columns: 1fr repeat(var(--cols), auto) !important;
+  }
+  
+  /* Make sure labels and dots are visible */
+  .itemLeft { width: auto !important; }
+  .itemName { white-space: nowrap !important; font-size: 11px !important; }
+  .dots { margin: 0 !important; }
+  .colLabelRow { display: grid !important; font-size: 9px !important; }
+  
+  /* Ensure dots have borders in print */
+  .dot { border: 1px solid #888 !important; opacity: 1 !important; }
 }
