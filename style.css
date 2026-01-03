@@ -13,11 +13,10 @@
   --no: #e57b7b;
   --empty: #ffffff;
 
-  /* Sizing */
-  --dotW: 32px;
-  --dotH: 22px;
-  --dotGap: 10px;
-  --dotCount: 5; /* Used for calculations */
+  /* SIZING ADJUSTMENTS (Scaled down slightly to fix clipping) */
+  --dotW: 28px;  /* Was 32px */
+  --dotH: 20px;  /* Was 22px */
+  --dotGap: 8px; /* Was 10px */
 }
 
 /* =========================
@@ -44,13 +43,13 @@ button {
    TOP HEADER
 ========================= */
 .top {
-  padding: 28px 28px 12px;
+  padding: 24px 28px 12px;
   border-bottom: 1px solid var(--line);
 }
 
 h1 {
   margin: 0 0 8px;
-  font-size: clamp(32px, 5vw, 52px); /* Responsive font size */
+  font-size: clamp(28px, 4vw, 42px); /* Slightly smaller title */
   letter-spacing: -.03em;
   line-height: 1.1;
 }
@@ -58,6 +57,7 @@ h1 {
 .sub {
   margin: 0 0 14px;
   color: var(--muted);
+  font-size: 14px;
 }
 
 .legend {
@@ -67,11 +67,10 @@ h1 {
   flex-wrap: wrap;
   margin: 10px 0 16px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 .legend .dot {
   margin-right: 6px;
-  /* Legend dots need to look like the real ones */
   width: var(--dotW);
   height: var(--dotH);
   border-radius: 999px;
@@ -81,7 +80,6 @@ h1 {
 
 /* =========================
    UI BUTTONS (Actions only)
-   We scope this so it DOES NOT affect the grid dots
 ========================= */
 .actions {
   display: flex;
@@ -90,17 +88,16 @@ h1 {
   margin-bottom: 12px;
 }
 
-/* Only style buttons inside .actions, .modal, or specifically classed buttons */
 .actions button,
 .modal button,
 .tooltipActionBtn {
   border: 1px solid var(--line);
   background: #0b1220;
   color: #fff;
-  padding: 10px 14px;
+  padding: 8px 12px; /* Slightly more compact */
   border-radius: 10px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   transition: opacity 0.2s;
 }
 
@@ -125,19 +122,19 @@ button:disabled {
 
 #shareUrl {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   outline: none;
   margin: 8px 0 6px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted);
   background: #f8fafc;
 }
 .status {
   color: var(--muted);
   min-height: 22px;
-  font-size: 13px;
+  font-size: 12px;
   margin-top: 4px;
 }
 
@@ -145,9 +142,9 @@ button:disabled {
    MASONRY LAYOUT
 ========================= */
 .sheet {
-  padding: 22px;
+  padding: 20px;
   column-count: 3;
-  column-gap: 20px;
+  column-gap: 18px;
   width: 100%;
 }
 
@@ -160,10 +157,10 @@ button:disabled {
 
 /* The Card */
 .card {
-  position: relative; /* Context for tooltips if needed */
-  display: inline-block; /* Essential for Masonry */
+  position: relative; 
+  display: inline-block; 
   width: 100%;
-  margin: 0 0 20px;
+  margin: 0 0 18px;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -179,7 +176,7 @@ button:disabled {
    CARD HEADER
 ========================= */
 .cardHead {
-  padding: 14px 16px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--line);
   display: flex;
   gap: 10px;
@@ -188,24 +185,24 @@ button:disabled {
 }
 
 .cardHeadLeft {
-  min-width: 0; /* Allows text truncation */
+  min-width: 0;
 }
 
 .cardTitle {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px; /* Slightly smaller */
   letter-spacing: -.02em;
   font-weight: 800;
 }
 
 .cardDesc {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.35;
 }
 
-/* Small Icon Buttons (? icons) */
+/* Small Icon Buttons */
 .catHelpBtn,
 .infoBtn {
   appearance: none;
@@ -219,9 +216,10 @@ button:disabled {
   flex: 0 0 auto;
   transition: 0.1s;
   padding: 0;
+  cursor: pointer;
 }
-.catHelpBtn { width: 28px; height: 28px; }
-.infoBtn { width: 24px; height: 24px; margin-right: 6px; }
+.catHelpBtn { width: 26px; height: 26px; }
+.infoBtn { width: 22px; height: 22px; margin-right: 6px; }
 
 .catHelpBtn:hover,
 .infoBtn:hover {
@@ -234,7 +232,7 @@ button:disabled {
    SECTIONS & GRID
 ========================= */
 .section {
-  padding: 12px 16px 14px;
+  padding: 10px 14px 12px;
 }
 
 .sectionTitleRow {
@@ -242,11 +240,11 @@ button:disabled {
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .sectionTitle {
   font-weight: 900;
-  font-size: 12px;
+  font-size: 11px;
   color: #111827;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -257,36 +255,31 @@ button:disabled {
   border-top: 1px solid var(--line);
 }
 
-/* THE ROW: 
-   Uses CSS Grid for alignment, but falls back to stacking on mobile.
-*/
+/* THE ROW */
 .row {
   display: grid;
-  /* Col 1: Label (takes remaining space, min 140px)
-     Col 2...n: Dots (auto width)
-  */
-  grid-template-columns: minmax(140px, 1fr) auto;
-  gap: 12px;
+  /* Min-width slightly increased for text legibility, allowed to shrink */
+  grid-template-columns: minmax(120px, 1fr) auto;
+  gap: 10px;
   align-items: center;
-  padding: 10px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--line);
 }
 
 .row.multi {
-  /* For multi-column rows, we add more auto columns */
-  grid-template-columns: minmax(140px, 1fr) repeat(var(--cols), auto);
+  grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), auto);
 }
 
 .itemLeft {
   display: flex;
   align-items: center;
-  min-width: 0; /* Vital for text ellipsis in Grid */
+  min-width: 0; 
   overflow: hidden;
 }
 
 .itemName {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px; /* Reduced from 14px to prevent clipping */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -301,10 +294,9 @@ button:disabled {
   align-items: center;
 }
 
-/* The invisible button wrapping the dot */
 .dotBtn {
   appearance: none;
-  background: transparent !important; /* Override any global button styles */
+  background: transparent !important;
   border: 0 !important;
   padding: 0 !important;
   margin: 0;
@@ -313,7 +305,6 @@ button:disabled {
   justify-content: center;
 }
 
-/* The visible pill */
 .dot {
   width: var(--dotW);
   height: var(--dotH);
@@ -321,21 +312,17 @@ button:disabled {
   border: 1px solid rgba(15, 23, 42, 0.18);
   display: block;
   transition: transform .1s, filter .1s, opacity .1s, box-shadow .1s;
-  
-  /* Default unselected state */
   opacity: 0.5;
   filter: saturate(0.6);
-  background: var(--empty); /* Default fallback */
+  background: var(--empty);
 }
 
-/* Colors */
 .dot.fav { background: var(--fav); }
 .dot.like { background: var(--like); }
 .dot.int { background: var(--int); }
 .dot.no { background: var(--no); }
 .dot.empty { background: var(--empty); }
 
-/* Selected State */
 .dot.selected {
   opacity: 1;
   filter: none;
@@ -345,86 +332,64 @@ button:disabled {
   z-index: 1;
 }
 
-/* Column Labels (Giving / Receiving) */
+/* Column Labels */
 .colLabelRow {
   display: grid;
-  grid-template-columns: minmax(140px, 1fr) repeat(var(--cols), auto);
-  gap: 12px;
-  padding: 8px 0;
+  grid-template-columns: minmax(120px, 1fr) repeat(var(--cols), auto);
+  gap: 10px;
+  padding: 6px 0;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 .colLabel {
   text-align: center;
-  /* Match the width of the dots container roughly */
+  /* Dynamically calculated minimum width based on new dot sizes */
   min-width: calc((var(--dotW) * 5) + (var(--dotGap) * 4)); 
 }
 
 /* =========================
    RESPONSIVE / MOBILE
 ========================= */
-
-/* Tablet/Smaller Laptop Tweaks */
 @media (max-width: 1100px) {
   :root {
-    --dotW: 26px;
-    --dotH: 18px;
-    --dotGap: 6px;
+    --dotW: 24px;
+    --dotH: 16px;
+    --dotGap: 5px;
   }
 }
 
-/* Mobile: Stack Layout (The "No Overlap" Guarantee) */
 @media (max-width: 600px) {
-  .top {
-    padding: 20px 16px;
-  }
+  .top { padding: 20px 16px; }
+  .sheet { padding: 16px; }
   
-  .sheet {
-    padding: 16px;
-  }
-
-  /* Force rows to stack vertically */
   .row, .row.multi {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 6px;
   }
   
-  .itemLeft {
-    width: 100%;
-  }
-  
-  .itemName {
-    white-space: normal; /* Allow text wrapping on phone */
-  }
-
-  /* Hide column headers on mobile because alignment breaks when stacked */
-  .colLabelRow {
-    display: none;
-  }
-  
-  /* Add spacing between dot groups in multi-col rows on mobile */
-  .dots {
-    margin-bottom: 4px;
-  }
+  .itemLeft { width: 100%; }
+  .itemName { white-space: normal; }
+  .colLabelRow { display: none; }
+  .dots { margin-bottom: 4px; }
 }
 
 /* =========================
-   TOOLTIP
+   TOOLTIP & MODAL
 ========================= */
 .tooltip {
   position: fixed;
   z-index: 9999;
-  max-width: 320px;
+  max-width: 300px;
   background: #0b1220;
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   font-size: 13px;
   line-height: 1.4;
@@ -452,9 +417,6 @@ button:disabled {
   cursor: pointer;
 }
 
-/* =========================
-   MODAL
-========================= */
 .modalBack {
   position: fixed;
   inset: 0;
@@ -479,15 +441,20 @@ button:disabled {
 
 /* =========================
    PRINT STYLES
+   (The "Compress that" fix for Mac)
 ========================= */
 @media print {
-  /* Ensure backgrounds print */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
   
-  /* Hide UI elements */
+  /* CRITICAL: Zoom out to fit 29 pages into ~4 pages */
+  body {
+    zoom: 75%;
+  }
+
+  /* Clean up UI */
   .top, .catHelpBtn, .infoBtn, .modal, .tooltip { 
     display: none !important; 
   }
@@ -497,11 +464,13 @@ button:disabled {
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
   }
   
+  /* Use basic block display instead of flex to prevent page-break confusion */
   .sheet {
     column-count: 3 !important;
-    column-gap: 15px !important;
+    column-gap: 1em !important;
     display: block !important;
   }
   
@@ -509,24 +478,32 @@ button:disabled {
     border: 1px solid #ccc !important;
     box-shadow: none !important;
     break-inside: avoid !important;
-    margin-bottom: 15px !important;
-    display: inline-block !important;
+    margin-bottom: 1em !important;
+    display: inline-block !important; /* Masonry brick */
+    width: 100% !important;
   }
 
-  /* Make dots smaller for paper */
+  /* Reduce sizes further for paper */
   :root {
     --dotW: 14px !important;
-    --dotH: 14px !important;
+    --dotH: 12px !important;
     --dotGap: 4px !important;
   }
   
+  .cardTitle { font-size: 14px !important; }
+  .cardDesc { display: none !important; } /* Save space */
+  .sectionTitle { font-size: 10px !important; margin-bottom: 4px !important; }
+  .section { padding: 6px !important; }
+
   .dot {
     border: 1px solid #999 !important;
-    opacity: 1 !important; /* Ensure visibility */
+    opacity: 1 !important; 
   }
 
   .row {
     grid-template-columns: 1fr auto !important;
     page-break-inside: avoid;
+    padding: 4px 0 !important;
+    border-bottom: 1px solid #eee !important;
   }
 }
