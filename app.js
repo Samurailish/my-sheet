@@ -4,7 +4,6 @@
   // =========================
   // CONFIG (your Supabase)
   // =========================
-  // Keep your real keys here (you already have them working).
   const SUPABASE_URL = "https://kypkibudjijdnqlfdlkz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_IxMUlcAIP0yGlp-JDHxI-Q_lozJCUrG";
   const TABLE_NAME = "sheets";
@@ -14,7 +13,6 @@
   const SEARCH_BASE = window.SHEET_CONFIG.searchBase;
   const DATA_URL = window.SHEET_CONFIG.dataUrl;
 
-  // Avoid “supabase already declared” by never using global name as const.
   const sb = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
   if (!sb) {
     console.warn("Supabase client not available. Check the CDN script or config.");
@@ -58,11 +56,10 @@
   // STATE
   // =========================
   let SHEET = [];
-  let selections = {}; // { key: rating } where key includes col
+  let selections = {}; 
   let sharedId = null;
   let tooltipEl = null;
 
-  // rating ids
   const RATINGS = [
     { id: "fav", className: "fav", label: "Favorite" },
     { id: "like", className: "like", label: "Like" },
@@ -86,8 +83,8 @@
 
     const t = document.createElement("div");
     t.className = "tooltip";
-    t.style.left = `${Math.min(x, window.innerWidth - 380)}px`;
-    t.style.top = `${Math.min(y, window.innerHeight - 190)}px`;
+    t.style.left = `${Math.min(x, window.innerWidth - 300)}px`;
+    t.style.top = `${Math.min(y, window.innerHeight - 150)}px`;
 
     t.innerHTML = `
       <p class="tooltipTitle"></p>
@@ -113,7 +110,6 @@
   }
 
   document.addEventListener("click", (e) => {
-    // click outside tooltip closes it
     if (!tooltipEl) return;
     if (tooltipEl.contains(e.target)) return;
     if (e.target?.classList?.contains("infoBtn")) return;
@@ -151,7 +147,7 @@
     if (!SHEET.length) {
       const d = document.createElement("div");
       d.className = "card";
-      d.innerHTML = `<div class="section">No data loaded. Check that <b>INTIMACY.txt</b> exists next to <b>index.html</b>.</div>`;
+      d.innerHTML = `<div class="section">No data loaded. Check that <b>INTIMACY.txt</b> exists.</div>`;
       root.appendChild(d);
       return;
     }
@@ -176,7 +172,7 @@
       help.className = "catHelpBtn";
       help.textContent = "?";
       help.title = "Category info";
-      help.addEventListener("click", (e) => {
+      help.addEventListener("click", () => {
         const r = help.getBoundingClientRect();
         openTooltip({
           title: cat.title,
@@ -254,7 +250,6 @@
           leftCell.appendChild(name);
           row.appendChild(leftCell);
 
-          // one dots group per column
           for (const colName of cols) {
             const dotsWrap = document.createElement("div");
             dotsWrap.className = "dots";
@@ -269,34 +264,25 @@
               b.setAttribute("aria-label", `${item.name} (${colName}) → ${r.label}`);
 
               const dot = document.createElement("span");
-              dot.className = `dot ${r.className} state` + (current === r.id ? " selected" : "");
-              dot.dataset.key = itemKey;
-              dot.dataset.rating = r.id;
-
+              dot.className = `dot ${r.className}` + (current === r.id ? " selected" : "");
+              
               b.appendChild(dot);
-
               b.addEventListener("click", () => {
                 selections[itemKey] = r.id;
                 saveLocalDebounced();
-                // update this row only (cheap)
-                dotsWrap.querySelectorAll(".dot").forEach(d => {
-                  d.classList.toggle("selected", d.dataset.rating === selections[itemKey]);
-                });
+                // update visually
+                dotsWrap.querySelectorAll(".dot").forEach(d => d.classList.remove("selected"));
+                dot.classList.add("selected");
               });
-
               dotsWrap.appendChild(b);
             }
-
             row.appendChild(dotsWrap);
           }
-
           table.appendChild(row);
         }
-
         sec.appendChild(table);
         card.appendChild(sec);
       }
-
       root.appendChild(card);
     }
   }
@@ -319,31 +305,79 @@
   }
 
   // =========================
-  // EXPORT PDF
+  // CSV EXPORT LOGIC (Text Based)
   // =========================
-  function exportPdf() {
-    // browser print uses the live DOM → your current selections
-    window.print();
+  function exportCsv() {
+    if (!SHEET.length) {
+      alert("No data to export.");
+      return;
+    }
+
+    // Prepare headers for CSV
+    // Format: Category, Section, Item, Context (Self/Partner), Rating (Text)
+    const rows = [["Category", "Section", "Item", "Context", "Rating"]];
+    const safe = (str) => `"${(str || "").replace(/"/g, '""')}"`;
+
+    let count = 0;
+
+    // Loop through all data to find what user selected
+    for (const cat of SHEET) {
+      for (const section of cat.sections) {
+        for (const item of section.items) {
+          for (const colName of section.columns) {
+            const k = keyFor(cat.title, section.title, colName, item.name);
+            const val = selections[k];
+
+            // If user selected something (and it's not "empty")
+            if (val && val !== "empty") {
+              // Convert "fav" (color code) to "Favorite" (readable text)
+              const rObj = RATINGS.find(r => r.id === val);
+              const label = rObj ? rObj.label : val;
+
+              rows.push([
+                safe(cat.title),
+                safe(section.title),
+                safe(item.name),
+                safe(colName),
+                safe(label) // <--- This is where Color becomes Text
+              ]);
+              count++;
+            }
+          }
+        }
+      }
+    }
+
+    if (count === 0) {
+      alert("No selections found. Select some items before exporting.");
+      return;
+    }
+
+    // Create CSV file string
+    const csvContent = rows.map(e => e.join(",")).join("\n");
+    
+    // Trigger download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "MySheet_Export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   // =========================
-  // CUSTOMIZE (simple, safe)
+  // CUSTOMIZE
   // =========================
   function showCustomizeModal() {
-    // Not doing heavy editing UI yet. This keeps it stable.
     const back = document.createElement("div");
     back.className = "modalBack";
     const modal = document.createElement("div");
     modal.className = "modal";
     modal.innerHTML = `
       <h3>Customize</h3>
-      <p>
-        For now, customization is done by editing <b>INTIMACY.txt</b>.
-        Keep the same format:
-        <br><br>
-        <code>SECTION</code><br>
-        <code>* Item name - Short explanation</code>
-      </p>
+      <p>Edit <b>INTIMACY.txt</b> to change categories/items.</p>
       <div class="modalActions">
         <button id="closeModal" class="secondary">Close</button>
       </div>
@@ -351,12 +385,8 @@
     document.body.appendChild(back);
     document.body.appendChild(modal);
     back.style.display = "block";
-    modal.style.display = "block";
-
-    function close() {
-      back.remove();
-      modal.remove();
-    }
+    
+    const close = () => { back.remove(); modal.remove(); };
     back.addEventListener("click", close);
     modal.querySelector("#closeModal").addEventListener("click", close);
   }
@@ -367,75 +397,67 @@
   async function boot() {
     setStatus("Loading data…");
 
-    // Load data txt
     try {
       const res = await fetch(`${DATA_URL}?v=${Date.now()}`);
-      if (!res.ok) throw new Error(`Failed to fetch ${DATA_URL} (${res.status})`);
+      if (!res.ok) throw new Error(`Failed to fetch ${DATA_URL}`);
       const raw = await res.text();
       SHEET = window.parseSheetFromTxt(raw);
-
-      if (!SHEET.length) {
-        setStatus("Loaded file, but parsed 0 categories. Check the INTIMACY.txt format.");
-      } else {
-        setStatus(`Loaded ${SHEET.length} categories.`);
-      }
+      setStatus(SHEET.length ? `Loaded ${SHEET.length} categories.` : "Loaded empty file.");
     } catch (e) {
       console.error(e);
       setStatus(`Data load failed: ${e.message}`);
       SHEET = [];
     }
 
-    // Local first
     loadLocal();
 
-    // If shared link id exists, load it (overwrites local selections)
     sharedId = qs("id");
     if (sharedId) {
       try {
         setStatus("Loading shared sheet…");
         const remote = await loadSheet(sharedId);
-        if (remote && typeof remote === "object") {
+        if (remote) {
           selections = remote;
-          setStatus("Loaded shared sheet. Edit locally and click GET LINK to create your own share link.");
-        } else {
-          setStatus("Share link exists but has no data.");
+          setStatus("Loaded shared sheet.");
         }
       } catch (e) {
-        console.error(e);
-        setStatus(`Failed to load share: ${e.message}`);
+        setStatus(`Share load failed: ${e.message}`);
       }
     }
 
     render();
 
-    // Wire buttons
-    el("exportPdf").onclick = exportPdf;
-
+    // ============================================
+    // BUTTON WIRING (The Hijack)
+    // ============================================
+    
+    // We bind the CSV function to the "exportPdf" button ID.
+    // So the UI still says "Export PDF", but it downloads a CSV.
+    el("exportPdf").onclick = exportCsv; 
+    
+    el("customize").onclick = showCustomizeModal;
+    
     el("clearLocal").onclick = () => {
+      if(!confirm("Clear all local selections?")) return;
       localStorage.removeItem(LOCAL_KEY);
       selections = {};
-      closeTooltip();
       render();
       setStatus("Local draft cleared.");
     };
-
-    el("customize").onclick = showCustomizeModal;
 
     el("getLink").onclick = async () => {
       try {
         setStatus("Saving…");
         el("getLink").disabled = true;
-
         const id = makeId(10);
         await saveSheet(id, selections);
-
         const url = `${window.location.origin}${window.location.pathname}?id=${id}`;
         el("shareUrl").value = url;
         el("shareUrl").select();
         setStatus("Saved. Share the link.");
       } catch (e) {
         console.error(e);
-        setStatus(`Save failed: ${e.message || "Unknown error"}`);
+        setStatus("Save failed.");
       } finally {
         el("getLink").disabled = false;
       }
